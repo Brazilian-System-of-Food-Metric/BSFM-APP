@@ -463,6 +463,48 @@
                             <p class="text-xs mt-1" style="color: var(--text-secondary);">Proteínas, Carbos, Gorduras</p>
                         </div>
                     </div>
+                    
+                    <!-- ====== NOVO: FEEDBACK DA IA NUTRICIONAL ====== -->
+                    <div id="feedbackIA" class="hidden mt-5 p-5 rounded-2xl" style="background: var(--bg); border: 1px solid var(--border);">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-robot text-emerald-500 text-lg"></i>
+                                <span class="font-bold text-sm" style="color: var(--text);">Análise da IA Nutricional</span>
+                            </div>
+                            <!-- Score Badge -->
+                            <div id="scoreBadge" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold">
+                                <span id="scoreValue">0</span><span class="opacity-70">/10</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Status: Pode Consumir -->
+                        <div id="statusConsumo" class="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold">
+                            <i id="statusIcon" class="fas fa-check-circle"></i>
+                            <span id="statusTexto">Analisando...</span>
+                        </div>
+                        
+                        <!-- Análise em relação à meta -->
+                        <div class="mb-3">
+                            <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">
+                                <i class="fas fa-bullseye mr-1"></i>Em relação à sua meta
+                            </p>
+                            <p id="analiseMeta" class="text-sm leading-relaxed" style="color: var(--text);">
+                                Aguardando análise...
+                            </p>
+                        </div>
+                        
+                        <!-- Dica BSFM -->
+                        <div class="p-3 rounded-xl" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15);">
+                            <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">
+                                <i class="fas fa-lightbulb mr-1"></i>Dica BSFM
+                            </p>
+                            <p id="dicaBSFM" class="text-sm leading-relaxed" style="color: var(--text);">
+                                Aguardando dica personalizada...
+                            </p>
+                        </div>
+                    </div>
+                    <!-- ====== FIM FEEDBACK IA ====== -->
+                    
                     <div class="mt-4 pt-4 text-center" style="border-top: 1px solid var(--border);">
                         <p class="text-xs italic" style="color: var(--text-secondary);">
                             <i class="fas fa-info-circle mr-1"></i>
@@ -611,6 +653,49 @@
                     `P: <span class="text-slate-800">${info.proteinas.toFixed(1)}g</span> | ` +
                     `C: <span class="text-slate-800">${info.carbos.toFixed(1)}g</span> | ` +
                     `G: <span class="text-slate-800">${info.gorduras.toFixed(1)}g</span>`;
+                
+                // ====== NOVO: Exibir feedback da IA Nutricional ======
+                if (info.podeConsumir !== undefined && info.podeConsumir !== null) {
+                    const feedbackDiv = document.getElementById('feedbackIA');
+                    feedbackDiv.classList.remove('hidden');
+                    
+                    // Score
+                    const score = info.pontuacaoSaude || 0;
+                    document.getElementById('scoreValue').innerText = score;
+                    const scoreBadge = document.getElementById('scoreBadge');
+                    if (score >= 7) {
+                        scoreBadge.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700';
+                    } else if (score >= 4) {
+                        scoreBadge.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700';
+                    } else {
+                        scoreBadge.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-700';
+                    }
+                    
+                    // Status consumo
+                    const statusDiv = document.getElementById('statusConsumo');
+                    const statusIcon = document.getElementById('statusIcon');
+                    const statusTexto = document.getElementById('statusTexto');
+                    if (info.podeConsumir === true) {
+                        statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-emerald-100 text-emerald-700';
+                        statusIcon.className = 'fas fa-check-circle';
+                        statusTexto.innerText = '✅ Pode consumir! Opção saudável.';
+                    } else if (info.podeConsumir === false) {
+                        statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-red-100 text-red-700';
+                        statusIcon.className = 'fas fa-times-circle';
+                        statusTexto.innerText = '⚠️ Evite consumir. Não é recomendado.';
+                    } else {
+                        statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-amber-100 text-amber-700';
+                        statusIcon.className = 'fas fa-exclamation-circle';
+                        statusTexto.innerText = '⚖️ Consuma com moderação.';
+                    }
+                    
+                    // Análise em relação à meta
+                    document.getElementById('analiseMeta').innerText = info.analiseEmRelacaoAMeta || 'Análise personalizada não disponível.';
+                    
+                    // Dica BSFM
+                    document.getElementById('dicaBSFM').innerText = info.dicaBSFM || 'Dica não disponível no momento.';
+                }
+                // ====== FIM FEEDBACK IA ======
                 
                 document.getElementById('resultado').classList.remove('hidden');
                 document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'center' });

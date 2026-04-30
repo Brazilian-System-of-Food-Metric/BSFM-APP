@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS "Usuarios" (
     "Altura" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "TipoPessoa" TEXT NOT NULL DEFAULT 'Sedentário',
     "Intolerancia" TEXT NOT NULL DEFAULT '',
+    "Diabetes" TEXT NOT NULL DEFAULT 'Não informado',
     "IMC" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "TMB" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "GastoTotal" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -88,7 +89,11 @@ CREATE TABLE IF NOT EXISTS "AnalisesIA" (
     "Carbos" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "Gorduras" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "Porcao" TEXT NOT NULL DEFAULT '',
-    "DataAnalise" TIMESTAMP NOT NULL DEFAULT NOW()
+    "DataAnalise" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "PodeConsumir" BOOLEAN DEFAULT NULL,
+    "PontuacaoSaude" INTEGER NOT NULL DEFAULT 0,
+    "AnaliseEmRelacaoAMeta" TEXT NOT NULL DEFAULT '',
+    "DicaBSFM" TEXT NOT NULL DEFAULT ''
 );
 
 -- ============================================================

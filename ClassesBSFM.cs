@@ -32,6 +32,7 @@ namespace ClassesBSFM
         public double Altura { get; set; }
         public string TipoPessoa { get; set; } = "Sedentário";
         public string Intolerancia { get; set; } = string.Empty; 
+        public string Diabetes { get; set; } = "Não informado";
         
         public double IMC { get; set; }
         public double TMB { get; set; }
@@ -251,6 +252,12 @@ namespace ClassesBSFM
     public double Gorduras { get; set; }
     public string Porcao { get; set; } = string.Empty;
     public DateTime DataAnalise { get; set; } = DateTime.Now; // Usado para exclusão
+    
+    // NOVOS CAMPOS: Feedback da IA Nutricional (Groq Llama 3)
+    public bool? PodeConsumir { get; set; } // true = pode, false = evitar, null = moderado
+    public int PontuacaoSaude { get; set; } // 0-10
+    public string AnaliseEmRelacaoAMeta { get; set; } = string.Empty; // Texto explicativo
+    public string DicaBSFM { get; set; } = string.Empty; // Dica prática do nutricionista
 }
 
 public class HistoricoProgresso

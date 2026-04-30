@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using ClassesBSFM;
 using PonteBanco;
 using System.Linq;
-using BSFM.Services; 
+using BSFM.Services;
+using BSFM.CoreAnalytics.Backend.Services;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,14 @@ builder.Services.AddHostedService<LimpezaAnalisesService>();
 builder.Services.AddSingleton<BSFM.Services.YoloInferenceService>();
 builder.Services.AddHttpClient<BSFM.Services.UsdaNutritionService>();
 builder.Services.AddDbContext<PonteDB>();
+
+// ====== NOVO: Registro do NutriBrainService (Groq) para feedback IA nos pratos ======
+builder.Services.AddScoped<BSFM.CoreAnalytics.Backend.Services.ContextInjectorService>();
+builder.Services.AddHttpClient<BSFM.CoreAnalytics.Backend.Services.NutriBrainService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(20);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
 var app = builder.Build();
 
@@ -242,14 +251,18 @@ app.MapPost("/redefinir-senha", (RedefinicaoSenhaDTO req) => {
         return Results.Json(new { mensagem = "Erro ao conectar com o banco de dados." }, statusCode: 500);
     }
 });
-// Outras rotas permanecem...
- app.MapPost("/analisar-prato", async (
+// ============================================================
+// ROTA: ANALISAR PRATO (YOLO + USDA + GROQ FEEDBACK IA)
+// ============================================================
+app.MapPost("/analisar-prato", async (
     [FromForm] IFormFile foto, 
     [FromForm] string porcao, 
     [FromForm] int usuarioId, 
     BSFM.Services.YoloInferenceService yolo, 
     BSFM.Services.UsdaNutritionService nutri, 
-    PonteBanco.PonteDB db) => // Mantido conforme seu print
+    PonteBanco.PonteDB db,
+    BSFM.CoreAnalytics.Backend.Services.ContextInjectorService contextInjector,
+    BSFM.CoreAnalytics.Backend.Services.NutriBrainService nutriBrain) =>
 {
     // Validação de entrada: Evita erros se o usuário enviar sem foto
     if (foto == null || foto.Length == 0) 
@@ -259,7 +272,7 @@ app.MapPost("/redefinir-senha", (RedefinicaoSenhaDTO req) => {
     await foto.CopyToAsync(ms);
     var imagemBytes = ms.ToArray();
     
-    // 1. Chamar a IA (Esta função no CS deve limpar as aspas agora!)
+    // 1. Chamar a IA (YOLO)
     var alimentosPt = yolo.DetectarAlimentos(imagemBytes);
 
     Console.WriteLine($"[IA RESULT] Itens encontrados: {(alimentosPt.Any() ? string.Join(", ", alimentosPt) : "NADA")}");
@@ -276,18 +289,14 @@ app.MapPost("/redefinir-senha", (RedefinicaoSenhaDTO req) => {
     // 2. Loop para cada alimento detectado
     foreach (var nomePt in alimentosPt)
     {
-        // 2.1 TRADUÇÃO REVERSA INTELIGENTE (Pega a CHAVE em inglês)
-        // Adicionei um .Trim() para garantir que nenhuma sujeira entre no USDA
         string nomeEn = BSFM.Services.YoloInferenceService.Tradutor
                         .FirstOrDefault(x => x.Value.Equals(nomePt, StringComparison.OrdinalIgnoreCase)).Key 
                         ?? nomePt.Replace("'", "").Trim();
 
-        // 2.2 Busca nutricional (Ex: "steak")
         var d = await nutri.BuscarNutrientes(nomeEn);
         
         if (d != null) 
         {
-            // Note: Usei a sua escala de porções corrigida (muito melhor para frutas e pratos individuais)
             double mult = porcao.ToLower() switch { "pequeno" => 0.75, "medio" => 1.0, "grande" => 1.8, _ => 1.0 };
             caloriasTotal += (d.Calorias100g * mult);
             protTotal += (d.Proteinas100g * mult);
@@ -300,11 +309,10 @@ app.MapPost("/redefinir-senha", (RedefinicaoSenhaDTO req) => {
         }
     }
 
-    // Se nenhum item foi achado no banco americano, avisamos o usuário
     if (!aoMenosUmSucesso)
         return Results.Json(new { mensagem = $"Não conseguimos dados nutricionais para: {string.Join(", ", alimentosPt)}" }, statusCode: 404);
 
-    // 3. PERSISTÊNCIA NO POSTGRESQL (A grande vantagem do seu sistema)
+    // 3. PERSISTÊNCIA NO POSTGRESQL
     var analiseFinal = new ClassesBSFM.AnaliseIA {
         UsuarioID = usuarioId,
         Alimento = string.Join(", ", alimentosPt),
@@ -315,6 +323,47 @@ app.MapPost("/redefinir-senha", (RedefinicaoSenhaDTO req) => {
         Gorduras = Math.Round(gordTotal, 2),
         DataAnalise = DateTime.Now
     };
+
+    // 4. FEEDBACK DA IA NUTRICIONAL (Groq Llama 3)
+    try
+    {
+        Console.WriteLine("[NUTRIBRAIN] Gerando feedback IA para o prato analisado...");
+        
+        // 4.1 Busca contexto do usuário
+        var userContext = await contextInjector.BuildContextAsync(usuarioId);
+        
+        // 4.2 Monta o texto OCR simulado com os macros detectados
+        var textoMacros = $@"
+Alimentos detectados: {string.Join(", ", alimentosPt)}
+Porção: {porcao}
+Calorias: {Math.Round(caloriasTotal, 0)}kcal
+Proteínas: {Math.Round(protTotal, 1)}g
+Carboidratos: {Math.Round(carbTotal, 1)}g
+Gorduras: {Math.Round(gordTotal, 1)}g
+";
+        
+        // 4.3 Monta SystemPrompt personalizado
+        var systemPrompt = contextInjector.BuildSystemPrompt(userContext);
+        
+        // 4.4 Envia para o Groq
+        var feedback = await nutriBrain.AnalisarRotuloAsync(textoMacros, systemPrompt);
+        
+        // 4.5 Preenche os campos de feedback na análise
+        analiseFinal.PodeConsumir = feedback.PodeConsumir;
+        analiseFinal.PontuacaoSaude = feedback.PontuacaoSaude;
+        analiseFinal.AnaliseEmRelacaoAMeta = feedback.AnaliseEmRelacaoAMeta ?? "";
+        analiseFinal.DicaBSFM = feedback.DicaBSFM ?? "";
+        
+        Console.WriteLine($"[NUTRIBRAIN] Feedback gerado: Score={feedback.PontuacaoSaude}, PodeConsumir={feedback.PodeConsumir}");
+    }
+    catch (Exception ex)
+    {
+        // Se o Groq falhar, ainda salvamos a análise sem feedback
+        Console.WriteLine($"[NUTRIBRAIN AVISO] Feedback IA não disponível: {ex.Message}");
+        analiseFinal.PontuacaoSaude = 0;
+        analiseFinal.AnaliseEmRelacaoAMeta = "Feedback da IA não disponível no momento.";
+        analiseFinal.DicaBSFM = "Tente novamente mais tarde para obter uma análise personalizada.";
+    }
 
     try {
         db.AnalisesIA.Add(analiseFinal);
@@ -668,6 +717,98 @@ app.MapDelete("/remover-refeicao-semana/{id}", async (int id, PonteBanco.PonteDB
     {
         Console.WriteLine($"[ERRO] /remover-refeicao-semana: {ex.Message}");
         return Results.Json(new { mensagem = "Erro ao remover refeição." }, statusCode: 500);
+    }
+});
+
+// ============================================================
+// NOVA ROTA: Análise de Rótulos (OCR + Groq Llama 3)
+// POST /api/rotulo/analisar
+// Body: { usuarioId: int, textoOcr: string }
+// ============================================================
+app.MapPost("/api/rotulo/analisar", async (
+    BSFM.CoreAnalytics.Backend.Controllers.AnalisarRotuloRequest request,
+    BSFM.CoreAnalytics.Backend.Services.ContextInjectorService contextInjector,
+    BSFM.CoreAnalytics.Backend.Services.NutriBrainService nutriBrain,
+    PonteBanco.PonteDB db,
+    ILogger<Program> logger) =>
+{
+    // Validações
+    if (request.UsuarioId <= 0)
+        return Results.BadRequest(new { mensagem = "ID do usuário inválido." });
+
+    if (string.IsNullOrWhiteSpace(request.TextoOcr))
+        return Results.BadRequest(new { mensagem = "Texto OCR não pode estar vazio. Capture a foto do rótulo primeiro." });
+
+    if (request.TextoOcr.Length < 10)
+        return Results.BadRequest(new { mensagem = "Texto OCR muito curto. Tente uma foto mais nítida da tabela nutricional." });
+
+    try
+    {
+        logger.LogInformation("[ROTULO] Iniciando análise para usuário {UsuarioId}", request.UsuarioId);
+
+        // 1. Busca contexto do usuário
+        var userContext = await contextInjector.BuildContextAsync(request.UsuarioId);
+
+        // 2. Monta SystemPrompt personalizado
+        var systemPrompt = contextInjector.BuildSystemPrompt(userContext);
+
+        // 3. Envia para o Groq
+        var resultado = await nutriBrain.AnalisarRotuloAsync(request.TextoOcr, systemPrompt);
+
+        // 4. Salva no histórico
+        try
+        {
+            var analise = new ClassesBSFM.AnaliseIA
+            {
+                UsuarioID = request.UsuarioId,
+                Alimento = resultado.ProdutoDetectado ?? "Rótulo escaneado",
+                Porcao = "N/A",
+                Calorias = 0,
+                Proteinas = 0,
+                Carbos = 0,
+                Gorduras = 0,
+                DataAnalise = DateTime.Now,
+                PodeConsumir = resultado.PodeConsumir,
+                PontuacaoSaude = resultado.PontuacaoSaude,
+                AnaliseEmRelacaoAMeta = resultado.AnaliseEmRelacaoAMeta ?? "",
+                DicaBSFM = resultado.DicaBSFM ?? ""
+            };
+
+            db.AnalisesIA.Add(analise);
+            await db.SaveChangesAsync();
+            logger.LogInformation("[ROTULO] Análise salva no histórico com ID {AnaliseId}", analise.ID);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "[ROTULO] Não foi possível salvar análise no histórico");
+        }
+
+        logger.LogInformation("[ROTULO] Análise concluída: {Produto} - Score: {Score}", 
+            resultado.ProdutoDetectado, resultado.PontuacaoSaude);
+
+        return Results.Ok(new
+        {
+            produtoDetectado = resultado.ProdutoDetectado,
+            podeConsumir = resultado.PodeConsumir,
+            pontuacaoSaude = resultado.PontuacaoSaude,
+            analiseEmRelacaoAMeta = resultado.AnaliseEmRelacaoAMeta,
+            dicaBSFM = resultado.DicaBSFM
+        });
+    }
+    catch (ArgumentException ex)
+    {
+        logger.LogWarning(ex, "[ROTULO] Usuário não encontrado: {UsuarioId}", request.UsuarioId);
+        return Results.NotFound(new { mensagem = ex.Message });
+    }
+    catch (HttpRequestException ex)
+    {
+        logger.LogError(ex, "[ROTULO] Erro de comunicação com Groq");
+        return Results.Json(new { mensagem = "Serviço de IA temporariamente indisponível. Tente novamente em alguns segundos." }, statusCode: 502);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "[ROTULO] Erro interno ao analisar rótulo");
+        return Results.Json(new { mensagem = "Erro interno ao analisar o rótulo. Tente novamente." }, statusCode: 500);
     }
 });
 
