@@ -76,6 +76,82 @@ using (var scope = app.Services.CreateScope()) {
         {
             db.Database.EnsureCreated();
             Console.WriteLine("[POSTGRES] Banco de dados conectado e tabelas criadas com sucesso!");
+            
+            // ====== MIGRAÇÕES AUTOMÁTICAS PARA TABELAS EXISTENTES ======
+            try
+            {
+                // Migração 1: Adicionar coluna Diabetes na tabela Usuarios (se não existir)
+                var cmd1 = db.Database.GetDbConnection().CreateCommand();
+                cmd1.CommandText = @"
+                    DO $$ 
+                    BEGIN 
+                        IF NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns 
+                            WHERE table_name = 'Usuarios' AND column_name = 'Diabetes'
+                        ) THEN
+                            ALTER TABLE ""Usuarios"" ADD COLUMN ""Diabetes"" VARCHAR(50) NOT NULL DEFAULT 'Não informado';
+                        END IF;
+                    END $$;
+                ";
+                cmd1.ExecuteNonQuery();
+                Console.WriteLine("[MIGRATION] Coluna 'Diabetes' verificada/criada na tabela Usuarios.");
+
+                // Migração 2: Adicionar coluna Intolerancia na tabela Usuarios (se não existir)
+                var cmd2 = db.Database.GetDbConnection().CreateCommand();
+                cmd2.CommandText = @"
+                    DO $$ 
+                    BEGIN 
+                        IF NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns 
+                            WHERE table_name = 'Usuarios' AND column_name = 'Intolerancia'
+                        ) THEN
+                            ALTER TABLE ""Usuarios"" ADD COLUMN ""Intolerancia"" TEXT NOT NULL DEFAULT '';
+                        END IF;
+                    END $$;
+                ";
+                cmd2.ExecuteNonQuery();
+                Console.WriteLine("[MIGRATION] Coluna 'Intolerancia' verificada/criada na tabela Usuarios.");
+
+                // Migração 3: Adicionar colunas de feedback IA na tabela AnalisesIA (se não existirem)
+                var cmd3 = db.Database.GetDbConnection().CreateCommand();
+                cmd3.CommandText = @"
+                    DO $$ 
+                    BEGIN 
+                        IF NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns 
+                            WHERE table_name = 'analises_ia' AND column_name = 'PodeConsumir'
+                        ) THEN
+                            ALTER TABLE ""analises_ia"" ADD COLUMN ""PodeConsumir"" BOOLEAN DEFAULT NULL;
+                        END IF;
+                        IF NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns 
+                            WHERE table_name = 'analises_ia' AND column_name = 'PontuacaoSaude'
+                        ) THEN
+                            ALTER TABLE ""analises_ia"" ADD COLUMN ""PontuacaoSaude"" INTEGER NOT NULL DEFAULT 0;
+                        END IF;
+                        IF NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns 
+                            WHERE table_name = 'analises_ia' AND column_name = 'AnaliseEmRelacaoAMeta'
+                        ) THEN
+                            ALTER TABLE ""analises_ia"" ADD COLUMN ""AnaliseEmRelacaoAMeta"" TEXT NOT NULL DEFAULT '';
+                        END IF;
+                        IF NOT EXISTS (
+                            SELECT 1 FROM information_schema.columns 
+                            WHERE table_name = 'analises_ia' AND column_name = 'DicaBSFM'
+                        ) THEN
+                            ALTER TABLE ""analises_ia"" ADD COLUMN ""DicaBSFM"" TEXT NOT NULL DEFAULT '';
+                        END IF;
+                    END $$;
+                ";
+                cmd3.ExecuteNonQuery();
+                Console.WriteLine("[MIGRATION] Colunas de feedback IA verificadas/criadas na tabela analises_ia.");
+            }
+            catch (Exception migEx)
+            {
+                Console.WriteLine($"[MIGRATION AVISO] Migrações automáticas: {migEx.Message}");
+                // Não trava o startup se as migrações falharem
+            }
+
             break;
         }
         catch (Exception ex)
