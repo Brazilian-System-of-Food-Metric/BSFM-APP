@@ -294,7 +294,7 @@ namespace BSFM.CoreAnalytics.Backend.Services
     public class GroqUsage
     {
         [JsonPropertyName("queue_time")]
-        public long QueueTime { get; set; }
+        public double QueueTime { get; set; }
 
         [JsonPropertyName("prompt_tokens")]
         public int PromptTokens { get; set; }
@@ -306,6 +306,6 @@ namespace BSFM.CoreAnalytics.Backend.Services
         public int TotalTokens { get; set; }
 
         [JsonPropertyName("total_time")]
-        public long TotalTime { get; set; }
+        public double TotalTime { get; set; }
     }
 }

@@ -888,9 +888,63 @@ app.MapPost("/api/rotulo/analisar", async (
     }
 });
 
+// ============================================================
+// ROTAS: DADOS DE SAÚDE DO USUÁRIO (Diabetes, Intolerância)
+// GET /api/saude/{id} - Retorna diabetes e intolerancia
+// PUT /api/saude/atualizar - Atualiza diabetes e intolerancia
+// ============================================================
+
+// GET /api/saude/{id} - Retorna dados de saúde do usuário
+app.MapGet("/api/saude/{id}", async (int id, PonteBanco.PonteDB db) => {
+    try {
+        var user = await db.Usuarios.FindAsync(id);
+        if (user == null)
+            return Results.NotFound(new { mensagem = "Usuário não encontrado." });
+        
+        return Results.Ok(new {
+            diabetes = user.Diabetes ?? "Não informado",
+            intolerancia = user.Intolerancia ?? ""
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERRO] /api/saude/{id}: {ex.Message}");
+        return Results.Json(new { mensagem = "Erro ao buscar dados de saúde." }, statusCode: 500);
+    }
+});
+
+// PUT /api/saude/atualizar - Atualiza diabetes e intolerancia
+app.MapPut("/api/saude/atualizar", async (AtualizarSaudeDTO dto, PonteBanco.PonteDB db) => {
+    try {
+        var user = await db.Usuarios.FindAsync(dto.UsuarioId);
+        if (user == null)
+            return Results.NotFound(new { mensagem = "Usuário não encontrado." });
+        
+        if (!string.IsNullOrEmpty(dto.Diabetes))
+            user.Diabetes = dto.Diabetes;
+        
+        if (dto.Intolerancia != null)
+            user.Intolerancia = dto.Intolerancia;
+        
+        await db.SaveChangesAsync();
+        
+        return Results.Ok(new { 
+            mensagem = "Dados de saúde atualizados com sucesso!",
+            diabetes = user.Diabetes,
+            intolerancia = user.Intolerancia
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERRO] /api/saude/atualizar: {ex.Message}");
+        return Results.Json(new { mensagem = "Erro ao atualizar dados de saúde." }, statusCode: 500);
+    }
+});
+
 app.Run(); // FINAL DO ARQUIVO
 
 // Modelos de dados (DTOs)
+public record AtualizarSaudeDTO(int UsuarioId, string? Diabetes, string? Intolerancia);
 public record LoginDTO(string Email, string Senha);
 public record SolicitacaoEmail(string Email);
 public record RedefinicaoSenha(string Email, string NovaSenha);
