@@ -176,7 +176,7 @@ namespace ClassesBSFM
         private static string apiKey => Environment.GetEnvironmentVariable("BREVO_API_KEY") ?? "chave_nao_encontrada";
 
         // IMPORTANTE: Este e-mail deve ser o GMAIL que você validou no Brevo
-        private const string emailRemetente = "isaquemedeiros190406@gmail.com"; 
+        private const string emailRemetente = "brazilian.sfm@gmail.com"; 
 
         public static void EnviarToken(string emailDestino, string token)
         {
