@@ -166,15 +166,16 @@ O texto OCR abaixo pode vir bagunçado com caracteres estranhos. SUA TAREFA é:
 18. Seja direto e prático — o usuário quer saber se PODE ou NÃO consumir o produto.
 19. SEMPRE retorne APENAS um JSON válido, sem texto adicional, sem markdown, sem explicações fora do JSON.
 
-## EXEMPLO DE RESPOSTA ESPERADA:
-{ \"ProdutoDetectado\": \"Biscoito integral\", \"PodeConsumir\": true, \"PontuacaoSaude\": 7, \"AnaliseEmRelacaoAMeta\": \"Produto rico em fibras (24g) e com perfil calórico moderado. Compatível com sua meta de peso.\", \"DicaBSFM\": \"Consuma com moderação, até 5 unidades por dia.\" }
+## FORMATO DE RESPOSTA (JSON):
+Retorne APENAS um JSON válido com estes campos:
+- ProdutoDetectado: string (ex: Biscoito integral, ou Alimento industrializado se não identificar)
+- PodeConsumir: boolean ou null (true=pode, false=evitar, null=moderado)
+- PontuacaoSaude: número de 0 a 10 (0=péssimo, 10=excelente)
+- AnaliseEmRelacaoAMeta: string com análise em português
+- DicaBSFM: string com dica prática em português
 
-## IMPORTANTE:
-- ProdutoDetectado: Tente adivinhar o produto pelo contexto. Se não conseguir, use \"Alimento industrializado\".
-- PodeConsumir: true = pode, false = evitar, null = moderado.
-- PontuacaoSaude: 0-10 (0=péssimo, 10=excelente).
-- AnaliseEmRelacaoAMeta: Texto em português explicando a análise.
-- DicaBSFM: Dica prática em português.";
+## EXEMPLO:
+{""ProdutoDetectado"":""Biscoito integral"",""PodeConsumir"":true,""PontuacaoSaude"":7,""AnaliseEmRelacaoAMeta"":""Produto rico em fibras (24g) e com perfil calórico moderado."",""DicaBSFM"":""Consuma com moderação, até 5 unidades por dia.""}";
         }
     }
 

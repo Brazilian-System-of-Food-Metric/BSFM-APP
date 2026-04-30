@@ -118,9 +118,14 @@ namespace BSFM.CoreAnalytics.Backend.Services
 
                 _logger.LogInformation("[NUTRIBRAIN] Resposta recebida em {Tempo}ms", 
                     groqResponse?.Usage?.TotalTime ?? 0);
+                
+                // DEBUG: Log da resposta BRUTA do Groq
+                _logger.LogInformation("[NUTRIBRAIN DEBUG] Conteúdo bruto do Groq: {Content}", content);
 
                 // 4. Extrai o JSON da resposta (segurança contra texto extra)
                 var jsonLimpo = ExtrairJsonDaResposta(content);
+                
+                _logger.LogInformation("[NUTRIBRAIN DEBUG] JSON limpo extraído: {Json}", jsonLimpo);
 
                 // 5. Desserializa para o modelo de resposta
                 var resultado = JsonSerializer.Deserialize<RotuloResponse>(jsonLimpo, 
@@ -128,6 +133,7 @@ namespace BSFM.CoreAnalytics.Backend.Services
 
                 if (resultado == null)
                 {
+                    _logger.LogWarning("[NUTRIBRAIN] Falha ao desserializar. JSON limpo: {Json}", jsonLimpo);
                     throw new InvalidOperationException("Falha ao desserializar resposta do Groq.");
                 }
 
