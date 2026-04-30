@@ -1738,9 +1738,69 @@ Com Llama 3 70B ($0.59/1M tokens de input, $0.79/1M tokens de output):
 - [ ] Link no menu de navegação adicionado
 - [ ] Deploy no Render validado
 
+### 11.5 Migração de Banco de Dados (Bancos Existentes)
+
+Se você já tem um banco PostgreSQL rodando (Neon, Railway, etc.) e precisa adicionar as novas colunas sem recriar as tabelas, execute o script abaixo **UMA ÚNICA VEZ** no SQL Editor do seu banco:
+
+**Arquivo:** `script_migracao_unica.sql`
+
+```sql
+-- ============================================================
+-- SCRIPT DE MIGRAÇÃO ÚNICA - BSFM
+-- Execute APENAS UMA VEZ no SQL Editor do Neon (PostgreSQL)
+-- ============================================================
+
+-- 1. Colunas Diabetes e Intolerancia na tabela Usuarios
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'Usuarios' AND column_name = 'Diabetes'
+    ) THEN
+        ALTER TABLE "Usuarios" ADD COLUMN "Diabetes" VARCHAR(50) NOT NULL DEFAULT 'Não informado';
+    END IF;
+END $$;
+
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'Usuarios' AND column_name = 'Intolerancia'
+    ) THEN
+        ALTER TABLE "Usuarios" ADD COLUMN "Intolerancia" TEXT NOT NULL DEFAULT '';
+    END IF;
+END $$;
+
+-- 2. Colunas de Feedback IA na tabela analises_ia
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'analises_ia' AND column_name = 'PodeConsumir') THEN
+        ALTER TABLE "analises_ia" ADD COLUMN "PodeConsumir" BOOLEAN DEFAULT NULL;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'analises_ia' AND column_name = 'PontuacaoSaude') THEN
+        ALTER TABLE "analises_ia" ADD COLUMN "PontuacaoSaude" INTEGER NOT NULL DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'analises_ia' AND column_name = 'AnaliseEmRelacaoAMeta') THEN
+        ALTER TABLE "analises_ia" ADD COLUMN "AnaliseEmRelacaoAMeta" TEXT NOT NULL DEFAULT '';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'analises_ia' AND column_name = 'DicaBSFM') THEN
+        ALTER TABLE "analises_ia" ADD COLUMN "DicaBSFM" TEXT NOT NULL DEFAULT '';
+    END IF;
+END $$;
+```
+
+**Como executar:**
+1. Acesse o painel do Neon (ou seu provedor PostgreSQL)
+2. Abra o SQL Editor
+3. Cole o conteúdo do `script_migracao_unica.sql`
+4. Execute (Ctrl+Enter)
+5. Reinicie o servidor no Render (Deploy > Clear Build Cache & Deploy)
+
+> ⚠️ **Importante:** O `script_sql_completo.sql` já contém todas as colunas para **NOVOS** bancos. Use o `script_migracao_unica.sql` apenas em bancos **EXISTENTES** que foram criados antes das novas colunas.
+
 ---
 
 > **Documento gerado em:** 30/04/2026  
-> **Versão:** 1.0  
+> **Versão:** 1.1  
 > **Arquiteto:** BSFM Core Team  
 > **Próxima Revisão:** Após implementação e testes de integração

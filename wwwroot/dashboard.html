@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
+    <link rel="apple-touch-icon" href="icons/Iconebsfm.png">
     <title>BSFM - Painel de Controle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -310,6 +310,69 @@
                 </div>
             </div>
         </section>
+
+        <!-- ====== SEÇÃO DIFERENCIADA: FERRAMENTAS INTELIGENTES ====== -->
+        <section class="mt-8 md:mt-12 opacity-0 animate-fade-in-up animate-delay-600">
+            <div class="flex items-center gap-3 mb-5 md:mb-6">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-lg shadow-purple-200"><i class="fas fa-brain text-white text-lg"></i></div>
+                <div>
+                    <h2 class="text-lg md:text-xl font-bold" style="color: var(--text);">Ferramentas Inteligentes</h2>
+                    <p class="text-xs" style="color: var(--text-secondary);">Análise avançada com Inteligência Artificial</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <!-- Card 1: Analisador de Rótulos (OCR + Groq) -->
+                <div class="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer" onclick="window.location.href='analisador-rotulo.html'" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); min-height: 200px;">
+                    <div class="absolute inset-0 opacity-10">
+                        <div class="absolute top-4 right-4 w-32 h-32 rounded-full bg-purple-400 blur-3xl"></div>
+                        <div class="absolute bottom-4 left-4 w-24 h-24 rounded-full bg-indigo-400 blur-2xl"></div>
+                    </div>
+                    <div class="relative z-10 p-6 md:p-8 flex flex-col h-full">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center border border-white/20">
+                                <i class="fas fa-qrcode text-white text-2xl"></i>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-purple-500/30 text-purple-200 text-[10px] font-bold uppercase tracking-wider border border-purple-400/30">NOVO</span>
+                        </div>
+                        <h3 class="text-white font-bold text-lg md:text-xl mb-2">Analisador de Rótulos</h3>
+                        <p class="text-purple-200/80 text-xs md:text-sm leading-relaxed flex-1">Escaneie a tabela nutricional com a câmera. O Tesseract.js extrai o texto no navegador e a IA Groq analisa se o produto é adequado para sua dieta.</p>
+                        <div class="mt-4 flex items-center gap-2 text-purple-300 text-xs font-semibold">
+                            <span class="flex items-center gap-1"><i class="fas fa-microchip"></i> OCR Local</span>
+                            <span class="w-1 h-1 rounded-full bg-purple-400"></span>
+                            <span class="flex items-center gap-1"><i class="fas fa-robot"></i> Groq IA</span>
+                            <span class="w-1 h-1 rounded-full bg-purple-400"></span>
+                            <span class="flex items-center gap-1"><i class="fas fa-bolt"></i> ~500ms</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Alerta de Saúde Pendente -->
+                <div class="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer" onclick="window.location.href='alerta-saude-pendente.html'" style="background: linear-gradient(135deg, #1c1917 0%, #292524 100%); min-height: 200px;">
+                    <div class="absolute inset-0 opacity-10">
+                        <div class="absolute top-4 left-4 w-32 h-32 rounded-full bg-amber-400 blur-3xl"></div>
+                        <div class="absolute bottom-4 right-4 w-24 h-24 rounded-full bg-orange-400 blur-2xl"></div>
+                    </div>
+                    <div class="relative z-10 p-6 md:p-8 flex flex-col h-full">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center border border-white/20">
+                                <i class="fas fa-heart-pulse text-white text-2xl"></i>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-amber-500/30 text-amber-200 text-[10px] font-bold uppercase tracking-wider border border-amber-400/30">SAÚDE</span>
+                        </div>
+                        <h3 class="text-white font-bold text-lg md:text-xl mb-2">Perfil de Saúde</h3>
+                        <p class="text-amber-200/80 text-xs md:text-sm leading-relaxed flex-1">Informe suas condições de saúde (diabetes, intolerâncias) para receber alertas personalizados na análise de alimentos. A IA considera seu perfil.</p>
+                        <div class="mt-4 flex items-center gap-2 text-amber-300 text-xs font-semibold">
+                            <span class="flex items-center gap-1"><i class="fas fa-droplet"></i> Diabetes</span>
+                            <span class="w-1 h-1 rounded-full bg-amber-400"></span>
+                            <span class="flex items-center gap-1"><i class="fas fa-ban"></i> Intolerâncias</span>
+                            <span class="w-1 h-1 rounded-full bg-amber-400"></span>
+                            <span class="flex items-center gap-1"><i class="fas fa-shield"></i> Alertas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- MODAIS -->
@@ -376,9 +439,41 @@
     async function inicializar() {
         if(!userLocal) { window.location.href = 'login.html'; return; }
         document.getElementById('dataHoje').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        
+        // Verifica se o usuário já preencheu os dados de saúde
+        await verificarSaudePendente();
+        
         await carregarDadosUsuario();
         await carregarAgua();
         await carregarAguaSemanal();
+    }
+
+    // ====== VERIFICAR SAÚDE PENDENTE ======
+    async function verificarSaudePendente() {
+        try {
+            const resp = await fetch(`${API_URL}/api/saude/${userLocal.id}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                // Se não tem diabetes E não tem intolerância, redireciona
+                const diabetesPreenchido = data.diabetes && data.diabetes !== 'Não informado' && data.diabetes !== '';
+                const intoleranciaPreenchida = data.intolerancia && data.intolerancia !== '';
+                
+                if (!diabetesPreenchido && !intoleranciaPreenchida) {
+                    // Mostra um alerta sutil antes de redirecionar
+                    const redirecionar = confirm(
+                        '📋 Seu Perfil de Saúde está incompleto!\n\n' +
+                        'Para receber análises nutricionais personalizadas, ' +
+                        'informe suas condições de saúde (diabetes, intolerâncias).\n\n' +
+                        'Deseja preencher agora?'
+                    );
+                    if (redirecionar) {
+                        window.location.href = 'alerta-saude-pendente.html';
+                    }
+                }
+            }
+        } catch(e) { 
+            console.warn('Não foi possível verificar saúde:', e); 
+        }
     }
 
     // ====== CARREGAR DADOS DO USUÁRIO ======

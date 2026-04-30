@@ -119,32 +119,32 @@ using (var scope = app.Services.CreateScope()) {
                     BEGIN 
                         IF NOT EXISTS (
                             SELECT 1 FROM information_schema.columns 
-                            WHERE table_name = 'analises_ia' AND column_name = 'PodeConsumir'
+                            WHERE table_name = 'AnalisesIA' AND column_name = 'PodeConsumir'
                         ) THEN
-                            ALTER TABLE ""analises_ia"" ADD COLUMN ""PodeConsumir"" BOOLEAN DEFAULT NULL;
+                            ALTER TABLE ""AnalisesIA"" ADD COLUMN ""PodeConsumir"" BOOLEAN DEFAULT NULL;
                         END IF;
                         IF NOT EXISTS (
                             SELECT 1 FROM information_schema.columns 
-                            WHERE table_name = 'analises_ia' AND column_name = 'PontuacaoSaude'
+                            WHERE table_name = 'AnalisesIA' AND column_name = 'PontuacaoSaude'
                         ) THEN
-                            ALTER TABLE ""analises_ia"" ADD COLUMN ""PontuacaoSaude"" INTEGER NOT NULL DEFAULT 0;
+                            ALTER TABLE ""AnalisesIA"" ADD COLUMN ""PontuacaoSaude"" INTEGER NOT NULL DEFAULT 0;
                         END IF;
                         IF NOT EXISTS (
                             SELECT 1 FROM information_schema.columns 
-                            WHERE table_name = 'analises_ia' AND column_name = 'AnaliseEmRelacaoAMeta'
+                            WHERE table_name = 'AnalisesIA' AND column_name = 'AnaliseEmRelacaoAMeta'
                         ) THEN
-                            ALTER TABLE ""analises_ia"" ADD COLUMN ""AnaliseEmRelacaoAMeta"" TEXT NOT NULL DEFAULT '';
+                            ALTER TABLE ""AnalisesIA"" ADD COLUMN ""AnaliseEmRelacaoAMeta"" TEXT NOT NULL DEFAULT '';
                         END IF;
                         IF NOT EXISTS (
                             SELECT 1 FROM information_schema.columns 
-                            WHERE table_name = 'analises_ia' AND column_name = 'DicaBSFM'
+                            WHERE table_name = 'AnalisesIA' AND column_name = 'DicaBSFM'
                         ) THEN
-                            ALTER TABLE ""analises_ia"" ADD COLUMN ""DicaBSFM"" TEXT NOT NULL DEFAULT '';
+                            ALTER TABLE ""AnalisesIA"" ADD COLUMN ""DicaBSFM"" TEXT NOT NULL DEFAULT '';
                         END IF;
                     END $$;
                 ";
                 cmd3.ExecuteNonQuery();
-                Console.WriteLine("[MIGRATION] Colunas de feedback IA verificadas/criadas na tabela analises_ia.");
+                Console.WriteLine("[MIGRATION] Colunas de feedback IA verificadas/criadas na tabela AnalisesIA.");
             }
             catch (Exception migEx)
             {
