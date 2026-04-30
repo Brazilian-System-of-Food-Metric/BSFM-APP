@@ -112,39 +112,39 @@ using (var scope = app.Services.CreateScope()) {
                 cmd2.ExecuteNonQuery();
                 Console.WriteLine("[MIGRATION] Coluna 'Intolerancia' verificada/criada na tabela Usuarios.");
 
-                // Migração 3: Adicionar colunas de feedback IA na tabela AnalisesIA (se não existirem)
+                // Migração 3: Adicionar colunas de feedback IA na tabela analises_ia (se não existirem)
                 var cmd3 = db.Database.GetDbConnection().CreateCommand();
                 cmd3.CommandText = @"
                     DO $$ 
                     BEGIN 
                         IF NOT EXISTS (
                             SELECT 1 FROM information_schema.columns 
-                            WHERE table_name = 'AnalisesIA' AND column_name = 'PodeConsumir'
+                            WHERE table_name = 'analises_ia' AND column_name = 'PodeConsumir'
                         ) THEN
-                            ALTER TABLE ""AnalisesIA"" ADD COLUMN ""PodeConsumir"" BOOLEAN DEFAULT NULL;
+                            ALTER TABLE ""analises_ia"" ADD COLUMN ""PodeConsumir"" BOOLEAN DEFAULT NULL;
                         END IF;
                         IF NOT EXISTS (
                             SELECT 1 FROM information_schema.columns 
-                            WHERE table_name = 'AnalisesIA' AND column_name = 'PontuacaoSaude'
+                            WHERE table_name = 'analises_ia' AND column_name = 'PontuacaoSaude'
                         ) THEN
-                            ALTER TABLE ""AnalisesIA"" ADD COLUMN ""PontuacaoSaude"" INTEGER NOT NULL DEFAULT 0;
+                            ALTER TABLE ""analises_ia"" ADD COLUMN ""PontuacaoSaude"" INTEGER NOT NULL DEFAULT 0;
                         END IF;
                         IF NOT EXISTS (
                             SELECT 1 FROM information_schema.columns 
-                            WHERE table_name = 'AnalisesIA' AND column_name = 'AnaliseEmRelacaoAMeta'
+                            WHERE table_name = 'analises_ia' AND column_name = 'AnaliseEmRelacaoAMeta'
                         ) THEN
-                            ALTER TABLE ""AnalisesIA"" ADD COLUMN ""AnaliseEmRelacaoAMeta"" TEXT NOT NULL DEFAULT '';
+                            ALTER TABLE ""analises_ia"" ADD COLUMN ""AnaliseEmRelacaoAMeta"" TEXT NOT NULL DEFAULT '';
                         END IF;
                         IF NOT EXISTS (
                             SELECT 1 FROM information_schema.columns 
-                            WHERE table_name = 'AnalisesIA' AND column_name = 'DicaBSFM'
+                            WHERE table_name = 'analises_ia' AND column_name = 'DicaBSFM'
                         ) THEN
-                            ALTER TABLE ""AnalisesIA"" ADD COLUMN ""DicaBSFM"" TEXT NOT NULL DEFAULT '';
+                            ALTER TABLE ""analises_ia"" ADD COLUMN ""DicaBSFM"" TEXT NOT NULL DEFAULT '';
                         END IF;
                     END $$;
                 ";
                 cmd3.ExecuteNonQuery();
-                Console.WriteLine("[MIGRATION] Colunas de feedback IA verificadas/criadas na tabela AnalisesIA.");
+                Console.WriteLine("[MIGRATION] Colunas de feedback IA verificadas/criadas na tabela analises_ia.");
             }
             catch (Exception migEx)
             {

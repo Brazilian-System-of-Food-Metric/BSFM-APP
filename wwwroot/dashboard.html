@@ -160,6 +160,36 @@
     </header>
 
     <div class="px-4 md:px-10 pb-12">
+        <!-- ====== ALERTA DE SAÚDE PENDENTE ====== -->
+        <div id="alertaSaudeBanner" class="mb-4 md:mb-6 opacity-0 animate-fade-in-up animate-delay-50" style="display: none;">
+            <div class="relative overflow-hidden rounded-2xl" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b;">
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-amber-400 blur-3xl"></div>
+                    <div class="absolute -bottom-6 -left-6 w-20 h-20 rounded-full bg-yellow-400 blur-2xl"></div>
+                </div>
+                <div class="relative z-10 p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-200">
+                        <i class="fas fa-heart-circle-exclamation text-white text-xl"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-bold text-base md:text-lg text-amber-900">Informações de Saúde Pendentes</h3>
+                        <p class="text-xs md:text-sm text-amber-800/80 leading-relaxed mt-0.5">
+                            Para uma análise nutricional mais precisa, conte-nos sobre suas condições de saúde. Isso ajuda nossa IA a personalizar recomendações para você.
+                        </p>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0 w-full sm:w-auto">
+                        <button onclick="window.location.href='alerta-saude-pendente.html'" class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-amber-600 text-white font-bold text-sm hover:bg-amber-700 transition active:scale-95 shadow-lg shadow-amber-200 flex items-center justify-center gap-2 min-h-[44px]">
+                            <i class="fas fa-pen"></i>
+                            <span>Preencher Agora</span>
+                        </button>
+                        <button onclick="fecharAlertaSaude()" class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 hover:bg-amber-200 transition flex items-center justify-center flex-shrink-0 min-w-[44px] min-h-[44px]" title="Fechar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- PROFILE CARD - REFORMULADO -->
         <section class="profile-card mb-6 md:mb-8 opacity-0 animate-fade-in-up animate-delay-100">
             <div class="relative z-10">
@@ -454,26 +484,23 @@
             const resp = await fetch(`${API_URL}/api/saude/${userLocal.id}`);
             if (resp.ok) {
                 const data = await resp.json();
-                // Se não tem diabetes E não tem intolerância, redireciona
+                // Verifica se intolerancia está em branco OU diabetes não está informado
                 const diabetesPreenchido = data.diabetes && data.diabetes !== 'Não informado' && data.diabetes !== '';
                 const intoleranciaPreenchida = data.intolerancia && data.intolerancia !== '';
                 
-                if (!diabetesPreenchido && !intoleranciaPreenchida) {
-                    // Mostra um alerta sutil antes de redirecionar
-                    const redirecionar = confirm(
-                        '📋 Seu Perfil de Saúde está incompleto!\n\n' +
-                        'Para receber análises nutricionais personalizadas, ' +
-                        'informe suas condições de saúde (diabetes, intolerâncias).\n\n' +
-                        'Deseja preencher agora?'
-                    );
-                    if (redirecionar) {
-                        window.location.href = 'alerta-saude-pendente.html';
-                    }
+                // Mostra o banner se intolerancia estiver em branco OU diabetes não informado
+                if (!intoleranciaPreenchida || !diabetesPreenchido) {
+                    document.getElementById('alertaSaudeBanner').style.display = 'block';
                 }
             }
         } catch(e) { 
             console.warn('Não foi possível verificar saúde:', e); 
         }
+    }
+
+    // ====== FECHAR ALERTA DE SAÚDE ======
+    function fecharAlertaSaude() {
+        document.getElementById('alertaSaudeBanner').style.display = 'none';
     }
 
     // ====== CARREGAR DADOS DO USUÁRIO ======

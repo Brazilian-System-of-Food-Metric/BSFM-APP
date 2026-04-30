@@ -82,9 +82,9 @@ namespace PonteBanco
         {
             // Ajuste para tabelas com nomes especiais
             modelBuilder.Entity<Refeição>().ToTable("Refeicoes");
-            // CORREÇÃO: Usa o nome padrão "AnalisesIA" (como foi criado pelo EnsureCreated)
-            // Se o banco já existe com esse nome, não podemos forçar "analises_ia"
-            modelBuilder.Entity<ClassesBSFM.AnaliseIA>().ToTable("AnalisesIA");
+            // CORREÇÃO: Usa "analises_ia" (minúsculo) que é como o banco real foi criado
+            // pelo EnsureCreated() ou pelo script_sql_criar_tabelas.sql
+            modelBuilder.Entity<ClassesBSFM.AnaliseIA>().ToTable("analises_ia");
             
             // Configuração das novas tabelas
             modelBuilder.Entity<CronogramaSemanal>()

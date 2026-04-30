@@ -42,12 +42,12 @@ DO $$
 BEGIN 
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'analises_ia' AND column_name = 'PodeConsumir'
+        WHERE table_name = 'AnalisesIA' AND column_name = 'PodeConsumir'
     ) THEN
-        ALTER TABLE "analises_ia" ADD COLUMN "PodeConsumir" BOOLEAN DEFAULT NULL;
-        RAISE NOTICE 'Coluna PodeConsumir adicionada em analises_ia';
+        ALTER TABLE "AnalisesIA" ADD COLUMN "PodeConsumir" BOOLEAN DEFAULT NULL;
+        RAISE NOTICE 'Coluna PodeConsumir adicionada em AnalisesIA';
     ELSE
-        RAISE NOTICE 'Coluna PodeConsumir já existe em analises_ia';
+        RAISE NOTICE 'Coluna PodeConsumir já existe em AnalisesIA';
     END IF;
 END $$;
 
@@ -55,12 +55,12 @@ DO $$
 BEGIN 
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'analises_ia' AND column_name = 'PontuacaoSaude'
+        WHERE table_name = 'AnalisesIA' AND column_name = 'PontuacaoSaude'
     ) THEN
-        ALTER TABLE "analises_ia" ADD COLUMN "PontuacaoSaude" INTEGER NOT NULL DEFAULT 0;
-        RAISE NOTICE 'Coluna PontuacaoSaude adicionada em analises_ia';
+        ALTER TABLE "AnalisesIA" ADD COLUMN "PontuacaoSaude" INTEGER NOT NULL DEFAULT 0;
+        RAISE NOTICE 'Coluna PontuacaoSaude adicionada em AnalisesIA';
     ELSE
-        RAISE NOTICE 'Coluna PontuacaoSaude já existe em analises_ia';
+        RAISE NOTICE 'Coluna PontuacaoSaude já existe em AnalisesIA';
     END IF;
 END $$;
 
@@ -68,12 +68,12 @@ DO $$
 BEGIN 
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'analises_ia' AND column_name = 'AnaliseEmRelacaoAMeta'
+        WHERE table_name = 'AnalisesIA' AND column_name = 'AnaliseEmRelacaoAMeta'
     ) THEN
-        ALTER TABLE "analises_ia" ADD COLUMN "AnaliseEmRelacaoAMeta" TEXT NOT NULL DEFAULT '';
-        RAISE NOTICE 'Coluna AnaliseEmRelacaoAMeta adicionada em analises_ia';
+        ALTER TABLE "AnalisesIA" ADD COLUMN "AnaliseEmRelacaoAMeta" TEXT NOT NULL DEFAULT '';
+        RAISE NOTICE 'Coluna AnaliseEmRelacaoAMeta adicionada em AnalisesIA';
     ELSE
-        RAISE NOTICE 'Coluna AnaliseEmRelacaoAMeta já existe em analises_ia';
+        RAISE NOTICE 'Coluna AnaliseEmRelacaoAMeta já existe em AnalisesIA';
     END IF;
 END $$;
 
@@ -81,12 +81,12 @@ DO $$
 BEGIN 
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'analises_ia' AND column_name = 'DicaBSFM'
+        WHERE table_name = 'AnalisesIA' AND column_name = 'DicaBSFM'
     ) THEN
-        ALTER TABLE "analises_ia" ADD COLUMN "DicaBSFM" TEXT NOT NULL DEFAULT '';
-        RAISE NOTICE 'Coluna DicaBSFM adicionada em analises_ia';
+        ALTER TABLE "AnalisesIA" ADD COLUMN "DicaBSFM" TEXT NOT NULL DEFAULT '';
+        RAISE NOTICE 'Coluna DicaBSFM adicionada em AnalisesIA';
     ELSE
-        RAISE NOTICE 'Coluna DicaBSFM já existe em analises_ia';
+        RAISE NOTICE 'Coluna DicaBSFM já existe em AnalisesIA';
     END IF;
 END $$;
 
