@@ -145,15 +145,36 @@ Sua função é analisar a Tabela Nutricional de um produto e fornecer um feedba
 {ctx.HistoricoAlimentar48h}
 
 ## INSTRUÇÕES PARA ANÁLISE:
-1. Ignore erros de OCR — foque nos macros principais: Calorias, Sódio, Açúcar, Gorduras Totais e Saturadas.
-2. Considere o contexto do usuário (IMC, meta, histórico, intolerâncias, diabetes) para personalizar o feedback.
-3. Se o teor de Sódio for alto (>800mg por porção) e o IMC indicar sobrepeso/obesidade, emita alerta de retenção hídrica.
-4. Se o Açúcar for alto (>15g por porção), alerte sobre picos glicêmicos.
-5. Se as Gorduras Saturadas forem altas (>5g por porção), alerte sobre saúde cardiovascular.
-6. Se o usuário tiver Diabetes, verifique se o produto contém açúcares adicionados e alerte sobre o impacto glicêmico.
-7. Se o usuário tiver intolerâncias alimentares registradas, verifique se o produto contém ingredientes incompatíveis e alerte.
-8. Seja direto e prático — o usuário quer saber se PODE ou NÃO consumir o produto.
-9. SEMPRE retorne APENAS um JSON válido, sem texto adicional, sem markdown, sem explicações fora do JSON.";
+O texto OCR abaixo pode vir bagunçado com caracteres estranhos. SUA TAREFA é:
+1. PROCURE por números que pareçam valores nutricionais (kcal, g, mg) no meio do texto bagunçado.
+2. IDENTIFIQUE o tipo de produto pelo contexto (ex: se tem "Fibra Alimentar" e "Gorduras Trans" provavelmente é um alimento industrializado).
+3. Se encontrar "kcal" ou "Kk" seguido de número, use como Calorias.
+4. Se encontrar "Carboidratos" ou "Carboid" seguido de número, use como Carboidratos.
+5. Se encontrar "Proteinas" ou "Protein" seguido de número, use como Proteínas.
+6. Se encontrar "Gorduras Totais" ou "Gord" seguido de número, use como Gorduras.
+7. Se encontrar "Sódio" ou "So" seguido de número, use como Sódio.
+8. Se encontrar "Açúcar" ou "Ac" seguido de número, use como Açúcar.
+9. Se encontrar "Fibra" seguido de número, use como Fibra.
+10. MESMO que o texto esteja muito bagunçado, tente extrair o máximo de informação possível.
+11. Se NÃO conseguir identificar NENHUM valor nutricional, use PontuacaoSaude=5 (neutro) e PodeConsumir=null.
+12. Considere o contexto do usuário (IMC, meta, histórico, intolerâncias, diabetes) para personalizar o feedback.
+13. Se o teor de Sódio for alto (>800mg por porção) e o IMC indicar sobrepeso/obesidade, emita alerta de retenção hídrica.
+14. Se o Açúcar for alto (>15g por porção), alerte sobre picos glicêmicos.
+15. Se as Gorduras Saturadas forem altas (>5g por porção), alerte sobre saúde cardiovascular.
+16. Se o usuário tiver Diabetes, verifique se o produto contém açúcares adicionados e alerte sobre o impacto glicêmico.
+17. Se o usuário tiver intolerâncias alimentares registradas, verifique se o produto contém ingredientes incompatíveis e alerte.
+18. Seja direto e prático — o usuário quer saber se PODE ou NÃO consumir o produto.
+19. SEMPRE retorne APENAS um JSON válido, sem texto adicional, sem markdown, sem explicações fora do JSON.
+
+## EXEMPLO DE RESPOSTA ESPERADA:
+{{""ProdutoDetectado"": ""Biscoito integral"", ""PodeConsumir"": true, ""PontuacaoSaude"": 7, ""AnaliseEmRelacaoAMeta"": ""Produto rico em fibras (24g) e com perfil calórico moderado. Compatível com sua meta de peso."", ""DicaBSFM"": ""Consuma com moderação, até 5 unidades por dia.""
+
+## IMPORTANTE:
+- ProdutoDetectado: Tente adivinhar o produto pelo contexto. Se não conseguir, use ""Alimento industrializado"".
+- PodeConsumir: true = pode, false = evitar, null = moderado.
+- PontuacaoSaude: 0-10 (0=péssimo, 10=excelente).
+- AnaliseEmRelacaoAMeta: Texto em português explicando a análise.
+- DicaBSFM: Dica prática em português.";
         }
     }
 
