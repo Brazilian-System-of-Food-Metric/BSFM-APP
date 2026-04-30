@@ -217,6 +217,10 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
+                        <div class="option-card" data-value="Não tenho" onclick="toggleIntolerancia(this)" style="border-color: #10b981;">
+                            <i class="fas fa-check-circle text-emerald-500"></i>
+                            <p class="font-semibold text-sm">Não tenho</p>
+                        </div>
                         <div class="option-card" data-value="Lactose" onclick="toggleIntolerancia(this)">
                             <i class="fas fa-glass-whiskey text-amber-500"></i>
                             <p class="font-semibold text-sm">Lactose</p>
@@ -377,21 +381,47 @@
 
     // ====== TOGGLE INTOLERÂNCIA ======
     function toggleIntolerancia(element) {
-        element.classList.toggle('selected');
         const value = element.dataset.value;
         
-        if (intoleranciasSelecionadas.includes(value)) {
-            intoleranciasSelecionadas = intoleranciasSelecionadas.filter(i => i !== value);
+        // Se clicou em "Não tenho"
+        if (value === 'Não tenho') {
+            // Se já estava selecionado, desmarca
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                intoleranciasSelecionadas = [];
+            } else {
+                // Remove seleção de todas as outras
+                document.querySelectorAll('.option-card[onclick*="toggleIntolerancia"]').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                element.classList.add('selected');
+                intoleranciasSelecionadas = ['Não tenho'];
+            }
         } else {
-            intoleranciasSelecionadas.push(value);
+            // Se clicou em uma intolerância específica
+            // Remove "Não tenho" se estiver selecionado
+            const naoTenhoCard = document.querySelector('.option-card[data-value="Não tenho"]');
+            if (naoTenhoCard) {
+                naoTenhoCard.classList.remove('selected');
+                intoleranciasSelecionadas = intoleranciasSelecionadas.filter(i => i !== 'Não tenho');
+            }
+            
+            // Toggle da intolerância clicada
+            element.classList.toggle('selected');
+            if (intoleranciasSelecionadas.includes(value)) {
+                intoleranciasSelecionadas = intoleranciasSelecionadas.filter(i => i !== value);
+            } else {
+                intoleranciasSelecionadas.push(value);
+            }
         }
 
-        // Mostra campo de outras intolerâncias se "outras" foi selecionado
+        // Mostra campo de outras intolerâncias se houver seleção
         const outrasInput = document.getElementById('outrasIntolerancias');
-        if (intoleranciasSelecionadas.length > 0) {
+        if (intoleranciasSelecionadas.length > 0 && !intoleranciasSelecionadas.includes('Não tenho')) {
             outrasInput.style.display = 'block';
         } else {
             outrasInput.style.display = 'none';
+            outrasInput.value = '';
         }
     }
 
