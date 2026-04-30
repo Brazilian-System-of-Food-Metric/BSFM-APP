@@ -167,10 +167,10 @@ O texto OCR abaixo pode vir bagunçado com caracteres estranhos. SUA TAREFA é:
 19. SEMPRE retorne APENAS um JSON válido, sem texto adicional, sem markdown, sem explicações fora do JSON.
 
 ## EXEMPLO DE RESPOSTA ESPERADA:
-{{""ProdutoDetectado"": ""Biscoito integral"", ""PodeConsumir"": true, ""PontuacaoSaude"": 7, ""AnaliseEmRelacaoAMeta"": ""Produto rico em fibras (24g) e com perfil calórico moderado. Compatível com sua meta de peso."", ""DicaBSFM"": ""Consuma com moderação, até 5 unidades por dia.""
+{ \"ProdutoDetectado\": \"Biscoito integral\", \"PodeConsumir\": true, \"PontuacaoSaude\": 7, \"AnaliseEmRelacaoAMeta\": \"Produto rico em fibras (24g) e com perfil calórico moderado. Compatível com sua meta de peso.\", \"DicaBSFM\": \"Consuma com moderação, até 5 unidades por dia.\" }
 
 ## IMPORTANTE:
-- ProdutoDetectado: Tente adivinhar o produto pelo contexto. Se não conseguir, use ""Alimento industrializado"".
+- ProdutoDetectado: Tente adivinhar o produto pelo contexto. Se não conseguir, use \"Alimento industrializado\".
 - PodeConsumir: true = pode, false = evitar, null = moderado.
 - PontuacaoSaude: 0-10 (0=péssimo, 10=excelente).
 - AnaliseEmRelacaoAMeta: Texto em português explicando a análise.
