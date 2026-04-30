@@ -27,8 +27,9 @@ namespace BSFM.CoreAnalytics.Backend.Services
         
         // Groq API Configuration
         private const string GroqEndpoint = "https://api.groq.com/openai/v1/chat/completions";
-        private const string ModeloPadrao = "llama3-70b-8192"; // 70B para maior precisão
-        // Alternativa: "llama3-8b-8192" (8B, mais rápido e barato)
+        // ATUALIZADO: llama3-70b-8192 foi descontinuado. Usando llama-3.3-70b-versatile (sucessor)
+        // Alternativa: "llama-3.1-8b-instant" (8B, mais rápido e barato)
+        private const string ModeloPadrao = "llama-3.3-70b-versatile";
         
         // Timeout generoso para o Groq processar
         private static readonly TimeSpan GroqTimeout = TimeSpan.FromSeconds(15);
@@ -216,7 +217,7 @@ namespace BSFM.CoreAnalytics.Backend.Services
     public class GroqChatRequest
     {
         [JsonPropertyName("model")]
-        public string Model { get; set; } = "llama3-70b-8192";
+        public string Model { get; set; } = "llama-3.3-70b-versatile";
 
         [JsonPropertyName("messages")]
         public List<GroqMessage> Messages { get; set; } = new();
