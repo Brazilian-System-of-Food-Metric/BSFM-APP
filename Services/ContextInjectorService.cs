@@ -168,14 +168,14 @@ O texto OCR abaixo pode vir bagunçado com caracteres estranhos. SUA TAREFA é:
 
 ## FORMATO DE RESPOSTA (JSON):
 Retorne APENAS um JSON válido com estes campos:
-- ProdutoDetectado: string (ex: Biscoito integral, ou Alimento industrializado se não identificar)
+- ProdutoDetectado: string (ex: Biscoito integral, ou Alimento industrializado se nao identificar)
 - PodeConsumir: boolean ou null (true=pode, false=evitar, null=moderado)
-- PontuacaoSaude: número de 0 a 10 (0=péssimo, 10=excelente)
-- AnaliseEmRelacaoAMeta: string com análise em português
-- DicaBSFM: string com dica prática em português
+- PontuacaoSaude: numero de 0 a 10 (0=pesimo, 10=excelente)
+- AnaliseEmRelacaoAMeta: string com analise em portugues
+- DicaBSFM: string com dica pratica em portugues
 
 ## EXEMPLO:
-{""ProdutoDetectado"":""Biscoito integral"",""PodeConsumir"":true,""PontuacaoSaude"":7,""AnaliseEmRelacaoAMeta"":""Produto rico em fibras (24g) e com perfil calórico moderado."",""DicaBSFM"":""Consuma com moderação, até 5 unidades por dia.""}";
+Use aspas duplas para strings, true/false/null para booleanos, e numeros para PontuacaoSaude. Exemplo valido: ProdutoDetectado como string, PodeConsumir como true, PontuacaoSaude como 7, AnaliseEmRelacaoAMeta como texto, DicaBSFM como texto.";
         }
     }
 
