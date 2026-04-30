@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BSFM">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <title>BSFM - Pratos da Semana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #000000; --bg-card: #1a1a1a; --text: #f1f5f9; --text-secondary: #94a3b8; --border: rgba(51,65,85,0.6); }
+        .light-mode { --bg: #f0fdf4; --bg-card: rgba(255,255,255,0.95); --text: #1e293b; --text-secondary: #64748b; --border: rgba(226,232,240,0.8); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: all 0.3s; }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 1.5rem; padding: 1.5rem; transition: all 0.3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(16,185,129,0.15); }
+        .btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 0.75rem 1.5rem; border-radius: 1rem; border: none; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(16,185,129,0.4); }
+        .btn-secondary { background: #f1f5f9; color: #475569; padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid #cbd5e1; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .btn-secondary:hover { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+        .btn-danger { background: #ef4444; color: white; padding: 0.5rem 1rem; border-radius: 0.75rem; border: none; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .btn-danger:hover { background: #dc2626; }
+        .tab-btn { padding: 0.75rem 1.25rem; border-radius: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; background: transparent; color: var(--text-secondary); }
+        .tab-btn.active { background: #10b981; color: white; }
+        .tab-btn:hover:not(.active) { background: #ecfdf5; color: #047857; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--bg-card); border-radius: 1.5rem; padding: 2rem; max-width: 500px; width: 90%; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+        .modal-content input, .modal-content select, .modal-content textarea { width: 100%; padding: 0.75rem; border-radius: 0.75rem; border: 2px solid var(--border); outline: none; font-size: 0.95rem; background: var(--bg-card); color: var(--text); transition: all 0.25s; margin-bottom: 0.75rem; }
+        .modal-content input:focus, .modal-content select:focus, .modal-content textarea:focus { border-color: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,0.1); }
+        .modal-content input::placeholder, .modal-content textarea::placeholder { color: var(--text-secondary); }
+        .modal-content textarea { resize: vertical; min-height: 80px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #a7f3d0; border-radius: 10px; }
+        .theme-btn { width: 44px; height: 44px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s; }
+        .theme-btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.href='dashboard.html'" class="btn-secondary"><i class="fas fa-arrow-left mr-2"></i>Voltar</button>
+                <h1 class="text-2xl font-bold"><i class="fas fa-calendar-week text-emerald-600 mr-3"></i>Pratos da Semana</h1>
+            </div>
+            <button onclick="toggleTheme()" class="theme-btn"><i id="themeIcon" class="fas fa-sun"></i></button>
+        </div>
+
+        <!-- Tabs Dias -->
+        <div class="flex flex-wrap gap-2 mb-6" id="diasTabs">
+            <button class="tab-btn active" onclick="selecionarDia('Segunda', this)">Segunda</button>
+            <button class="tab-btn" onclick="selecionarDia('Terça', this)">Terça</button>
+            <button class="tab-btn" onclick="selecionarDia('Quarta', this)">Quarta</button>
+            <button class="tab-btn" onclick="selecionarDia('Quinta', this)">Quinta</button>
+            <button class="tab-btn" onclick="selecionarDia('Sexta', this)">Sexta</button>
+            <button class="tab-btn" onclick="selecionarDia('Sábado', this)">Sábado</button>
+            <button class="tab-btn" onclick="selecionarDia('Domingo', this)">Domingo</button>
+        </div>
+
+        <!-- Refeições do Dia -->
+        <div id="refeicoesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
+
+        <!-- Botão Adicionar -->
+        <button onclick="abrirModalAdicionar()" class="btn-primary w-full md:w-auto"><i class="fas fa-plus mr-2"></i>Adicionar Refeição</button>
+    </div>
+
+    <!-- Modal -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg" id="modalTitle">Nova Refeição</h3>
+                <button onclick="fecharModal()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://bsfm-back-end.onrender.com';
+        let userLocal = JSON.parse(localStorage.getItem('usuarioLogado'));
+        let diaAtual = 'Segunda';
+        let editandoId = null;
+
+        if (!userLocal) { window.location.href = 'login.html'; }
+
+        // Theme
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const icon = document.getElementById('themeIcon');
+            if (document.body.classList.contains('light-mode')) {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('bsfmTheme', 'light');
+            } else {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('bsfmTheme', 'dark');
+            }
+        }
+        if (localStorage.getItem('bsfmTheme') !== 'light') {
+            document.body.classList.remove('light-mode');
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+        } else {
+            document.body.classList.add('light-mode');
+            document.getElementById('themeIcon').className = 'fas fa-moon';
+        }
+
+        window.onload = function() { carregarRefeicoes(); };
+
+        function selecionarDia(dia, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            diaAtual = dia;
+            carregarRefeicoes();
+        }
+
+        async function carregarRefeicoes() {
+            try {
+                const resp = await fetch(`${API_URL}/refeicoes-semana/${userLocal.id}`);
+                if (resp.ok) {
+                    const todas = await resp.json();
+                    const filtradas = todas.filter(r => r.diaSemana === diaAtual);
+                    const container = document.getElementById('refeicoesContainer');
+                    if (filtradas.length === 0) {
+                        container.innerHTML = `<div class="card col-span-full text-center py-12"><i class="fas fa-utensils text-4xl text-slate-300 mb-3"></i><p class="text-slate-400">Nenhuma refeição para ${diaAtual}. Adicione uma!</p></div>`;
+                        return;
+                    }
+                    const tipos = ['Café', 'Almoço', 'Jantar', 'Lanche'];
+                    let html = '';
+                    tipos.forEach(tipo => {
+                        const ref = filtradas.filter(r => r.tipoRefeicao === tipo);
+                        if (ref.length > 0) {
+                            ref.forEach(r => {
+                                html += `
+                                    <div class="card">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <span class="text-xs font-bold uppercase text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">${r.tipoRefeicao}</span>
+                                                <h3 class="font-bold text-lg mt-1">${r.nomePrato}</h3>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <button onclick="abrirModalEditar(${r.id}, '${r.tipoRefeicao}', '${r.nomePrato.replace(/'/g, "\\'")}', '${r.ingredientes.replace(/'/g, "\\'")}', '${r.modoPreparo.replace(/'/g, "\\'")}', ${r.calorias}, ${r.proteinas}, ${r.carboidratos}, ${r.gorduras})" class="btn-secondary text-sm"><i class="fas fa-edit"></i></button>
+                                                <button onclick="removerRefeicao(${r.id})" class="btn-danger text-sm"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm mb-2" style="color: var(--text-secondary);"><strong>Ingredientes:</strong> ${r.ingredientes}</p>
+                                        <p class="text-sm mb-3" style="color: var(--text-secondary);"><strong>Modo de Preparo:</strong> ${r.modoPreparo}</p>
+                                        <div class="flex gap-4 text-sm font-bold">
+                                            <span class="text-orange-600">${r.calorias} kcal</span>
+                                            <span class="text-red-600">${r.proteinas}g prot</span>
+                                            <span class="text-blue-600">${r.carboidratos}g carb</span>
+                                            <span class="text-yellow-600">${r.gorduras}g gord</span>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        }
+                    });
+                    container.innerHTML = html;
+                }
+            } catch (e) { console.error('Erro ao carregar refeições:', e); }
+        }
+
+        function abrirModalAdicionar() {
+            editandoId = null;
+            document.getElementById('modalTitle').innerText = 'Nova Refeição';
+            document.getElementById('modalBody').innerHTML = `
+                <select id="inputTipo"><option value="Café">Café</option><option value="Almoço">Almoço</option><option value="Jantar">Jantar</option><option value="Lanche">Lanche</option></select>
+                <input type="text" id="inputNome" placeholder="Nome do prato">
+                <textarea id="inputIngredientes" placeholder="Ingredientes"></textarea>
+                <textarea id="inputPreparo" placeholder="Modo de preparo"></textarea>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="inputCalorias" placeholder="Calorias" step="0.1">
+                    <input type="number" id="inputProteinas" placeholder="Proteínas (g)" step="0.1">
+                    <input type="number" id="inputCarboidratos" placeholder="Carboidratos (g)" step="0.1">
+                    <input type="number" id="inputGorduras" placeholder="Gorduras (g)" step="0.1">
+                </div>
+                <button onclick="salvarRefeicao()" class="btn-primary w-full mt-2"><i class="fas fa-check mr-2"></i>Salvar</button>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function abrirModalEditar(id, tipo, nome, ingredientes, preparo, calorias, proteinas, carboidratos, gorduras) {
+            editandoId = id;
+            document.getElementById('modalTitle').innerText = 'Editar Refeição';
+            document.getElementById('modalBody').innerHTML = `
+                <select id="inputTipo"><option value="Café" ${tipo === 'Café' ? 'selected' : ''}>Café</option><option value="Almoço" ${tipo === 'Almoço' ? 'selected' : ''}>Almoço</option><option value="Jantar" ${tipo === 'Jantar' ? 'selected' : ''}>Jantar</option><option value="Lanche" ${tipo === 'Lanche' ? 'selected' : ''}>Lanche</option></select>
+                <input type="text" id="inputNome" value="${nome}" placeholder="Nome do prato">
+                <textarea id="inputIngredientes" placeholder="Ingredientes">${ingredientes}</textarea>
+                <textarea id="inputPreparo" placeholder="Modo de preparo">${preparo}</textarea>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="inputCalorias" value="${calorias}" step="0.1">
+                    <input type="number" id="inputProteinas" value="${proteinas}" step="0.1">
+                    <input type="number" id="inputCarboidratos" value="${carboidratos}" step="0.1">
+                    <input type="number" id="inputGorduras" value="${gorduras}" step="0.1">
+                </div>
+                <button onclick="salvarRefeicao()" class="btn-primary w-full mt-2"><i class="fas fa-check mr-2"></i>Atualizar</button>
+            `;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function fecharModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+        async function salvarRefeicao() {
+            const dados = {
+                usuarioId: userLocal.id,
+                diaSemana: diaAtual,
+                tipoRefeicao: document.getElementById('inputTipo').value,
+                nomePrato: document.getElementById('inputNome').value,
+                ingredientes: document.getElementById('inputIngredientes').value,
+                modoPreparo: document.getElementById('inputPreparo').value,
+                calorias: parseFloat(document.getElementById('inputCalorias').value) || 0,
+                proteinas: parseFloat(document.getElementById('inputProteinas').value) || 0,
+                carboidratos: parseFloat(document.getElementById('inputCarboidratos').value) || 0,
+                gorduras: parseFloat(document.getElementById('inputGorduras').value) || 0
+            };
+            if (!dados.nomePrato) { alert('Digite o nome do prato.'); return; }
+            try {
+                const resp = await fetch(`${API_URL}/salvar-refeicao-semana`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+                if (resp.ok) {
+                    fecharModal();
+                    carregarRefeicoes();
+                } else {
+                    const err = await resp.json();
+                    alert(err.mensagem || 'Erro ao salvar.');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function removerRefeicao(id) {
+            if (!confirm('Remover esta refeição?')) return;
+            try {
+                const resp = await fetch(`${API_URL}/remover-refeicao-semana/${id}`, { method: 'DELETE' });
+                if (resp.ok) { carregarRefeicoes(); }
+                else { alert('Erro ao remover.'); }
+            } catch (e) { console.error(e); }
+        }
+    </script>
+</body>
+</html>

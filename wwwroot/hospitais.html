@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BSFM">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <title>BSFM - SOS Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        red: { 50: '#fef2f2', 100: '#fee2e2', 200: '#fecaca', 300: '#fca5a5', 400: '#f87171', 500: '#ef4444', 600: '#dc2626', 700: '#b91c1c', 800: '#991b1b', 900: '#7f1d1d' }
+                    },
+                    animation: { 'fade-in-up': 'fadeInUp 0.6s ease-out forwards', 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite', 'slide-in-from-bottom': 'slideInFromBottom 0.5s ease-out forwards' },
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }, slideInFromBottom: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --bg: #000000; --bg-card: #1a1a1a; --text: #f1f5f9; --text-secondary: #94a3b8; --border: rgba(51,65,85,0.6); --sidebar-bg: rgba(10,10,10,0.95); }
+        .light-mode { --bg: linear-gradient(135deg, #fef2f2 0%, #fff1f2 50%, #fef2f2 100%); --bg-card: rgba(255,255,255,0.95); --text: #1e293b; --text-secondary: #64748b; --border: rgba(226,232,240,0.8); --sidebar-bg: rgba(255,255,255,0.85); }
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; background: var(--bg); min-height: 100vh; color: var(--text); transition: background 0.3s, color 0.3s; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #fecaca; border-radius: 10px; }
+        #map { height: 400px; border-radius: 2rem; border: 4px solid var(--bg-card); box-shadow: 0 20px 40px -10px rgba(220, 38, 38, 0.2); overflow: hidden; }
+        .glass { background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 1.5rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -8px rgba(220, 38, 38, 0.15); border-color: #fecaca; }
+        .btn-emergency { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; font-weight: 700; padding: 1rem 1.5rem; border-radius: 1rem; transition: all 0.3s ease; box-shadow: 0 8px 25px -6px rgba(220, 38, 38, 0.4); border: none; cursor: pointer; position: relative; overflow: hidden; }
+        .btn-emergency::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%); opacity: 0; transition: opacity 0.3s ease; }
+        .btn-emergency:hover { transform: translateY(-3px); box-shadow: 0 15px 40px -8px rgba(220, 38, 38, 0.5); }
+        .btn-emergency:hover::before { opacity: 1; }
+        .btn-emergency:active { transform: translateY(-1px); }
+        .hospital-card { background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 1.5rem; padding: 1.5rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+        .hospital-card::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: linear-gradient(180deg, #dc2626 0%, #ef4444 100%); transform: scaleY(0); transition: transform 0.3s ease; }
+        .hospital-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px -10px rgba(220, 38, 38, 0.18); border-color: #fecaca; }
+        .hospital-card:hover::before { transform: scaleY(1); }
+        .btn-location { background: linear-gradient(135deg, #fca5a5 0%, #fecaca 100%); color: #7f1d1d; font-weight: 600; padding: 0.75rem 1.25rem; border-radius: 0.875rem; transition: all 0.25s ease; border: none; cursor: pointer; }
+        .btn-location:hover { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; transform: translateY(-2px); }
+        .animate-delay-100 { animation-delay: 100ms; }
+        .animate-delay-200 { animation-delay: 200ms; }
+        .animate-delay-300 { animation-delay: 300ms; }
+        .animate-delay-400 { animation-delay: 400ms; }
+        .animate-delay-500 { animation-delay: 500ms; }
+        .back-btn { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: var(--bg-card); border-radius: 1rem; color: var(--text-secondary); transition: all 0.25s ease; border: 1px solid var(--border); }
+        .back-btn:hover { background: #fef2f2; color: #dc2626; transform: translateX(-4px); }
+        .leaflet-container { background: #fff; border-radius: 2rem; }
+        .leaflet-control-attribution { background: rgba(255, 255, 255, 0.9); border-radius: 0.5rem; font-size: 11px; }
+        .theme-btn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; }
+        .theme-btn:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- HEADER EMERGÊNCIA -->
+        <header class="flex items-center justify-between mb-8 opacity-0 animate-fade-in-up">
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="back-btn"><i class="fas fa-chevron-left text-lg"></i></a>
+                <div>
+                    <h1 class="text-3xl font-black tracking-tighter italic" style="color: var(--text);">SOS <span class="text-red-500">SAÚDE</span></h1>
+                    <p style="color: var(--text-secondary);" class="text-sm">Localize unidades de pronto atendimento</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleTheme()" class="theme-btn"><i id="themeIcon" class="fas fa-sun"></i></button>
+                <div class="flex flex-col gap-3">
+                    <a href="tel:192" class="btn-emergency animate-pulse"><i class="fas fa-phone-alt mr-2"></i><span>192 SAMU</span></a>
+                    <button onclick="obterLocalizacao()" class="btn-location"><i class="fas fa-location-dot mr-2"></i><span>Minha Localização</span></button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAPA DINÂMICO -->
+        <div id="map" class="mb-8 opacity-0 animate-fade-in-up animate-delay-100 z-0"></div>
+
+        <!-- CONTAINER DE INFORMAÇÕES -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-1 glass p-6 opacity-0 animate-fade-in-up animate-delay-200">
+                <h3 class="font-bold mb-4 flex items-center gap-3" style="color: var(--text);"><i class="fas fa-map-marker-alt text-red-500"></i>Sua Localização</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span style="color: var(--text-secondary);">Latitude:</span>
+                        <span id="lat-display" class="font-medium" style="color: var(--text);">--</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span style="color: var(--text-secondary);">Longitude:</span>
+                        <span id="lng-display" class="font-medium" style="color: var(--text);">--</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span style="color: var(--text-secondary);">Precisão:</span>
+                        <span id="acc-display" class="font-medium text-green-500">--</span>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 rounded-lg" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);">
+                    <p class="text-xs" style="color: #ef4444;"><i class="fas fa-info-circle mr-1"></i>Se detectar vômitos severos ou asfixia após ingerir algo suspeito, chame imediatamente a emergência.</p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-4 opacity-0 animate-fade-in-up animate-delay-300">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xs font-black uppercase tracking-widest" style="color: var(--text-secondary);">Próximos a você (Cuidado Urgente)</h2>
+                    <span class="text-xs" style="color: var(--text-secondary);" id="hospital-count">0 unidades</span>
+                </div>
+                <div id="hospital-list" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <footer class="text-center opacity-0 animate-fade-in-up animate-delay-400">
+            <p class="text-xs font-bold uppercase tracking-widest" style="color: var(--text-secondary);"><i class="fas fa-shield-alt mr-2"></i>Sistema de localização de emergência BSFM</p>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ====== TEMA ======
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const icon = document.getElementById('themeIcon');
+            if (document.body.classList.contains('light-mode')) {
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('bsfmTheme', 'light');
+            } else {
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('bsfmTheme', 'dark');
+            }
+        }
+        if (localStorage.getItem('bsfmTheme') !== 'light') {
+            document.body.classList.remove('light-mode');
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+        } else {
+            document.body.classList.add('light-mode');
+            document.getElementById('themeIcon').className = 'fas fa-moon';
+        }
+
+        // Dados de hospitais
+        const hospitais = [
+            { nome: "Hospital das Clínicas (HC-FMUSP)", tipo: "Hospital", endereco: "Av. Dr. Enéas de Carvalho Aguiar, 255 - Cerqueira César", distancia: 0, telefone: "(11) 2661-0000", coordenadas: [-23.5592, -46.6694] },
+            { nome: "UPA 24h - Sé", tipo: "UPA", endereco: "Rua Frederico Alvarenga, 259 - Sé", distancia: 0, telefone: "(11) 3101-0000", coordenadas: [-23.5505, -46.6333] },
+            { nome: "Hospital São Paulo (UNIFESP)", tipo: "Hospital", endereco: "Rua Botucatu, 740 - Vila Clementino", distancia: 0, telefone: "(11) 5576-4000", coordenadas: [-23.5932, -46.6375] },
+            { nome: "UPA 24h - Tatuapé", tipo: "UPA", endereco: "Rua Serra de Bragança, 200 - Tatuapé", distancia: 0, telefone: "(11) 2295-0000", coordenadas: [-23.5400, -46.5750] },
+            { nome: "Hospital do Servidor Público Estadual (IAMSPE)", tipo: "Hospital", endereco: "Rua Pedro de Toledo, 1800 - Vila Clementino", distancia: 0, telefone: "(11) 5088-8000", coordenadas: [-23.5950, -46.6400] },
+            { nome: "UPA 24h - Santo Amaro", tipo: "UPA", endereco: "Av. Adolfo Pinheiro, 1000 - Santo Amaro", distancia: 0, telefone: "(11) 5525-0000", coordenadas: [-23.6520, -46.7100] },
+            { nome: "Hospital Albert Einstein", tipo: "Hospital", endereco: "Av. Albert Einstein, 627 - Morumbi", distancia: 0, telefone: "(11) 2151-1233", coordenadas: [-23.6010, -46.7150] },
+            { nome: "UPA 24h - Brasilândia", tipo: "UPA", endereco: "Av. Deputado Cantídio Sampaio, 3000 - Brasilândia", distancia: 0, telefone: "(11) 3975-0000", coordenadas: [-23.4800, -46.6800] }
+        ];
+
+        const map = L.map('map', { center: [-23.5505, -46.6333], zoom: 14, zoomControl: true, scrollWheelZoom: false });
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd', maxZoom: 20
+        }).addTo(map);
+
+        const userIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [35, 35], iconAnchor: [17, 35], popupAnchor: [0, -30] });
+        const hospitalIcon = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/3176/3176733.png', iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -25] });
+
+        let userMarker = null;
+        let userLocation = null;
+
+        window.onload = function() {
+            setTimeout(() => { map.invalidateSize(); }, 300);
+            obterLocalizacao();
+        };
+
+        function obterLocalizacao() {
+            const btn = document.querySelector('.btn-location');
+            const originalText = btn.innerHTML;
+            if (navigator.geolocation) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Localizando...';
+                btn.disabled = true;
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude, accuracy } = position.coords;
+                        userLocation = [latitude, longitude];
+                        map.setView(userLocation, 15);
+                        atualizarMarcadorUsuario();
+                        calcularDistancias();
+                        gerarListaHospitais();
+                        document.getElementById('lat-display').innerText = latitude.toFixed(6);
+                        document.getElementById('lng-display').innerText = longitude.toFixed(6);
+                        document.getElementById('acc-display').innerText = Math.round(accuracy) + 'm';
+                        document.getElementById('acc-display').className = 'font-medium text-green-500';
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    },
+                    (error) => {
+                        console.warn('Geolocalização falhou:', error);
+                        usarLocalizacaoPadrao();
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+                );
+            } else { usarLocalizacaoPadrao(); }
+        }
+
+        function usarLocalizacaoPadrao() {
+            userLocation = [-23.5505, -46.6333];
+            map.setView(userLocation, 14);
+            atualizarMarcadorUsuario();
+            calcularDistancias();
+            gerarListaHospitais();
+            document.getElementById('lat-display').innerText = '-23.550500';
+            document.getElementById('lng-display').innerText = '-46.633300';
+            document.getElementById('acc-display').innerText = 'Padrão';
+            document.getElementById('acc-display').className = 'font-medium text-orange-500';
+        }
+
+        function atualizarMarcadorUsuario() {
+            if (userMarker) { userMarker.setLatLng(userLocation); }
+            else { userMarker = L.marker(userLocation, { icon: userIcon }).addTo(map); }
+            userMarker.bindPopup(`<div class="text-center"><b class="text-red-600">Sua Localização</b><br><span class="text-xs text-slate-500">Buscando unidades de pronto atendimento...</span></div>`).openPopup();
+        }
+
+        function calcularDistancias() {
+            if (!userLocation) return;
+            hospitais.forEach(hospital => {
+                const R = 6371;
+                const lat1 = userLocation[0] * Math.PI / 180;
+                const lat2 = hospital.coordenadas[0] * Math.PI / 180;
+                const deltaLat = (hospital.coordenadas[0] - userLocation[0]) * Math.PI / 180;
+                const deltaLng = (hospital.coordenadas[1] - userLocation[1]) * Math.PI / 180;
+                const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                hospital.distancia = R * c;
+            });
+            hospitais.sort((a, b) => a.distancia - b.distancia);
+        }
+
+        function gerarListaHospitais() {
+            const container = document.getElementById('hospital-list');
+            container.innerHTML = '';
+            hospitais.forEach((hospital, index) => {
+                const card = document.createElement('div');
+                card.className = 'hospital-card animate-fade-in-up';
+                card.style.animationDelay = `${200 + (index * 100)}ms`;
+                const tempo = calcularTempo(hospital.distancia);
+                const tipoIcon = hospital.tipo === 'UPA' ? 'fa-clinic-medical' : 'fa-hospital';
+                card.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background: rgba(239,68,68,0.1); color: #ef4444;">
+                            <i class="fas ${tipoIcon} text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-bold" style="color: var(--text);">${hospital.nome}</h3>
+                                <span class="text-xs font-bold px-2 py-1 rounded-full" style="background: rgba(239,68,68,0.1); color: #ef4444;">${hospital.tipo}</span>
+                            </div>
+                            <p class="text-xs mb-3" style="color: var(--text-secondary);">${hospital.endereco}</p>
+                            <div class="flex items-center justify-between text-sm mb-4">
+                                <span style="color: var(--text-secondary);">Distância:</span>
+                                <span class="font-bold" style="color: #ef4444;">${hospital.distancia.toFixed(1)} km • ${tempo}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="abrirWaze(${hospital.coordenadas[0]}, ${hospital.coordenadas[1]})" class="text-xs font-bold uppercase text-white px-3 py-2 rounded-lg transition" style="background: #dc2626;"><i class="fas fa-route mr-1"></i> Rota Waze</button>
+                                <button onclick="ligarHospital('${hospital.telefone}')" class="text-xs font-bold uppercase px-3 py-2 rounded-lg transition" style="background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border);"><i class="fas fa-phone"></i> Ligar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            document.getElementById('hospital-count').innerText = `${hospitais.length} unidades`;
+        }
+
+        function calcularTempo(distanciaKm) {
+            const velocidadeMedia = 30;
+            const tempoMin = (distanciaKm / velocidadeMedia) * 60;
+            if (tempoMin < 1) return '< 1 min';
+            if (tempoMin < 60) return `${Math.round(tempoMin)} min`;
+            return `${Math.round(tempoMin / 60)}h ${Math.round(tempoMin % 60)}min`;
+        }
+
+        function abrirWaze(lat, lng) { window.open(`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`, '_blank'); }
+        function ligarHospital(telefone) { window.location.href = `tel:${telefone}`; }
+
+        window.addEventListener('resize', () => { setTimeout(() => { map.invalidateSize(); }, 100); });
+    </script>
+</body>
+</html>
