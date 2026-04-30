@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="280" viewBox="0 0 280 280">
+  <defs>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9ACD32"/>
+      <stop offset="100%" style="stop-color:#43A047"/>
+    </linearGradient>
+    <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FA8A21"/>
+      <stop offset="100%" style="stop-color:#D94223"/>
+    </linearGradient>
+    <linearGradient id="bowlGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FA8A21"/>
+      <stop offset="100%" style="stop-color:#D94223"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#000000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <!-- Card background off-white -->
+  <rect x="4" y="4" width="272" height="272" rx="56" fill="#F4F9F5" filter="url(#shadow)"/>
+  
+  <!-- ===== SYMBOL CENTRAL ===== -->
+  <g transform="translate(140,135)">
+    
+    <!-- Bloco esquerdo (haste do B) - Deep Forest Tech -->
+    <path d="M-50,-65 L-10,-65 L-10,65 L-50,65 Z" fill="#124B35"/>
+    
+    <!-- Curvas direitas (arcos do B) - Gradiente laranja -->
+    <path d="M-10,-65 C40,-65 55,-35 55,-10 C55,10 40,25 20,30 C45,35 60,55 60,75 C60,95 40,110 10,110 L-10,110 L-10,65 L-10,-65 Z" fill="url(#arcGrad)"/>
+    
+    <!-- Corte branco do F sobreposto -->
+    <path d="M-10,-65 L30,-65 L30,-20 L10,-20 L10,10 L30,10 L30,40 L10,40 L10,65 L-10,65 Z" fill="#FFFFFF"/>
+    
+    <!-- Folha orgânica central -->
+    <g transform="translate(-5,5)">
+      <path d="M-15,-30 C5,-45 25,-30 30,-10 C35,10 20,30 5,35 C-10,40 -25,25 -20,10 C-15,-5 -25,-20 -15,-30 Z" fill="#85C79E"/>
+      <!-- Veia central da folha -->
+      <path d="M-5,-25 C0,-10 5,5 0,25" stroke="#F4F9F5" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- Veias laterais -->
+      <path d="M-3,-15 C5,-12 12,-8 18,-5" stroke="#F4F9F5" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <path d="M-2,-5 C6,-2 14,2 20,8" stroke="#F4F9F5" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <path d="M-1,5 C5,8 12,14 15,20" stroke="#F4F9F5" stroke-width="0.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+    </g>
+    
+    <!-- Tigela/base crescente -->
+    <path d="M-55,70 C-55,100 -30,120 0,120 C30,120 55,100 55,70 C40,85 20,90 0,90 C-20,90 -40,85 -55,70 Z" fill="url(#bowlGrad)"/>
+    
+    <!-- Tech Nodes - Orbit lines -->
+    <!-- Linha orbital superior esquerda -->
+    <path d="M-70,-75 C-85,-60 -80,-40 -65,-35" stroke="#85C79E" stroke-width="1.5" fill="none" stroke-dasharray="3,3" stroke-linecap="round"/>
+    <circle cx="-70" cy="-75" r="3.5" fill="#25B595"/>
+    
+    <!-- Linha orbital superior direita -->
+    <path d="M65,-75 C80,-60 85,-40 70,-30" stroke="#85C79E" stroke-width="1.5" fill="none" stroke-dasharray="3,3" stroke-linecap="round"/>
+    <circle cx="65" cy="-75" r="3.5" fill="#25B595"/>
+    
+    <!-- Node esquerdo médio -->
+    <path d="M-65,-10 C-80,-5 -85,10 -75,20" stroke="#85C79E" stroke-width="1.5" fill="none" stroke-dasharray="2,3" stroke-linecap="round"/>
+    <circle cx="-65" cy="-10" r="3" fill="#008080"/>
+    
+    <!-- Node direito inferior -->
+    <path d="M70,40 C85,45 90,60 80,70" stroke="#85C79E" stroke-width="1.5" fill="none" stroke-dasharray="2,3" stroke-linecap="round"/>
+    <circle cx="70" cy="40" r="3.5" fill="#D94223"/>
+    
+    <!-- Node base esquerda -->
+    <path d="M-65,85 C-80,90 -85,105 -75,110" stroke="#85C79E" stroke-width="1.5" fill="none" stroke-dasharray="2,3" stroke-linecap="round"/>
+    <circle cx="-65" cy="85" r="2.5" fill="#25B595"/>
+    
+    <!-- Traço tech fino conectando tigela ao node -->
+    <path d="M-55,85 C-60,90 -62,95 -60,100" stroke="#85C79E" stroke-width="1" fill="none" stroke-linecap="round"/>
+    
+  </g>
+</svg>

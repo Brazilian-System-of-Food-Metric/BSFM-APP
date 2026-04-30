@@ -1,0 +1,24 @@
+# render.yaml - Configuração para deploy no Render
+# https://render.com/docs/infrastructure-as-code
+
+services:
+  - type: web
+    name: bsfm-api
+    runtime: dotnet
+    region: ohio
+    plan: free
+    buildCommand: dotnet publish -c Release -o out
+    startCommand: ./out/MeusApp
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false  # Será configurada manualmente no Dashboard do Render
+      - key: BREVO_API_KEY
+        sync: false  # Será configurada manualmente no Dashboard do Render
+      - key: USDA_API_KEY
+        sync: false  # Será configurada manualmente no Dashboard do Render
+    healthCheckPath: /
+    autoDeploy: true

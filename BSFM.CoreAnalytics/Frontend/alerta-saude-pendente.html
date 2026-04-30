@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSFM - Informações de Saúde</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0fdf4;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* ===== ALERTA DE INFORMAÇÕES PENDENTES ===== */
+        .alerta-pendente {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            animation: pulse-alerta 2s infinite;
+        }
+        @keyframes pulse-alerta {
+            0%, 100% { box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2); }
+            50% { box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4); }
+        }
+        .alerta-pendente .icone {
+            font-size: 40px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .alerta-pendente .conteudo {
+            flex: 1;
+        }
+        .alerta-pendente h3 {
+            color: #92400e;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .alerta-pendente p {
+            color: #78350f;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .btn-preencher {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-preencher:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+        }
+        .btn-fechar-alerta {
+            background: transparent;
+            border: none;
+            color: #92400e;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+        .btn-fechar-alerta:hover { opacity: 0.7; }
+
+        /* ===== MODAL / FORMULÁRIO ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 520px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal h2 {
+            color: #065f46;
+            font-size: 22px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal .subtitulo {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        .modal .subtitulo strong {
+            color: #059669;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .form-group label .obrigatorio {
+            color: #ef4444;
+        }
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+            background: #f9fafb;
+        }
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #10b981;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .form-group .dica {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+        .form-group .dica strong {
+            color: #059669;
+        }
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn-salvar {
+            flex: 1;
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-salvar:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        .btn-salvar:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-cancelar {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-cancelar:hover {
+            background: #e5e7eb;
+        }
+
+        /* ===== SUCESSO ===== */
+        .sucesso {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .sucesso.active { display: block; }
+        .sucesso .icone-grande {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        .sucesso h3 {
+            color: #065f46;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .sucesso p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* ===== LOADING ===== */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== RESPONSIVO ===== */
+        @media (max-width: 480px) {
+            .modal { padding: 20px; }
+            .form-actions { flex-direction: column; }
+            .btn-cancelar { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ===== ALERTA DE INFORMAÇÕES PENDENTES ===== -->
+        <div id="alertaPendente" class="alerta-pendente" style="display:none;">
+            <div class="icone">⚠️</div>
+            <div class="conteudo">
+                <h3>Informações de Saúde Pendentes</h3>
+                <p>
+                    Para que nossa <strong>IA Nutricional</strong> possa personalizar 
+                    melhor as recomendações, precisamos que você cadastre suas 
+                    <strong>intolerâncias alimentares</strong> e informe se tem 
+                    <strong>diabetes</strong>.
+                </p>
+                <button class="btn-preencher" onclick="abrirModal()">
+                    📋 Preencher Agora
+                </button>
+            </div>
+            <button class="btn-fechar-alerta" onclick="fecharAlerta()" title="Fechar">✕</button>
+        </div>
+
+        <!-- ===== BOTÃO PARA REABRIR (caso feche o alerta) ===== -->
+        <div id="btnReabrir" style="display:none; text-align:center;">
+            <button class="btn-preencher" onclick="abrirModal()">
+                ⚙️ Configurar Dados de Saúde
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== MODAL DO FORMULÁRIO ===== -->
+    <div id="modalSaude" class="modal-overlay">
+        <div class="modal">
+            <!-- Formulário -->
+            <div id="formularioSaude">
+                <h2>🩺 Dados de Saúde</h2>
+                <p class="subtitulo">
+                    Nossa <strong>IA</strong> vai ler suas respostas para personalizar 
+                    as recomendações nutricionais e alertas de saúde.
+                </p>
+
+                <div class="form-group">
+                    <label>
+                        📌 Quais são suas <strong>intolerâncias alimentares</strong>?
+                        <span class="obrigatorio">*</span>
+                    </label>
+                    <textarea 
+                        id="campoIntolerancia" 
+                        placeholder="Ex: Lactose, Glúten, Amendoim, Frutos do Mar...&#10;Se não tiver nenhuma, digite: Nenhuma"
+                        maxlength="500"
+                    ></textarea>
+                    <div class="dica">
+                        💡 <strong>Dica:</strong> Seja específico. Ex: "Intolerância à lactose (leite e derivados)", 
+                        "Sensibilidade ao glúten", "Alergia a amendoim"
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        🩸 Você tem <strong>Diabetes</strong>?
+                        <span class="obrigatorio">*</span>
+                    </label>
+                    <select id="campoDiabetes">
+                        <option value="">Selecione uma opção...</option>
+                        <option value="Não">Não</option>
+                        <option value="Sim - Tipo 1">Sim - Tipo 1 (Insulino-dependente)</option>
+                        <option value="Sim - Tipo 2">Sim - Tipo 2</option>
+                        <option value="Pré-diabetes">Pré-diabetes</option>
+                        <option value="Gestacional">Diabetes Gestacional</option>
+                        <option value="Não sei informar">Não sei informar</option>
+                    </select>
+                    <div class="dica">
+                        💡 Sua resposta ajuda a IA a identificar alimentos que podem 
+                        causar <strong>picos glicêmicos</strong>.
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                    <button class="btn-salvar" id="btnSalvar" onclick="salvarDados()">
+                        💾 Salvar Informações
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tela de Sucesso -->
+            <div id="telaSucesso" class="sucesso">
+                <div class="icone-grande">✅</div>
+                <h3>Informações Salvas com Sucesso!</h3>
+                <p>
+                    Agora nossa IA Nutricional vai considerar suas intolerâncias 
+                    e condições de saúde nas análises dos rótulos.
+                </p>
+                <br>
+                <button class="btn-preencher" onclick="fecharModal()">
+                    👍 Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== CONFIGURAÇÕES ======
+        const API_URL = window.location.origin;
+
+        // ====== VERIFICAR SE USUÁRIO TEM DADOS PENDENTES ======
+        async function verificarDadosPendentes() {
+            const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (!userData) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/Usuario/${userData.id}`);
+                if (!response.ok) return;
+
+                const usuario = await response.json();
+                
+                // Verifica se Intolerancia está vazia OU Diabetes está "Não informado"
+                const intoleranciaVazia = !usuario.intolerancia || 
+                    usuario.intolerancia === '' || 
+                    usuario.intolerancia === 'Não informado';
+                const diabetesVazio = !usuario.diabetes || 
+                    usuario.diabetes === '' || 
+                    usuario.diabetes === 'Não informado';
+
+                if (intoleranciaVazia || diabetesVazio) {
+                    document.getElementById('alertaPendente').style.display = 'flex';
+                    
+                    // Pré-preenche se já tiver algum valor
+                    if (usuario.intolerancia && usuario.intolerancia !== 'Não informado') {
+                        document.getElementById('campoIntolerancia').value = usuario.intolerancia;
+                    }
+                    if (usuario.diabetes && usuario.diabetes !== 'Não informado') {
+                        document.getElementById('campoDiabetes').value = usuario.diabetes;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao verificar dados pendentes:', error);
+            }
+        }
+
+        // ====== ABRIR/FECHAR MODAL ======
+        function abrirModal() {
+            document.getElementById('modalSaude').classList.add('active');
+            document.getElementById('formularioSaude').style.display = 'block';
+            document.getElementById('telaSucesso').classList.remove('active');
+            document.getElementById('btnSalvar').disabled = false;
+            document.getElementById('btnSalvar').innerHTML = '💾 Salvar Informações';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalSaude').classList.remove('active');
+        }
+
+        function fecharAlerta() {
+            document.getElementById('alertaPendente').style.display = 'none';
+            document.getElementById('btnReabrir').style.display = 'block';
+        }
+
+        // ====== SALVAR DADOS ======
+        async function salvarDados() {
+            const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
+            if (!userData) {
+                alert('Você precisa estar logado.');
+                return;
+            }
+
+            const intolerancia = document.getElementById('campoIntolerancia').value.trim();
+            const diabetes = document.getElementById('campoDiabetes').value;
+
+            // Validações
+            if (!intolerancia) {
+                alert('Por favor, informe suas intolerâncias alimentares ou digite "Nenhuma".');
+                document.getElementById('campoIntolerancia').focus();
+                return;
+            }
+            if (!diabetes) {
+                alert('Por favor, selecione uma opção sobre Diabetes.');
+                document.getElementById('campoDiabetes').focus();
+                return;
+            }
+
+            // Desabilita botão e mostra loading
+            const btn = document.getElementById('btnSalvar');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Salvando...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/Usuario/atualizar-saude`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        usuarioId: userData.id,
+                        intolerancia: intolerancia,
+                        diabetes: diabetes
+                    })
+                });
+
+                if (response.ok) {
+                    // Mostra tela de sucesso
+                    document.getElementById('formularioSaude').style.display = 'none';
+                    document.getElementById('telaSucesso').classList.add('active');
+                    
+                    // Esconde o alerta
+                    document.getElementById('alertaPendente').style.display = 'none';
+                    document.getElementById('btnReabrir').style.display = 'none';
+
+                    // Atualiza localStorage
+                    userData.intolerancia = intolerancia;
+                    userData.diabetes = diabetes;
+                    localStorage.setItem('usuarioLogado', JSON.stringify(userData));
+                } else {
+                    const err = await response.json();
+                    alert('Erro ao salvar: ' + (err.mensagem || 'Tente novamente.'));
+                    btn.disabled = false;
+                    btn.innerHTML = '💾 Salvar Informações';
+                }
+            } catch (error) {
+                console.error('Erro ao salvar dados de saúde:', error);
+                alert('Erro de conexão. Verifique sua internet e tente novamente.');
+                btn.disabled = false;
+                btn.innerHTML = '💾 Salvar Informações';
+            }
+        }
+
+        // ====== FECHAR MODAL CLICANDO FORA ======
+        document.getElementById('modalSaude').addEventListener('click', function(e) {
+            if (e.target === this) fecharModal();
+        });
+
+        // ====== INICIALIZAÇÃO ======
+        document.addEventListener('DOMContentLoaded', verificarDadosPendentes);
+    </script>
+</body>
+</html>

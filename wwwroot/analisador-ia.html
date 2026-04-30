@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BSFM">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <title>BSFM - Analisador IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'scan-line': 'scanLine 2s linear infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        scanLine: {
+                            '0%': { top: '0%' },
+                            '100%': { top: '100%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --bg: #000000; --bg-card: #1a1a1a; --text: #f1f5f9; --text-secondary: #94a3b8; --border: rgba(51,65,85,0.6); }
+        .light-mode { --bg: #f0fdf4; --bg-card: rgba(255,255,255,0.95); --text: #1e293b; --text-secondary: #64748b; --border: rgba(226,232,240,0.8); }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #a7f3d0; border-radius: 10px; }
+
+        /* Viewfinder */
+        .view-box { 
+            position: relative; 
+            width: 100%; 
+            max-width: 520px; 
+            aspect-ratio: 4/3; 
+            background: #0f172a; 
+            border-radius: 1.75rem; 
+            overflow: hidden; 
+            border: 3px solid #10b981;
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25);
+        }
+        body:not(.light-mode) .view-box {
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.15), 0 0 3px rgba(16, 185, 129, 0.3);
+        }
+        #video, #imgPreview { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        #canvas { display: none; }
+
+        /* Scanning line effect */
+        .scan-line {
+            position: absolute;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #10b981, transparent);
+            box-shadow: 0 0 20px #10b981, 0 0 40px #10b981;
+            animation: scanLine 2.5s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        /* Corner brackets */
+        .corner-bracket {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: rgba(16, 185, 129, 0.6);
+            border-style: solid;
+        }
+        .corner-tl { top: 20px; left: 20px; border-width: 3px 0 0 3px; border-radius: 8px 0 0 0; }
+        .corner-tr { top: 20px; right: 20px; border-width: 3px 3px 0 0; border-radius: 0 8px 0 0; }
+        .corner-bl { bottom: 20px; left: 20px; border-width: 0 0 3px 3px; border-radius: 0 0 0 8px; }
+        .corner-br { bottom: 20px; right: 20px; border-width: 0 3px 3px 0; border-radius: 0 0 8px 0; }
+
+        /* Guide overlay */
+        .guide-overlay {
+            position: absolute;
+            inset: 24px;
+            border: 2px dashed rgba(16, 185, 129, 0.3);
+            border-radius: 1.25rem;
+            pointer-events: none;
+        }
+
+        /* Mode selector buttons */
+        .mode-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 1.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            color: var(--text);
+        }
+        .mode-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .mode-btn:hover {
+            border-color: #10b981;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(16, 185, 129, 0.15);
+        }
+        .mode-btn:hover::before {
+            opacity: 1;
+        }
+        .mode-btn.active {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            box-shadow: 0 8px 20px -6px rgba(16, 185, 129, 0.2);
+            color: #1e293b;
+        }
+        .mode-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+        .mode-btn:hover i, .mode-btn.active i {
+            transform: scale(1.1);
+        }
+
+        /* Portion selector */
+        .portion-btn {
+            padding: 0.875rem 1rem;
+            border-radius: 1rem;
+            border: 2px solid var(--border);
+            background: var(--bg-card);
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            color: var(--text);
+        }
+        .portion-btn:hover {
+            border-color: #10b981;
+            background: #ecfdf5;
+            color: #1e293b;
+        }
+        .portion-btn.active {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Analyze button */
+        .btn-analyze {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 1.25rem 2rem;
+            border-radius: 1.25rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px -6px rgba(15, 23, 42, 0.3);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-analyze::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .btn-analyze:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px -8px rgba(15, 23, 42, 0.4);
+        }
+        .btn-analyze:hover::before {
+            opacity: 1;
+        }
+        .btn-analyze span, .btn-analyze i {
+            position: relative;
+            z-index: 1;
+        }
+        .btn-analyze:active {
+            transform: translateY(-1px);
+        }
+        .btn-analyze:disabled {
+            background: #94a3b8;
+            box-shadow: none;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* Result card */
+        .result-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border-radius: 1.75rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--border);
+        }
+        body:not(.light-mode) .result-card {
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.08), 0 0 1px rgba(16, 185, 129, 0.2);
+        }
+        .result-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 1.5rem;
+            color: white;
+        }
+        .result-body {
+            padding: 1.5rem;
+        }
+
+        /* Loader */
+        .loader {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #d1fae5;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Staggered animation delays */
+        .animate-delay-100 { animation-delay: 100ms; }
+        .animate-delay-200 { animation-delay: 200ms; }
+        .animate-delay-300 { animation-delay: 300ms; }
+
+        /* Back button */
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: var(--bg-card);
+            border-radius: 1rem;
+            color: var(--text-secondary);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+        }
+        .back-btn:hover {
+            background: #ecfdf5;
+            color: #10b981;
+            transform: translateX(-4px);
+        }
+
+        /* Theme button */
+        .theme-btn {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .theme-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Stats boxes in result */
+        .stat-box {
+            background: var(--bg);
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-xl mx-auto">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8 opacity-0 animate-fade-in-up">
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="back-btn">
+                    <i class="fas fa-chevron-left text-lg"></i>
+                </a>
+                <div>
+                    <h1 class="text-2xl font-bold" style="color: var(--text);">
+                        Análise de Prato <span class="text-emerald-600">IA</span>
+                    </h1>
+                    <p style="color: var(--text-secondary);" class="text-sm">Reconhecimento inteligente de alimentos</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleTheme()" class="theme-btn" title="Alternar Tema"><i id="themeIcon" class="fas fa-sun"></i></button>
+                <div class="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-bold uppercase tracking-tighter">Online</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Viewfinder Area -->
+        <div class="view-box mx-auto mb-6 opacity-0 animate-fade-in-up animate-delay-100" id="containerVisualizacao">
+            <!-- Camera Feed -->
+            <video id="video" autoplay playsinline muted></video>
+            
+            <!-- Image Preview (Hidden initially) -->
+            <img id="imgPreview" class="hidden" alt="Preview do alimento">
+            
+            <!-- Reset Button -->
+            <button id="btnReset" onclick="resetarCaptura()" class="hidden absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white w-10 h-10 rounded-full shadow-lg transition-all">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <!-- Scanning Line Effect -->
+            <div class="scan-line"></div>
+            
+            <!-- Corner Brackets -->
+            <div class="corner-bracket corner-tl"></div>
+            <div class="corner-bracket corner-tr"></div>
+            <div class="corner-bracket corner-bl"></div>
+            <div class="corner-bracket corner-br"></div>
+            
+            <!-- Guide Overlay -->
+            <div class="guide-overlay"></div>
+            
+            <!-- Status Text -->
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white text-xs px-4 py-2 rounded-full">
+                <i class="fas fa-crosshairs mr-2"></i>Centralize o alimento
+            </div>
+        </div>
+
+        <!-- Mode Selection -->
+        <div class="grid grid-cols-2 gap-4 mb-6 opacity-0 animate-fade-in-up animate-delay-200">
+            <button onclick="focarCamera()" class="mode-btn active" id="btnCamera">
+                <i class="fas fa-camera text-emerald-600"></i>
+                <span class="text-xs font-bold text-slate-600 uppercase">Câmera</span>
+            </button>
+
+            <button onclick="document.getElementById('inputArquivo').click()" class="mode-btn" id="btnGallery">
+                <i class="fas fa-images text-blue-600"></i>
+                <span class="text-xs font-bold text-slate-600 uppercase">Galeria</span>
+            </button>
+            <input type="file" id="inputArquivo" accept="image/*" class="hidden" onchange="previewArquivo(this)">
+        </div>
+
+        <!-- Portion Selector -->
+        <div class="p-6 rounded-2xl mb-6 opacity-0 animate-fade-in-up animate-delay-300" style="background: var(--bg-card); border: 1px solid var(--border);">
+            <label class="block text-xs font-bold uppercase tracking-widest mb-4" style="color: var(--text-secondary);">Tamanho da Porção</label>
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="selecionarPorcao('pequeno', this)" class="portion-btn" id="porcaoPequeno">
+                    <i class="fas fa-circle text-xs text-slate-400 mr-1"></i>
+                    Pequeno
+                </button>
+                <button onclick="selecionarPorcao('medio', this)" class="portion-btn active" id="porcaoMedio">
+                    <i class="fas fa-circle text-xs mr-1"></i>
+                    Médio
+                </button>
+                <button onclick="selecionarPorcao('grande', this)" class="portion-btn" id="porcaoGrande">
+                    <i class="fas fa-circle text-xs text-slate-400 mr-1"></i>
+                    Grande
+                </button>
+            </div>
+        </div>
+
+        <!-- Analyze Button -->
+        <button id="btnSubmit" onclick="iniciarAnalise()" class="btn-analyze w-full opacity-0 animate-fade-in-up animate-delay-300">
+            <i class="fas fa-brain mr-2"></i>
+            <span>ANALISAR AGORA</span>
+        </button>
+
+        <!-- Loader -->
+        <div id="loader" class="hidden text-center py-10">
+            <div class="loader">
+                <div class="spinner"></div>
+                <p class="text-slate-500 font-medium">Consultando algoritmos BSFM...</p>
+                <p class="text-slate-400 text-sm">Isso pode levar alguns segundos</p>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultado" class="hidden mt-8 opacity-0 animate-fade-in-up">
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-check-circle text-emerald-300"></i>
+                        <h4 class="text-xs uppercase opacity-80 font-bold">Análise Concluída</h4>
+                    </div>
+                    <p id="labelAlimento" class="text-2xl font-black capitalize tracking-tight">--</p>
+                </div>
+                <div class="result-body">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="stat-box">
+                            <p class="text-[10px] uppercase font-bold mb-1" style="color: var(--text-secondary);">Energia</p>
+                            <p id="kcal" class="text-2xl font-bold" style="color: var(--text);">--</p>
+                            <p class="text-xs mt-1" style="color: var(--text-secondary);">Kcal estimadas</p>
+                        </div>
+                        <div class="stat-box">
+                            <p class="text-[10px] uppercase font-bold mb-1" style="color: var(--text-secondary);">Macros</p>
+                            <div class="text-sm font-bold text-emerald-600" id="macros-short">--</div>
+                            <p class="text-xs mt-1" style="color: var(--text-secondary);">Proteínas, Carbos, Gorduras</p>
+                        </div>
+                    </div>
+                    
+                    <!-- ====== NOVO: FEEDBACK DA IA NUTRICIONAL ====== -->
+                    <div id="feedbackIA" class="hidden mt-5 p-5 rounded-2xl" style="background: var(--bg); border: 1px solid var(--border);">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-robot text-emerald-500 text-lg"></i>
+                                <span class="font-bold text-sm" style="color: var(--text);">Análise da IA Nutricional</span>
+                            </div>
+                            <!-- Score Badge -->
+                            <div id="scoreBadge" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold">
+                                <span id="scoreValue">0</span><span class="opacity-70">/10</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Status: Pode Consumir -->
+                        <div id="statusConsumo" class="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold">
+                            <i id="statusIcon" class="fas fa-check-circle"></i>
+                            <span id="statusTexto">Analisando...</span>
+                        </div>
+                        
+                        <!-- Análise em relação à meta -->
+                        <div class="mb-3">
+                            <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">
+                                <i class="fas fa-bullseye mr-1"></i>Em relação à sua meta
+                            </p>
+                            <p id="analiseMeta" class="text-sm leading-relaxed" style="color: var(--text);">
+                                Aguardando análise...
+                            </p>
+                        </div>
+                        
+                        <!-- Dica BSFM -->
+                        <div class="p-3 rounded-xl" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15);">
+                            <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">
+                                <i class="fas fa-lightbulb mr-1"></i>Dica BSFM
+                            </p>
+                            <p id="dicaBSFM" class="text-sm leading-relaxed" style="color: var(--text);">
+                                Aguardando dica personalizada...
+                            </p>
+                        </div>
+                    </div>
+                    <!-- ====== FIM FEEDBACK IA ====== -->
+                    
+                    <div class="mt-4 pt-4 text-center" style="border-top: 1px solid var(--border);">
+                        <p class="text-xs italic" style="color: var(--text-secondary);">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Os dados salvos ficarão disponíveis por 2 dias em seu diário.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="canvas"></canvas>
+    </div>
+
+<script>
+    // URL da API - backend no Render
+    const API_URL = 'https://bsfm-nutri.onrender.com';
+    const video = document.getElementById('video');
+    const imgPreview = document.getElementById('imgPreview');
+    const canvas = document.getElementById('canvas');
+    let streamOriginal = null;
+    let arquivoSelecionado = null;
+    let porcaoSelecionada = "medio";
+
+    // Initialize Camera on Load
+    async function initCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: "environment",
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            });
+            streamOriginal = stream;
+            video.srcObject = stream;
+        } catch(e) {
+            console.warn("Camera mode unavailable:", e);
+            document.getElementById('video').poster = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%231e293b" width="100" height="100"/><text x="50" y="50" text-anchor="middle" fill="%2364748b" font-size="12">Câmera indisponível</text></svg>';
+        }
+    }
+
+    initCamera();
+
+    // Portion Selection
+    function selecionarPorcao(v, btn) {
+        porcaoSelecionada = v;
+        document.querySelectorAll('.portion-btn').forEach(b => {
+            b.classList.remove('active');
+            b.querySelector('i').classList.add('text-slate-400');
+        });
+        btn.classList.add('active');
+        btn.querySelector('i').classList.remove('text-slate-400');
+    }
+
+    // File Preview
+    function previewArquivo(input) {
+        if (input.files && input.files[0]) {
+            arquivoSelecionado = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imgPreview.src = e.target.result;
+                imgPreview.classList.remove('hidden');
+                video.classList.add('hidden');
+                document.getElementById('btnReset').classList.remove('hidden');
+                
+                // Update mode buttons
+                document.getElementById('btnCamera').classList.remove('active');
+                document.getElementById('btnGallery').classList.add('active');
+            }
+            reader.readAsDataURL(arquivoSelecionado);
+        }
+    }
+
+    // Reset Capture
+    function resetarCaptura() {
+        arquivoSelecionado = null;
+        document.getElementById('inputArquivo').value = "";
+        imgPreview.classList.add('hidden');
+        video.classList.remove('hidden');
+        document.getElementById('btnReset').classList.add('hidden');
+        document.getElementById('resultado').classList.add('hidden');
+        
+        // Update mode buttons
+        document.getElementById('btnGallery').classList.remove('active');
+        document.getElementById('btnCamera').classList.add('active');
+    }
+
+    // Focus Camera
+    function focarCamera() {
+        resetarCaptura();
+    }
+
+    // Start Analysis
+    async function iniciarAnalise() {
+        const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if(!userData) { 
+            window.location.href = 'login.html'; 
+            return; 
+        }
+
+        let fotoBlob;
+
+        // UI State: Loading
+        document.getElementById('loader').classList.remove('hidden');
+        document.getElementById('btnSubmit').classList.add('hidden');
+        document.getElementById('resultado').classList.add('hidden');
+
+        // 1. Determine image source
+        if(arquivoSelecionado) {
+            fotoBlob = arquivoSelecionado;
+        } else {
+            // Capture from video
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                fotoBlob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+            } else {
+                alert("Aguarde a câmera carregar completamente.");
+                resetUI();
+                return;
+            }
+        }
+
+        // 2. Prepare FormData
+        const fd = new FormData();
+        fd.append("foto", fotoBlob, "foto.jpg");
+        fd.append("porcao", porcaoSelecionada);
+        fd.append("usuarioId", userData.id);
+
+        try {
+            const response = await fetch(`${API_URL}/analisar-prato`, {
+                method: 'POST',
+                body: fd
+            });
+
+            if (response.ok) {
+                const resJson = await response.json();
+                const info = resJson.dados;
+
+                // Display results
+                document.getElementById('labelAlimento').innerText = info.alimento || "Alimento não identificado";
+                document.getElementById('kcal').innerText = Math.round(info.calorias) + " kcal";
+                document.getElementById('macros-short').innerHTML = 
+                    `P: <span class="text-slate-800">${info.proteinas.toFixed(1)}g</span> | ` +
+                    `C: <span class="text-slate-800">${info.carbos.toFixed(1)}g</span> | ` +
+                    `G: <span class="text-slate-800">${info.gorduras.toFixed(1)}g</span>`;
+                
+                // ====== NOVO: Exibir feedback da IA Nutricional ======
+                if (info.podeConsumir !== undefined && info.podeConsumir !== null) {
+                    const feedbackDiv = document.getElementById('feedbackIA');
+                    feedbackDiv.classList.remove('hidden');
+                    
+                    // Score
+                    const score = info.pontuacaoSaude || 0;
+                    document.getElementById('scoreValue').innerText = score;
+                    const scoreBadge = document.getElementById('scoreBadge');
+                    if (score >= 7) {
+                        scoreBadge.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700';
+                    } else if (score >= 4) {
+                        scoreBadge.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700';
+                    } else {
+                        scoreBadge.className = 'flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-red-100 text-red-700';
+                    }
+                    
+                    // Status consumo
+                    const statusDiv = document.getElementById('statusConsumo');
+                    const statusIcon = document.getElementById('statusIcon');
+                    const statusTexto = document.getElementById('statusTexto');
+                    if (info.podeConsumir === true) {
+                        statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-emerald-100 text-emerald-700';
+                        statusIcon.className = 'fas fa-check-circle';
+                        statusTexto.innerText = '✅ Pode consumir! Opção saudável.';
+                    } else if (info.podeConsumir === false) {
+                        statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-red-100 text-red-700';
+                        statusIcon.className = 'fas fa-times-circle';
+                        statusTexto.innerText = '⚠️ Evite consumir. Não é recomendado.';
+                    } else {
+                        statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-amber-100 text-amber-700';
+                        statusIcon.className = 'fas fa-exclamation-circle';
+                        statusTexto.innerText = '⚖️ Consuma com moderação.';
+                    }
+                    
+                    // Análise em relação à meta
+                    document.getElementById('analiseMeta').innerText = info.analiseEmRelacaoAMeta || 'Análise personalizada não disponível.';
+                    
+                    // Dica BSFM
+                    document.getElementById('dicaBSFM').innerText = info.dicaBSFM || 'Dica não disponível no momento.';
+                }
+                // ====== FIM FEEDBACK IA ======
+                
+                document.getElementById('resultado').classList.remove('hidden');
+                document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                alert("A IA não detectou um alimento visível ou não mapeado. Tente outra posição.");
+            }
+        } catch (err) {
+            console.error("Analysis error:", err);
+            alert("Servidor BSFM offline temporariamente. Tente novamente.");
+        } finally {
+            resetUI();
+        }
+    }
+
+    function resetUI() {
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('btnSubmit').classList.remove('hidden');
+    }
+
+    // ====== TEMA ======
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const icon = document.getElementById('themeIcon');
+        if (document.body.classList.contains('light-mode')) {
+            icon.className = 'fas fa-moon';
+            localStorage.setItem('bsfmTheme', 'light');
+        } else {
+            icon.className = 'fas fa-sun';
+            localStorage.setItem('bsfmTheme', 'dark');
+        }
+    }
+
+    // Carregar tema salvo (padrão é escuro)
+    if (localStorage.getItem('bsfmTheme') !== 'light') {
+        document.body.classList.remove('light-mode');
+        document.getElementById('themeIcon').className = 'fas fa-sun';
+    } else {
+        document.body.classList.add('light-mode');
+        document.getElementById('themeIcon').className = 'fas fa-moon';
+    }
+</script>
+
+</body>
+</html>
