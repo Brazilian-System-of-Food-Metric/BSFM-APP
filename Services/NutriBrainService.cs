@@ -216,6 +216,26 @@ namespace BSFM.CoreAnalytics.Backend.Services
 
         [JsonPropertyName("DicaBSFM")]
         public string? DicaBSFM { get; set; }
+
+        // ====== CAMPOS NUTRICIONAIS EXTRAÍDOS DO OCR ======
+        // O Groq deve extrair estes valores do texto OCR do rótulo
+        [JsonPropertyName("Calorias")]
+        public double Calorias { get; set; }
+
+        [JsonPropertyName("Carboidratos")]
+        public double Carboidratos { get; set; }
+
+        [JsonPropertyName("Proteinas")]
+        public double Proteinas { get; set; }
+
+        [JsonPropertyName("Gorduras")]
+        public double Gorduras { get; set; }
+
+        [JsonPropertyName("Sodio")]
+        public double Sodio { get; set; }
+
+        [JsonPropertyName("Acucar")]
+        public double Acucar { get; set; }
     }
 
     // ====== REQUEST MODELS ======

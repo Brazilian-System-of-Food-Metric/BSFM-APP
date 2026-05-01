@@ -220,22 +220,22 @@
                                     <p class="text-xs" style="color: var(--text-secondary);">Porção ${item.porcao}</p>
                                 </div>
                                 <div class="px-3 py-1.5 rounded-xl font-bold text-sm" style="background: #1a1a1a; color: white;">
-                                    ${item.calorias} <span class="text-[9px]" style="color: #94a3b8;">kcal</span>
+                                    ${item.calorias > 0 ? item.calorias : 'N/A'} <span class="text-[9px]" style="color: #94a3b8;">${item.calorias > 0 ? 'kcal' : ''}</span>
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-3 gap-3 mb-5">
                                 <div class="rounded-2xl p-3" style="background: rgba(59,130,246,0.1);">
                                     <p class="text-[9px] font-bold uppercase" style="color: #3b82f6;">Carbos</p>
-                                    <p class="font-bold" style="color: #3b82f6;">${item.carbos}g</p>
+                                    <p class="font-bold" style="color: #3b82f6;">${item.carbos > 0 ? item.carbos + 'g' : 'N/A'}</p>
                                 </div>
                                 <div class="rounded-2xl p-3" style="background: rgba(244,63,94,0.1);">
                                     <p class="text-[9px] font-bold uppercase" style="color: #f43f5e;">Proteínas</p>
-                                    <p class="font-bold" style="color: #f43f5e;">${item.proteinas}g</p>
+                                    <p class="font-bold" style="color: #f43f5e;">${item.proteinas > 0 ? item.proteinas + 'g' : 'N/A'}</p>
                                 </div>
                                 <div class="rounded-2xl p-3" style="background: rgba(245,158,11,0.1);">
                                     <p class="text-[9px] font-bold uppercase" style="color: #f59e0b;">Gorduras</p>
-                                    <p class="font-bold" style="color: #f59e0b;">${item.gorduras}g</p>
+                                    <p class="font-bold" style="color: #f59e0b;">${item.gorduras > 0 ? item.gorduras + 'g' : 'N/A'}</p>
                                 </div>
                             </div>
 
@@ -248,7 +248,7 @@
                             </div>
 
                             <!-- Botão Salvar nos Planos -->
-                            <button onclick="abrirModalPlano('${item.id}', '${item.alimento.replace(/'/g, "\\'")}', ${item.calorias}, ${item.proteinas}, ${item.carbos}, ${item.gorduras})" 
+                            <button onclick="abrirModalPlano('${item.id}', '${item.alimento.replace(/'/g, "\\'")}', ${item.calorias > 0 ? item.calorias : 0}, ${item.proteinas > 0 ? item.proteinas : 0}, ${item.carbos > 0 ? item.carbos : 0}, ${item.gorduras > 0 ? item.gorduras : 0})" 
                                     class="mt-4 w-full py-3 rounded-2xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2"
                                     style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
                                 <i class="fas fa-calendar-plus"></i>
@@ -266,6 +266,36 @@
         }
 
         function gerarFeedback(analise, gastoDiario) {
+            // Se a análise tem feedback personalizado do Groq (análise de rótulo ou prato)
+            if (analise.analiseEmRelacaoAMeta && analise.analiseEmRelacaoAMeta.length > 10) {
+                // Determina cor/emoji baseado no PodeConsumir
+                if (analise.podeConsumir === true) {
+                    return {
+                        texto: analise.analiseEmRelacaoAMeta,
+                        emoji: "✅",
+                        corFundo: "rgba(16,185,129,0.1)",
+                        corTexto: "#059669",
+                        corBorda: "rgba(16,185,129,0.3)"
+                    };
+                } else if (analise.podeConsumir === false) {
+                    return {
+                        texto: analise.analiseEmRelacaoAMeta,
+                        emoji: "❌",
+                        corFundo: "rgba(239,68,68,0.1)",
+                        corTexto: "#dc2626",
+                        corBorda: "rgba(239,68,68,0.3)"
+                    };
+                } else if (analise.podeConsumir === null && analise.pontuacaoSaude > 0) {
+                    return {
+                        texto: analise.analiseEmRelacaoAMeta,
+                        emoji: "⚖️",
+                        corFundo: "rgba(251,146,60,0.1)",
+                        corTexto: "#ea580c",
+                        corBorda: "rgba(251,146,60,0.3)"
+                    };
+                }
+            }
+
             const limiteRefeicao = (gastoDiario * 0.35);
             
             if (analise.calorias > limiteRefeicao) {

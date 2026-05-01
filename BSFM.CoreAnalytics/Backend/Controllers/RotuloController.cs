@@ -74,7 +74,7 @@ namespace BSFM.CoreAnalytics.Backend.Controllers
                 // 3. Envia para o Groq
                 var resultado = await _nutriBrain.AnalisarRotuloAsync(request.TextoOcr, systemPrompt);
 
-                // 4. Salva no histórico
+                // 4. Salva no histórico com os macros extraídos pelo Groq
                 try
                 {
                     var analise = new AnaliseIA
@@ -82,10 +82,10 @@ namespace BSFM.CoreAnalytics.Backend.Controllers
                         UsuarioID = request.UsuarioId,
                         Alimento = resultado.ProdutoDetectado ?? "Rótulo escaneado",
                         Porcao = "N/A",
-                        Calorias = 0,
-                        Proteinas = 0,
-                        Carbos = 0,
-                        Gorduras = 0,
+                        Calorias = Math.Round(resultado.Calorias, 2),
+                        Proteinas = Math.Round(resultado.Proteinas, 2),
+                        Carbos = Math.Round(resultado.Carboidratos, 2),
+                        Gorduras = Math.Round(resultado.Gorduras, 2),
                         DataAnalise = DateTime.Now,
                         PodeConsumir = resultado.PodeConsumir,
                         PontuacaoSaude = resultado.PontuacaoSaude,
@@ -95,7 +95,8 @@ namespace BSFM.CoreAnalytics.Backend.Controllers
 
                     _db.AnalisesIA.Add(analise);
                     await _db.SaveChangesAsync();
-                    _logger.LogInformation("[ROTULO] Análise salva no histórico com ID {AnaliseId}", analise.ID);
+                    _logger.LogInformation("[ROTULO] Análise salva no histórico com ID {AnaliseId} - Calorias={Calorias}, Carbos={Carbos}, Proteinas={Proteinas}, Gorduras={Gorduras}", 
+                        analise.ID, analise.Calorias, analise.Carbos, analise.Proteinas, analise.Gorduras);
                 }
                 catch (Exception ex)
                 {
@@ -103,8 +104,8 @@ namespace BSFM.CoreAnalytics.Backend.Controllers
                     _logger.LogWarning(ex, "[ROTULO] Não foi possível salvar análise no histórico");
                 }
 
-                _logger.LogInformation("[ROTULO] Análise concluída: {Produto} - Score: {Score}", 
-                    resultado.ProdutoDetectado, resultado.PontuacaoSaude);
+                _logger.LogInformation("[ROTULO] Análise concluída: {Produto} - Score: {Score} - Calorias: {Calorias}kcal", 
+                    resultado.ProdutoDetectado, resultado.PontuacaoSaude, resultado.Calorias);
 
                 return Ok(new
                 {
@@ -112,7 +113,13 @@ namespace BSFM.CoreAnalytics.Backend.Controllers
                     podeConsumir = resultado.PodeConsumir,
                     pontuacaoSaude = resultado.PontuacaoSaude,
                     analiseEmRelacaoAMeta = resultado.AnaliseEmRelacaoAMeta,
-                    dicaBSFM = resultado.DicaBSFM
+                    dicaBSFM = resultado.DicaBSFM,
+                    calorias = resultado.Calorias,
+                    carboidratos = resultado.Carboidratos,
+                    proteinas = resultado.Proteinas,
+                    gorduras = resultado.Gorduras,
+                    sodio = resultado.Sodio,
+                    acucar = resultado.Acucar
                 });
             }
             catch (ArgumentException ex)

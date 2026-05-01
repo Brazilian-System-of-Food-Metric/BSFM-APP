@@ -648,11 +648,11 @@
 
                 // Display results
                 document.getElementById('labelAlimento').innerText = info.alimento || "Alimento não identificado";
-                document.getElementById('kcal').innerText = Math.round(info.calorias) + " kcal";
+                document.getElementById('kcal').innerText = (info.calorias > 0 ? Math.round(info.calorias) : 'N/A') + (info.calorias > 0 ? " kcal" : "");
                 document.getElementById('macros-short').innerHTML = 
-                    `P: <span class="text-slate-800">${info.proteinas.toFixed(1)}g</span> | ` +
-                    `C: <span class="text-slate-800">${info.carbos.toFixed(1)}g</span> | ` +
-                    `G: <span class="text-slate-800">${info.gorduras.toFixed(1)}g</span>`;
+                    `P: <span class="text-slate-800">${info.proteinas > 0 ? info.proteinas.toFixed(1) + 'g' : 'N/A'}</span> | ` +
+                    `C: <span class="text-slate-800">${info.carbos > 0 ? info.carbos.toFixed(1) + 'g' : 'N/A'}</span> | ` +
+                    `G: <span class="text-slate-800">${info.gorduras > 0 ? info.gorduras.toFixed(1) + 'g' : 'N/A'}</span>`;
                 
                 // ====== NOVO: Exibir feedback da IA Nutricional ======
                 if (info.podeConsumir !== undefined && info.podeConsumir !== null) {

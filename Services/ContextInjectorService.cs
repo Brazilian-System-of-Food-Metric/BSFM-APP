@@ -173,9 +173,15 @@ Retorne APENAS um JSON valido com estes campos:
 - PontuacaoSaude: numero de 0 a 10 (0=pesimo, 10=excelente)
 - AnaliseEmRelacaoAMeta: string com analise em portugues
 - DicaBSFM: string com dica pratica em portugues
+- Calorias: numero (kcal por porcao, extraido do OCR, 0 se nao encontrado)
+- Carboidratos: numero (gramas por porcao, extraido do OCR, 0 se nao encontrado)
+- Proteinas: numero (gramas por porcao, extraido do OCR, 0 se nao encontrado)
+- Gorduras: numero (gramas por porcao, extraido do OCR, 0 se nao encontrado)
+- Sodio: numero (mg por porcao, extraido do OCR, 0 se nao encontrado)
+- Acucar: numero (gramas por porcao, extraido do OCR, 0 se nao encontrado)
 
 ## EXEMPLO:
-Use aspas duplas para strings, true/false/null para booleanos, e numeros para PontuacaoSaude. Exemplo valido: ProdutoDetectado como string, PodeConsumir como true, PontuacaoSaude como 7, AnaliseEmRelacaoAMeta como texto, DicaBSFM como texto.";
+Use aspas duplas para strings, true/false/null para booleanos, e numeros para PontuacaoSaude. Exemplo valido: ProdutoDetectado como string, PodeConsumir como true, PontuacaoSaude como 7, AnaliseEmRelacaoAMeta como texto, DicaBSFM como texto, Calorias como 150, Carboidratos como 20, Proteinas como 5, Gorduras como 8, Sodio como 400, Acucar como 10.";
         }
     }
 

@@ -843,7 +843,7 @@ app.MapPost("/api/rotulo/analisar", async (
         // 3. Envia para o Groq
         var resultado = await nutriBrain.AnalisarRotuloAsync(request.TextoOcr, systemPrompt);
 
-        // 4. Salva no histórico
+        // 4. Salva no histórico com os macros extraídos pelo Groq
         try
         {
             var analise = new ClassesBSFM.AnaliseIA
@@ -851,10 +851,10 @@ app.MapPost("/api/rotulo/analisar", async (
                 UsuarioID = request.UsuarioId,
                 Alimento = resultado.ProdutoDetectado ?? "Rótulo escaneado",
                 Porcao = "N/A",
-                Calorias = 0,
-                Proteinas = 0,
-                Carbos = 0,
-                Gorduras = 0,
+                Calorias = Math.Round(resultado.Calorias, 2),
+                Proteinas = Math.Round(resultado.Proteinas, 2),
+                Carbos = Math.Round(resultado.Carboidratos, 2),
+                Gorduras = Math.Round(resultado.Gorduras, 2),
                 DataAnalise = DateTime.Now,
                 PodeConsumir = resultado.PodeConsumir,
                 PontuacaoSaude = resultado.PontuacaoSaude,
@@ -864,15 +864,16 @@ app.MapPost("/api/rotulo/analisar", async (
 
             db.AnalisesIA.Add(analise);
             await db.SaveChangesAsync();
-            logger.LogInformation("[ROTULO] Análise salva no histórico com ID {AnaliseId}", analise.ID);
+            logger.LogInformation("[ROTULO] Análise salva no histórico com ID {AnaliseId} - Calorias={Calorias}, Carbos={Carbos}, Proteinas={Proteinas}, Gorduras={Gorduras}", 
+                analise.ID, analise.Calorias, analise.Carbos, analise.Proteinas, analise.Gorduras);
         }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "[ROTULO] Não foi possível salvar análise no histórico");
         }
 
-        logger.LogInformation("[ROTULO] Análise concluída: {Produto} - Score: {Score}", 
-            resultado.ProdutoDetectado, resultado.PontuacaoSaude);
+        logger.LogInformation("[ROTULO] Análise concluída: {Produto} - Score: {Score} - Calorias: {Calorias}kcal", 
+            resultado.ProdutoDetectado, resultado.PontuacaoSaude, resultado.Calorias);
 
         return Results.Ok(new
         {
@@ -880,7 +881,13 @@ app.MapPost("/api/rotulo/analisar", async (
             podeConsumir = resultado.PodeConsumir,
             pontuacaoSaude = resultado.PontuacaoSaude,
             analiseEmRelacaoAMeta = resultado.AnaliseEmRelacaoAMeta,
-            dicaBSFM = resultado.DicaBSFM
+            dicaBSFM = resultado.DicaBSFM,
+            calorias = resultado.Calorias,
+            carboidratos = resultado.Carboidratos,
+            proteinas = resultado.Proteinas,
+            gorduras = resultado.Gorduras,
+            sodio = resultado.Sodio,
+            acucar = resultado.Acucar
         });
     }
     catch (ArgumentException ex)
