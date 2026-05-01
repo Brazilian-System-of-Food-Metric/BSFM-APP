@@ -173,12 +173,16 @@ using (var scope = app.Services.CreateScope()) {
 }
 
 // --- COMANDOS PARA O SITE FUNCIONAR ---
-app.UseDefaultFiles(); // Faz o sistema procurar pelo index.html ou login.html automaticamente
+// Configura o arquivo padrão como login.html (App mobile começa no login, não na landing page)
+var defaultFilesOptions = new DefaultFilesOptions();
+defaultFilesOptions.DefaultFileNames.Clear();
+defaultFilesOptions.DefaultFileNames.Add("login.html");
+app.UseDefaultFiles(defaultFilesOptions);
 app.UseStaticFiles();  // Importante: Entrega arquivos dentro da pasta 'wwwroot'
 
-// Rota para a Página Inicial (Fallback caso o DefaultFiles não pegue)
+// Rota para a Página Inicial - Redireciona para Login (App mobile começa no login)
 app.MapGet("/", (IWebHostEnvironment env) => 
-    Results.File(Path.Combine(env.WebRootPath ?? "wwwroot", "index.html"), "text/html"));
+    Results.File(Path.Combine(env.WebRootPath ?? "wwwroot", "login.html"), "text/html"));
 
 // --- SUAS ROTAS DE API ---
 

@@ -2,7 +2,7 @@
   "name": "BSFM - Nutrição Inteligente",
   "short_name": "BSFM",
   "description": "Brazilian System of Food Metric - Acompanhamento alimentar inteligente com IA",
-  "start_url": "/index.html",
+  "start_url": "/login.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#10b981",
