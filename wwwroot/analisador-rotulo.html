@@ -312,6 +312,13 @@
                 </div>
                 <h3 class="text-lg font-bold mb-1">Consultando NutriBrain IA...</h3>
                 <p class="text-sm" style="color: var(--text-secondary);">Analisando o rótulo com Groq Llama 3</p>
+                <!-- Aviso de tempo -->
+                <div class="mt-4 p-3 rounded-xl bg-amber-900/20 border border-amber-700/30">
+                    <p class="text-xs text-amber-300">
+                        <i class="fas fa-clock mr-1"></i>
+                        A análise pode levar até <strong>30 segundos</strong>. Não feche esta página.
+                    </p>
+                </div>
             </div>
 
             <!-- Result -->
@@ -335,6 +342,12 @@
                         <div class="ocr-progress">
                             <div id="scoreBar" class="ocr-progress-bar" style="width: 0%"></div>
                         </div>
+                    </div>
+
+                    <!-- Status: Pode Consumir -->
+                    <div id="statusConsumo" class="flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold">
+                        <i id="statusIcon" class="fas fa-check-circle"></i>
+                        <span id="statusTexto">Analisando...</span>
                     </div>
 
                     <!-- Analysis -->
@@ -582,7 +595,7 @@
         // Produto
         document.getElementById('produtoNome').textContent = data.produtoDetectado || 'Produto não identificado';
 
-        // Status (PodeConsumir)
+        // Status (PodeConsumir) - estilo igual ao analisador-ia.html
         const statusEl = document.getElementById('produtoStatus');
         if (data.podeConsumir === true) {
             statusEl.innerHTML = '<span class="text-emerald-500"><i class="fas fa-check-circle mr-1"></i> Pode consumir</span>';
@@ -605,6 +618,24 @@
         document.getElementById('scoreValue').textContent = `${score}/10`;
         document.getElementById('scoreBar').style.width = `${(score / 10) * 100}%`;
         document.getElementById('scoreBar').style.background = scoreColor;
+
+        // Status consumo visual (igual ao analisador-ia.html)
+        const statusDiv = document.getElementById('statusConsumo');
+        const statusIcon = document.getElementById('statusIcon');
+        const statusTexto = document.getElementById('statusTexto');
+        if (data.podeConsumir === true) {
+            statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-emerald-100 text-emerald-700';
+            statusIcon.className = 'fas fa-check-circle';
+            statusTexto.innerText = 'Pode consumir! Opção saudável.';
+        } else if (data.podeConsumir === false) {
+            statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-red-100 text-red-700';
+            statusIcon.className = 'fas fa-times-circle';
+            statusTexto.innerText = 'Evite consumir. Não é recomendado.';
+        } else {
+            statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-amber-100 text-amber-700';
+            statusIcon.className = 'fas fa-exclamation-circle';
+            statusTexto.innerText = 'Consuma com moderação.';
+        }
 
         // Análise
         document.getElementById('analiseMeta').textContent = data.analiseEmRelacaoAMeta || 'Análise não disponível.';
