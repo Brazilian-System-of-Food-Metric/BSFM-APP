@@ -244,27 +244,39 @@ app.MapPost("/cadastrar-usuario-final", (Usuario usuarioVindoDoJs) => {
     }
 });
 
-app.MapPost("/login", (LoginDTO dadosLogin) => {
-    try {
-        using var scope = app.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<PonteDB>();
-        var user = db.Usuarios.FirstOrDefault(u => u.Email.ToLower() == dadosLogin.Email.Trim().ToLower());
-        if (user != null && BCrypt.Net.BCrypt.Verify(dadosLogin.Senha, user.SenhaHash)) {
-            return Results.Ok(new { 
-                id = user.ID, 
-                nome = user.Nome, 
-                email = user.Email,
-                imc = user.IMC, 
-                tmb = user.TMB, 
-                gasto = user.GastoTotal,
-                peso = user.Peso,
-                altura = user.Altura,
-                pesoMeta = user.PesoMeta,
-                dataNascimento = user.DataNascimento,
-                idade = user.CalcularIdade()
-            }); 
+app.MapPost("/login", async (LoginDTO dadosLogin, PonteBanco.PonteDB db) => {
+    try
+    {
+        Console.WriteLine($"[LOGIN] Tentativa de login para: {dadosLogin.Email}");
+
+        var user = await db.Usuarios.FirstOrDefaultAsync(u => u.Email.ToLower() == dadosLogin.Email.Trim().ToLower());
+
+        if (user == null)
+        {
+            Console.WriteLine($"[LOGIN] Usuário não encontrado: {dadosLogin.Email}");
+            return Results.Json(new { mensagem = "E-mail ou senha incorretos." }, statusCode: 400);
         }
-        return Results.Json(new { mensagem = "E-mail ou senha incorretos." }, statusCode: 400);
+
+        if (!BCrypt.Net.BCrypt.Verify(dadosLogin.Senha, user.SenhaHash))
+        {
+            Console.WriteLine($"[LOGIN] Senha incorreta para: {dadosLogin.Email}");
+            return Results.Json(new { mensagem = "E-mail ou senha incorretos." }, statusCode: 400);
+        }
+
+        Console.WriteLine($"[LOGIN] Login bem-sucedido: {dadosLogin.Email}");
+        return Results.Ok(new { 
+            id = user.ID, 
+            nome = user.Nome, 
+            email = user.Email,
+            imc = user.IMC, 
+            tmb = user.TMB, 
+            gasto = user.GastoTotal,
+            peso = user.Peso,
+            altura = user.Altura,
+            pesoMeta = user.PesoMeta,
+            dataNascimento = user.DataNascimento,
+            idade = user.CalcularIdade()
+        });
     }
     catch (Exception ex)
     {
