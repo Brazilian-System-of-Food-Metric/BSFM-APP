@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,12 +7,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
     <title>BSFM - Analisador IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -350,7 +353,7 @@
                 </a>
                 <div>
                     <h1 class="text-2xl font-bold" style="color: var(--text);">
-                        Análise de Prato <span class="text-emerald-600">IA</span>
+                        AnÃ¡lise de Prato <span class="text-emerald-600">IA</span>
                     </h1>
                     <p style="color: var(--text-secondary);" class="text-sm">Reconhecimento inteligente de alimentos</p>
                 </div>
@@ -399,7 +402,7 @@
         <div class="grid grid-cols-2 gap-4 mb-6 opacity-0 animate-fade-in-up animate-delay-200">
             <button onclick="focarCamera()" class="mode-btn active" id="btnCamera">
                 <i class="fas fa-camera text-emerald-600"></i>
-                <span class="text-xs font-bold text-slate-600 uppercase">Câmera</span>
+                <span class="text-xs font-bold text-slate-600 uppercase">CÃ¢mera</span>
             </button>
 
             <button onclick="document.getElementById('inputArquivo').click()" class="mode-btn" id="btnGallery">
@@ -411,7 +414,7 @@
 
         <!-- Portion Selector -->
         <div class="p-6 rounded-2xl mb-6 opacity-0 animate-fade-in-up animate-delay-300" style="background: var(--bg-card); border: 1px solid var(--border);">
-            <label class="block text-xs font-bold uppercase tracking-widest mb-4" style="color: var(--text-secondary);">Tamanho da Porção</label>
+            <label class="block text-xs font-bold uppercase tracking-widest mb-4" style="color: var(--text-secondary);">Tamanho da PorÃ§Ã£o</label>
             <div class="grid grid-cols-3 gap-3">
                 <button onclick="selecionarPorcao('pequeno', this)" class="portion-btn" id="porcaoPequeno">
                     <i class="fas fa-circle text-xs text-slate-400 mr-1"></i>
@@ -419,7 +422,7 @@
                 </button>
                 <button onclick="selecionarPorcao('medio', this)" class="portion-btn active" id="porcaoMedio">
                     <i class="fas fa-circle text-xs mr-1"></i>
-                    Médio
+                    MÃ©dio
                 </button>
                 <button onclick="selecionarPorcao('grande', this)" class="portion-btn" id="porcaoGrande">
                     <i class="fas fa-circle text-xs text-slate-400 mr-1"></i>
@@ -449,7 +452,7 @@
                 <div class="result-header">
                     <div class="flex items-center gap-3 mb-2">
                         <i class="fas fa-check-circle text-emerald-300"></i>
-                        <h4 class="text-xs uppercase opacity-80 font-bold">Análise Concluída</h4>
+                        <h4 class="text-xs uppercase opacity-80 font-bold">AnÃ¡lise ConcluÃ­da</h4>
                     </div>
                     <p id="labelAlimento" class="text-2xl font-black capitalize tracking-tight">--</p>
                 </div>
@@ -463,7 +466,7 @@
                         <div class="stat-box">
                             <p class="text-[10px] uppercase font-bold mb-1" style="color: var(--text-secondary);">Macros</p>
                             <div class="text-sm font-bold text-emerald-600" id="macros-short">--</div>
-                            <p class="text-xs mt-1" style="color: var(--text-secondary);">Proteínas, Carbos, Gorduras</p>
+                            <p class="text-xs mt-1" style="color: var(--text-secondary);">ProteÃ­nas, Carbos, Gorduras</p>
                         </div>
                     </div>
                     
@@ -472,7 +475,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-robot text-emerald-500 text-lg"></i>
-                                <span class="font-bold text-sm" style="color: var(--text);">Análise da IA Nutricional</span>
+                                <span class="font-bold text-sm" style="color: var(--text);">AnÃ¡lise da IA Nutricional</span>
                             </div>
                             <!-- Score Badge -->
                             <div id="scoreBadge" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold">
@@ -486,13 +489,13 @@
                             <span id="statusTexto">Analisando...</span>
                         </div>
                         
-                        <!-- Análise em relação à meta -->
+                        <!-- AnÃ¡lise em relaÃ§Ã£o Ã  meta -->
                         <div class="mb-3">
                             <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--text-secondary);">
-                                <i class="fas fa-bullseye mr-1"></i>Em relação à sua meta
+                                <i class="fas fa-bullseye mr-1"></i>Em relaÃ§Ã£o Ã  sua meta
                             </p>
                             <p id="analiseMeta" class="text-sm leading-relaxed" style="color: var(--text);">
-                                Aguardando análise...
+                                Aguardando anÃ¡lise...
                             </p>
                         </div>
                         
@@ -511,7 +514,7 @@
                     <div class="mt-4 pt-4 text-center" style="border-top: 1px solid var(--border);">
                         <p class="text-xs italic" style="color: var(--text-secondary);">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Os dados salvos ficarão disponíveis por 2 dias em seu diário.
+                            Os dados salvos ficarÃ£o disponÃ­veis por 2 dias em seu diÃ¡rio.
                         </p>
                     </div>
                 </div>
@@ -545,7 +548,7 @@
             video.srcObject = stream;
         } catch(e) {
             console.warn("Camera mode unavailable:", e);
-            document.getElementById('video').poster = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%231e293b" width="100" height="100"/><text x="50" y="50" text-anchor="middle" fill="%2364748b" font-size="12">Câmera indisponível</text></svg>';
+            document.getElementById('video').poster = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%231e293b" width="100" height="100"/><text x="50" y="50" text-anchor="middle" fill="%2364748b" font-size="12">CÃ¢mera indisponÃ­vel</text></svg>';
         }
     }
 
@@ -627,7 +630,7 @@
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
                 fotoBlob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
             } else {
-                alert("Aguarde a câmera carregar completamente.");
+                alert("Aguarde a cÃ¢mera carregar completamente.");
                 resetUI();
                 return;
             }
@@ -650,7 +653,7 @@
                 const info = resJson.dados;
 
                 // Display results
-                document.getElementById('labelAlimento').innerText = info.alimento || "Alimento não identificado";
+                document.getElementById('labelAlimento').innerText = info.alimento || "Alimento nÃ£o identificado";
                 document.getElementById('kcal').innerText = (info.calorias > 0 ? Math.round(info.calorias) : 'N/A') + (info.calorias > 0 ? " kcal" : "");
                 document.getElementById('macros-short').innerHTML = 
                     `P: <span class="text-slate-800">${info.proteinas > 0 ? info.proteinas.toFixed(1) + 'g' : 'N/A'}</span> | ` +
@@ -681,29 +684,29 @@
                     if (info.podeConsumir === true) {
                         statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-emerald-100 text-emerald-700';
                         statusIcon.className = 'fas fa-check-circle';
-                        statusTexto.innerText = '✅ Pode consumir! Opção saudável.';
+                        statusTexto.innerText = 'âœ… Pode consumir! OpÃ§Ã£o saudÃ¡vel.';
                     } else if (info.podeConsumir === false) {
                         statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-red-100 text-red-700';
                         statusIcon.className = 'fas fa-times-circle';
-                        statusTexto.innerText = '⚠️ Evite consumir. Não é recomendado.';
+                        statusTexto.innerText = 'âš ï¸ Evite consumir. NÃ£o Ã© recomendado.';
                     } else {
                         statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-amber-100 text-amber-700';
                         statusIcon.className = 'fas fa-exclamation-circle';
-                        statusTexto.innerText = '⚖️ Consuma com moderação.';
+                        statusTexto.innerText = 'âš–ï¸ Consuma com moderaÃ§Ã£o.';
                     }
                     
-                    // Análise em relação à meta
-                    document.getElementById('analiseMeta').innerText = info.analiseEmRelacaoAMeta || 'Análise personalizada não disponível.';
+                    // AnÃ¡lise em relaÃ§Ã£o Ã  meta
+                    document.getElementById('analiseMeta').innerText = info.analiseEmRelacaoAMeta || 'AnÃ¡lise personalizada nÃ£o disponÃ­vel.';
                     
                     // Dica BSFM
-                    document.getElementById('dicaBSFM').innerText = info.dicaBSFM || 'Dica não disponível no momento.';
+                    document.getElementById('dicaBSFM').innerText = info.dicaBSFM || 'Dica nÃ£o disponÃ­vel no momento.';
                 }
                 // ====== FIM FEEDBACK IA ======
                 
                 document.getElementById('resultado').classList.remove('hidden');
                 document.getElementById('resultado').scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
-                alert("A IA não detectou um alimento visível ou não mapeado. Tente outra posição.");
+                alert("A IA nÃ£o detectou um alimento visÃ­vel ou nÃ£o mapeado. Tente outra posiÃ§Ã£o.");
             }
         } catch (err) {
             console.error("Analysis error:", err);
@@ -731,7 +734,7 @@
         }
     }
 
-    // Carregar tema salvo (padrão é escuro)
+    // Carregar tema salvo (padrÃ£o Ã© escuro)
     if (localStorage.getItem('bsfmTheme') !== 'light') {
         document.body.classList.remove('light-mode');
         document.getElementById('themeIcon').className = 'fas fa-sun';
@@ -743,3 +746,6 @@
 
 </body>
 </html>
+
+
+

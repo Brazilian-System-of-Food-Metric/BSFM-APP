@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,12 +7,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
     <title>BSFM - Painel de Controle</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -130,16 +133,16 @@
         </div>
         <nav class="space-y-1">
             <a href="dashboard.html" class="nav-item active"><i class="fas fa-fw fa-gauge-high"></i><span>Painel Principal</span></a>
-            <a href="diario.html" class="nav-item"><i class="fas fa-fw fa-utensils"></i><span>Diário Alimentar</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">RF06</span></a>
+            <a href="diario.html" class="nav-item"><i class="fas fa-fw fa-utensils"></i><span>DiÃ¡rio Alimentar</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">RF06</span></a>
             <a href="analisador-ia.html" class="nav-item"><i class="fas fa-fw fa-camera-retro"></i><span>Analisador IA</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">RF03</span></a>
-            <a href="metas.html" class="nav-item"><i class="fas fa-fw fa-bullseye"></i><span>Metas & Evolução</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">RF07</span></a>
+            <a href="metas.html" class="nav-item"><i class="fas fa-fw fa-bullseye"></i><span>Metas & EvoluÃ§Ã£o</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">RF07</span></a>
             <a href="planos.html" class="nav-item"><i class="fas fa-fw fa-calendar-week"></i><span>Pratos da Semana</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">NOVO</span></a>
-            <a href="hospitais.html" class="nav-item"><i class="fas fa-fw fa-heart-pulse"></i><span>SOS Saúde</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">RF05</span></a>
+            <a href="hospitais.html" class="nav-item"><i class="fas fa-fw fa-heart-pulse"></i><span>SOS SaÃºde</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">RF05</span></a>
             <a href="libras.html" class="nav-item"><i class="fas fa-fw fa-hands-asl-interpreting"></i><span>LIBRAS</span><span class="ml-auto bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">RF08</span></a>
         </nav>
     </div>
     <div>
-        <button onclick="sair()" class="btn-secondary w-full justify-center"><i class="fas fa-sign-out-alt mr-2 text-red-500"></i><span>Encerrar Sessão</span></button>
+        <button onclick="sair()" class="btn-secondary w-full justify-center"><i class="fas fa-sign-out-alt mr-2 text-red-500"></i><span>Encerrar SessÃ£o</span></button>
     </div>
 </aside>
 
@@ -149,8 +152,8 @@
         <div class="flex items-center gap-3 md:gap-4">
             <button onclick="toggleSidebar()" class="md:hidden text-emerald-600 text-xl p-2 hover:bg-emerald-50 rounded-lg transition min-w-[44px] min-h-[44px] flex items-center justify-center"><i class="fas fa-bars"></i></button>
             <div>
-                <h1 class="text-lg md:text-2xl font-bold" style="color: var(--text);">Olá, <span id="displayNome" class="text-emerald-600">...</span>!</h1>
-                <p style="color: var(--text-secondary);" class="text-xs md:text-sm">Aqui está seu resumo nutricional de hoje.</p>
+                <h1 class="text-lg md:text-2xl font-bold" style="color: var(--text);">OlÃ¡, <span id="displayNome" class="text-emerald-600">...</span>!</h1>
+                <p style="color: var(--text-secondary);" class="text-xs md:text-sm">Aqui estÃ¡ seu resumo nutricional de hoje.</p>
             </div>
         </div>
         <div class="flex items-center gap-2 md:gap-3">
@@ -163,7 +166,7 @@
     </header>
 
     <div class="px-4 md:px-10 pb-12">
-        <!-- ====== ALERTA DE SAÚDE PENDENTE ====== -->
+        <!-- ====== ALERTA DE SAÃšDE PENDENTE ====== -->
         <div id="alertaSaudeBanner" class="mb-4 md:mb-6 opacity-0 animate-fade-in-up animate-delay-50" style="display: none;">
             <div class="relative overflow-hidden rounded-2xl" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b;">
                 <div class="absolute inset-0 opacity-10">
@@ -175,9 +178,9 @@
                         <i class="fas fa-heart-circle-exclamation text-white text-xl"></i>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h3 class="font-bold text-base md:text-lg text-amber-900">Informações de Saúde Pendentes</h3>
+                        <h3 class="font-bold text-base md:text-lg text-amber-900">InformaÃ§Ãµes de SaÃºde Pendentes</h3>
                         <p class="text-xs md:text-sm text-amber-800/80 leading-relaxed mt-0.5">
-                            Para uma análise nutricional mais precisa, conte-nos sobre suas condições de saúde. Isso ajuda nossa IA a personalizar recomendações para você.
+                            Para uma anÃ¡lise nutricional mais precisa, conte-nos sobre suas condiÃ§Ãµes de saÃºde. Isso ajuda nossa IA a personalizar recomendaÃ§Ãµes para vocÃª.
                         </p>
                     </div>
                     <div class="flex gap-2 flex-shrink-0 w-full sm:w-auto">
@@ -201,7 +204,7 @@
                     <div class="profile-avatar shrink-0">
                         <i class="fas fa-user-circle text-4xl md:text-5xl"></i>
                     </div>
-                    <!-- Informações do Usuário -->
+                    <!-- InformaÃ§Ãµes do UsuÃ¡rio -->
                     <div class="flex-1 text-center md:text-left w-full">
                         <h2 class="text-xl md:text-2xl font-bold" id="profileNome">Carregando...</h2>
                         <p class="text-emerald-200 text-xs md:text-sm" id="profileEmail">carregando@email.com</p>
@@ -225,7 +228,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- Botões de Configuração -->
+                <!-- BotÃµes de ConfiguraÃ§Ã£o -->
                 <div class="flex flex-wrap justify-center md:justify-end gap-2 mt-4 md:mt-6">
                     <button onclick="abrirModal('peso')" class="config-btn" title="Alterar Peso"><i class="fas fa-weight-scale"></i></button>
                     <button onclick="abrirModal('nome')" class="config-btn" title="Alterar Nome"><i class="fas fa-user-pen"></i></button>
@@ -243,18 +246,18 @@
                     <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-emerald-100 flex items-center justify-center"><i class="fas fa-weight text-emerald-600 text-lg md:text-xl"></i></div>
                 </div>
                 <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
-                <p class="text-[10px] md:text-xs mt-3" style="color: var(--text-secondary);">Índice de Massa Corporal</p>
+                <p class="text-[10px] md:text-xs mt-3" style="color: var(--text-secondary);">Ãndice de Massa Corporal</p>
             </div>
             <div class="card-metric opacity-0 animate-fade-in-up animate-delay-300">
                 <div class="flex items-start justify-between mb-3">
                     <div><p class="text-[10px] md:text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Metabolismo (TMB)</p><div id="displayTMB" class="metric-value text-2xl md:text-4xl font-bold text-blue-600 mt-1">--</div></div>
                     <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-100 flex items-center justify-center"><i class="fas fa-fire text-blue-600 text-lg md:text-xl"></i></div>
                 </div>
-                <p class="text-[10px] md:text-xs mt-3" style="color: var(--text-secondary);">Kcal diárias em repouso</p>
+                <p class="text-[10px] md:text-xs mt-3" style="color: var(--text-secondary);">Kcal diÃ¡rias em repouso</p>
             </div>
             <div class="card-metric opacity-0 animate-fade-in-up animate-delay-400 sm:col-span-2 lg:col-span-1">
                 <div class="flex items-start justify-between mb-3">
-                    <div><p class="text-[10px] md:text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Gasto Diário (TDEE)</p><div id="displayGasto" class="metric-value text-2xl md:text-4xl font-bold text-orange-600 mt-1">--</div></div>
+                    <div><p class="text-[10px] md:text-xs font-semibold uppercase tracking-wider" style="color: var(--text-secondary);">Gasto DiÃ¡rio (TDEE)</p><div id="displayGasto" class="metric-value text-2xl md:text-4xl font-bold text-orange-600 mt-1">--</div></div>
                     <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-orange-100 flex items-center justify-center"><i class="fas fa-bolt text-orange-600 text-lg md:text-xl"></i></div>
                 </div>
                 <p class="text-[10px] md:text-xs mt-3" style="color: var(--text-secondary);">Kcal totais recomendadas por dia</p>
@@ -265,8 +268,8 @@
         <section class="card-feature mb-6 md:mb-8 opacity-0 animate-fade-in-up animate-delay-300">
             <div class="flex flex-col md:flex-row items-center gap-6 md:gap-8">
                 <div class="text-center">
-                    <h3 class="font-bold text-base md:text-lg mb-1" style="color: var(--text);"><i class="fas fa-droplet text-blue-500 mr-2"></i>Controle de Água</h3>
-                    <p class="text-[10px] md:text-xs mb-4" style="color: var(--text-secondary);">Meta diária: 2L</p>
+                    <h3 class="font-bold text-base md:text-lg mb-1" style="color: var(--text);"><i class="fas fa-droplet text-blue-500 mr-2"></i>Controle de Ãgua</h3>
+                    <p class="text-[10px] md:text-xs mb-4" style="color: var(--text-secondary);">Meta diÃ¡ria: 2L</p>
                     <div class="water-progress mx-auto" id="waterProgress">
                         <svg width="120" height="120" viewBox="0 0 120 120">
                             <circle class="bg-circle" cx="60" cy="60" r="50" style="stroke: var(--border);"></circle>
@@ -285,7 +288,7 @@
                     <div class="flex gap-2 items-center justify-center flex-wrap">
                         <input type="number" id="inputAguaPersonalizado" min="1" max="5000" placeholder="Digite ml" class="w-24 md:w-28 px-3 py-2 rounded-xl border-2 border-blue-200 bg-white/80 text-blue-800 font-semibold text-sm text-center focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none">
                         <button onclick="registrarAguaPersonalizado()" class="px-4 py-2 rounded-xl bg-blue-500 text-white font-bold text-sm hover:bg-blue-600 transition active:scale-95">Adicionar</button>
-                        <button onclick="removerUltimaAgua()" class="px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition active:scale-95" title="Desfazer último registro"><i class="fas fa-undo mr-1"></i>Desfazer</button>
+                        <button onclick="removerUltimaAgua()" class="px-4 py-2 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition active:scale-95" title="Desfazer Ãºltimo registro"><i class="fas fa-undo mr-1"></i>Desfazer</button>
                     </div>
                     <div class="mt-4">
                         <h4 class="text-xs md:text-sm font-bold mb-2" style="color: var(--text);">Consumo Semanal</h4>
@@ -300,24 +303,24 @@
             <div class="card-feature opacity-0 animate-fade-in-up animate-delay-400">
                 <div class="relative z-10">
                     <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4 md:mb-5 shadow-lg shadow-emerald-200"><i class="fas fa-camera text-white text-xl md:text-2xl"></i></div>
-                    <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">Análise Inteligente (IA)</h3>
-                    <p class="text-xs md:text-sm mb-4 md:mb-6 leading-relaxed" style="color: var(--text-secondary);">Escaneie seus pratos com a câmera para obter uma estimativa precisa de macros.</p>
-                    <a href="analisador-ia.html" class="btn-primary w-full justify-center inline-flex items-center text-sm md:text-base"><i class="fas fa-camera mr-2"></i><span>Abrir Câmera</span></a>
+                    <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">AnÃ¡lise Inteligente (IA)</h3>
+                    <p class="text-xs md:text-sm mb-4 md:mb-6 leading-relaxed" style="color: var(--text-secondary);">Escaneie seus pratos com a cÃ¢mera para obter uma estimativa precisa de macros.</p>
+                    <a href="analisador-ia.html" class="btn-primary w-full justify-center inline-flex items-center text-sm md:text-base"><i class="fas fa-camera mr-2"></i><span>Abrir CÃ¢mera</span></a>
                 </div>
             </div>
             <div class="card-feature opacity-0 animate-fade-in-up animate-delay-500">
                 <div class="relative z-10">
                     <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-4 md:mb-5 shadow-lg shadow-blue-200"><i class="fas fa-chart-line text-white text-xl md:text-2xl"></i></div>
-                    <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">Metas e Evolução</h3>
-                    <p class="text-xs md:text-sm mb-4 md:mb-5 leading-relaxed" style="color: var(--text-secondary);">Acompanhe seu progresso de peso com gráficos interativos.</p>
-                    <button onclick="window.location.href='metas.html'" class="btn-primary w-full justify-center inline-flex items-center text-sm md:text-base" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);"><i class="fas fa-chart-pie mr-2"></i><span>Ver Gráficos</span></button>
+                    <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">Metas e EvoluÃ§Ã£o</h3>
+                    <p class="text-xs md:text-sm mb-4 md:mb-5 leading-relaxed" style="color: var(--text-secondary);">Acompanhe seu progresso de peso com grÃ¡ficos interativos.</p>
+                    <button onclick="window.location.href='metas.html'" class="btn-primary w-full justify-center inline-flex items-center text-sm md:text-base" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);"><i class="fas fa-chart-pie mr-2"></i><span>Ver GrÃ¡ficos</span></button>
                 </div>
             </div>
             <div class="card-feature opacity-0 animate-fade-in-up animate-delay-600 sm:col-span-2 xl:col-span-1" style="background: var(--bg-card); border-color: var(--border);">
                 <div class="relative z-10">
                     <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center mb-4 md:mb-5 shadow-lg shadow-red-200"><i class="fas fa-map-location-dot text-white text-xl md:text-2xl"></i></div>
-                    <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">SOS Saúde</h3>
-                    <p class="text-xs md:text-sm mb-4 md:mb-6 leading-relaxed" style="color: var(--text-secondary);">Localize UPAs e hospitais mais próximos em casos de emergência.</p>
+                    <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">SOS SaÃºde</h3>
+                    <p class="text-xs md:text-sm mb-4 md:mb-6 leading-relaxed" style="color: var(--text-secondary);">Localize UPAs e hospitais mais prÃ³ximos em casos de emergÃªncia.</p>
                     <button class="btn-danger w-full justify-center inline-flex items-center text-sm md:text-base" onclick="window.location.href='hospitais.html'"><i class="fas fa-map-marker-alt mr-2"></i><span>Abrir Mapa</span></button>
                 </div>
             </div>
@@ -325,11 +328,11 @@
                 <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                     <div class="flex-1">
                         <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center mb-4 md:mb-5 shadow-lg shadow-orange-200"><i class="fas fa-book-open text-white text-xl md:text-2xl"></i></div>
-                        <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">Diário e Plano Alimentar</h3>
-                        <p class="text-xs md:text-sm leading-relaxed max-w-2xl" style="color: var(--text-secondary);">Planeje sua dieta e registre suas refeições diárias para atingir seus objetivos nutricionais.</p>
+                        <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">DiÃ¡rio e Plano Alimentar</h3>
+                        <p class="text-xs md:text-sm leading-relaxed max-w-2xl" style="color: var(--text-secondary);">Planeje sua dieta e registre suas refeiÃ§Ãµes diÃ¡rias para atingir seus objetivos nutricionais.</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <button onclick="window.location.href='diario.html'" class="btn-secondary px-4 md:px-6 text-sm md:text-base"><i class="fas fa-pen-to-square mr-2"></i><span>Meu Diário</span></button>
+                        <button onclick="window.location.href='diario.html'" class="btn-secondary px-4 md:px-6 text-sm md:text-base"><i class="fas fa-pen-to-square mr-2"></i><span>Meu DiÃ¡rio</span></button>
                         <button onclick="window.location.href='planos.html'" class="btn-primary px-4 md:px-6 text-sm md:text-base" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);"><i class="fas fa-clipboard-list mr-2"></i><span>Pratos da Semana</span></button>
                     </div>
                 </div>
@@ -338,24 +341,24 @@
                 <div class="relative z-10">
                     <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center mb-4 md:mb-5 shadow-lg shadow-green-200"><i class="fas fa-hands-asl-interpreting text-white text-xl md:text-2xl"></i></div>
                     <h3 class="font-bold text-base md:text-lg mb-2" style="color: var(--text);">Acessibilidade LIBRAS</h3>
-                    <p class="text-xs md:text-sm mb-4 md:mb-6 leading-relaxed" style="color: var(--text-secondary);">Conteúdo em Língua Brasileira de Sinais para inclusão de todos.</p>
+                    <p class="text-xs md:text-sm mb-4 md:mb-6 leading-relaxed" style="color: var(--text-secondary);">ConteÃºdo em LÃ­ngua Brasileira de Sinais para inclusÃ£o de todos.</p>
                     <button onclick="window.location.href='libras.html'" class="btn-primary w-full justify-center inline-flex items-center text-sm md:text-base" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);"><i class="fas fa-hands mr-2"></i><span>Acessar LIBRAS</span></button>
                 </div>
             </div>
         </section>
 
-        <!-- ====== SEÇÃO DIFERENCIADA: FERRAMENTAS INTELIGENTES ====== -->
+        <!-- ====== SEÃ‡ÃƒO DIFERENCIADA: FERRAMENTAS INTELIGENTES ====== -->
         <section class="mt-8 md:mt-12 opacity-0 animate-fade-in-up animate-delay-600">
             <div class="flex items-center gap-3 mb-5 md:mb-6">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-lg shadow-purple-500/30"><i class="fas fa-brain text-white text-lg"></i></div>
                 <div>
                     <h2 class="text-lg md:text-xl font-bold" style="color: var(--text);">Ferramentas Inteligentes</h2>
-                    <p class="text-xs" style="color: var(--text-secondary);">Análise avançada com Inteligência Artificial</p>
+                    <p class="text-xs" style="color: var(--text-secondary);">AnÃ¡lise avanÃ§ada com InteligÃªncia Artificial</p>
                 </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <!-- Card 1: Analisador de Rótulos (OCR + Groq) -->
+                <!-- Card 1: Analisador de RÃ³tulos (OCR + Groq) -->
                 <div class="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer" onclick="window.location.href='analisador-rotulo.html'" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); min-height: 200px;">
                     <div class="absolute inset-0 opacity-10">
                         <div class="absolute top-4 right-4 w-32 h-32 rounded-full bg-purple-400 blur-3xl"></div>
@@ -368,8 +371,8 @@
                             </div>
                             <span class="px-3 py-1 rounded-full bg-purple-500/30 text-purple-200 text-[10px] font-bold uppercase tracking-wider border border-purple-400/30">NOVO</span>
                         </div>
-                        <h3 class="text-white font-bold text-lg md:text-xl mb-2">Analisador de Rótulos</h3>
-                        <p class="text-purple-200/80 text-xs md:text-sm leading-relaxed flex-1">Escaneie a tabela nutricional com a câmera. O Tesseract.js extrai o texto no navegador e a IA Groq analisa se o produto é adequado para sua dieta.</p>
+                        <h3 class="text-white font-bold text-lg md:text-xl mb-2">Analisador de RÃ³tulos</h3>
+                        <p class="text-purple-200/80 text-xs md:text-sm leading-relaxed flex-1">Escaneie a tabela nutricional com a cÃ¢mera. O Tesseract.js extrai o texto no navegador e a IA Groq analisa se o produto Ã© adequado para sua dieta.</p>
                         <div class="mt-4 flex items-center gap-2 text-purple-300 text-xs font-semibold">
                             <span class="flex items-center gap-1"><i class="fas fa-microchip"></i> OCR Local</span>
                             <span class="w-1 h-1 rounded-full bg-purple-400"></span>
@@ -380,7 +383,7 @@
                     </div>
                 </div>
 
-                <!-- Card 2: Alerta de Saúde Pendente -->
+                <!-- Card 2: Alerta de SaÃºde Pendente -->
                 <div class="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] cursor-pointer" onclick="window.location.href='alerta-saude-pendente.html'" style="background: linear-gradient(135deg, #1c1917 0%, #292524 100%); min-height: 200px;">
                     <div class="absolute inset-0 opacity-10">
                         <div class="absolute top-4 left-4 w-32 h-32 rounded-full bg-amber-400 blur-3xl"></div>
@@ -391,14 +394,14 @@
                             <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center border border-white/20">
                                 <i class="fas fa-heart-pulse text-white text-2xl"></i>
                             </div>
-                            <span class="px-3 py-1 rounded-full bg-amber-500/30 text-amber-200 text-[10px] font-bold uppercase tracking-wider border border-amber-400/30">SAÚDE</span>
+                            <span class="px-3 py-1 rounded-full bg-amber-500/30 text-amber-200 text-[10px] font-bold uppercase tracking-wider border border-amber-400/30">SAÃšDE</span>
                         </div>
-                        <h3 class="text-white font-bold text-lg md:text-xl mb-2">Perfil de Saúde</h3>
-                        <p class="text-amber-200/80 text-xs md:text-sm leading-relaxed flex-1">Informe suas condições de saúde (diabetes, intolerâncias) para receber alertas personalizados na análise de alimentos. A IA considera seu perfil.</p>
+                        <h3 class="text-white font-bold text-lg md:text-xl mb-2">Perfil de SaÃºde</h3>
+                        <p class="text-amber-200/80 text-xs md:text-sm leading-relaxed flex-1">Informe suas condiÃ§Ãµes de saÃºde (diabetes, intolerÃ¢ncias) para receber alertas personalizados na anÃ¡lise de alimentos. A IA considera seu perfil.</p>
                         <div class="mt-4 flex items-center gap-2 text-amber-300 text-xs font-semibold">
                             <span class="flex items-center gap-1"><i class="fas fa-droplet"></i> Diabetes</span>
                             <span class="w-1 h-1 rounded-full bg-amber-400"></span>
-                            <span class="flex items-center gap-1"><i class="fas fa-ban"></i> Intolerâncias</span>
+                            <span class="flex items-center gap-1"><i class="fas fa-ban"></i> IntolerÃ¢ncias</span>
                             <span class="w-1 h-1 rounded-full bg-amber-400"></span>
                             <span class="flex items-center gap-1"><i class="fas fa-shield"></i> Alertas</span>
                         </div>
@@ -442,7 +445,7 @@
                 <h3 class="font-bold text-lg" style="color: var(--text);"><i class="fas fa-lock text-emerald-500 mr-2"></i>Alterar Senha</h3>
                 <button onclick="fecharModal('senha')" class="text-slate-400 hover:text-slate-600 text-xl min-w-[44px] min-h-[44px] flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <p class="text-xs mb-4" style="color: var(--text-secondary);">Digite sua nova senha (mínimo 8 caracteres).</p>
+            <p class="text-xs mb-4" style="color: var(--text-secondary);">Digite sua nova senha (mÃ­nimo 8 caracteres).</p>
             <input type="password" id="inputNovaSenha" placeholder="Nova senha" class="mb-4">
             <button onclick="atualizarSenha()" class="btn-primary w-full justify-center"><i class="fas fa-check mr-2"></i>Salvar Senha</button>
         </div>
@@ -468,12 +471,12 @@
     const API_URL = 'https://bsfm-nutri.onrender.com';
     let userLocal = JSON.parse(localStorage.getItem('usuarioLogado'));
 
-    // ====== INICIALIZAÇÃO ======
+    // ====== INICIALIZAÃ‡ÃƒO ======
     async function inicializar() {
         if(!userLocal) { window.location.href = 'login.html'; return; }
         document.getElementById('dataHoje').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         
-        // Verifica se o usuário já preencheu os dados de saúde
+        // Verifica se o usuÃ¡rio jÃ¡ preencheu os dados de saÃºde
         await verificarSaudePendente();
         
         await carregarDadosUsuario();
@@ -481,32 +484,32 @@
         await carregarAguaSemanal();
     }
 
-    // ====== VERIFICAR SAÚDE PENDENTE ======
+    // ====== VERIFICAR SAÃšDE PENDENTE ======
     async function verificarSaudePendente() {
         try {
             const resp = await fetch(`${API_URL}/api/saude/${userLocal.id}`);
             if (resp.ok) {
                 const data = await resp.json();
-                // Verifica se intolerancia está em branco OU diabetes não está informado
-                const diabetesPreenchido = data.diabetes && data.diabetes !== 'Não informado' && data.diabetes !== '';
+                // Verifica se intolerancia estÃ¡ em branco OU diabetes nÃ£o estÃ¡ informado
+                const diabetesPreenchido = data.diabetes && data.diabetes !== 'NÃ£o informado' && data.diabetes !== '';
                 const intoleranciaPreenchida = data.intolerancia && data.intolerancia !== '';
                 
-                // Mostra o banner se intolerancia estiver em branco OU diabetes não informado
+                // Mostra o banner se intolerancia estiver em branco OU diabetes nÃ£o informado
                 if (!intoleranciaPreenchida || !diabetesPreenchido) {
                     document.getElementById('alertaSaudeBanner').style.display = 'block';
                 }
             }
         } catch(e) { 
-            console.warn('Não foi possível verificar saúde:', e); 
+            console.warn('NÃ£o foi possÃ­vel verificar saÃºde:', e); 
         }
     }
 
-    // ====== FECHAR ALERTA DE SAÚDE ======
+    // ====== FECHAR ALERTA DE SAÃšDE ======
     function fecharAlertaSaude() {
         document.getElementById('alertaSaudeBanner').style.display = 'none';
     }
 
-    // ====== CARREGAR DADOS DO USUÁRIO ======
+    // ====== CARREGAR DADOS DO USUÃRIO ======
     async function carregarDadosUsuario() {
         try {
             const resp = await fetch(`${API_URL}/usuario/${userLocal.id}`);
@@ -522,10 +525,10 @@
     // ====== ATUALIZAR INTERFACE ======
     function atualizarInterface() {
         // Header
-        document.getElementById('displayNome').innerText = userLocal.nome || 'Usuário';
+        document.getElementById('displayNome').innerText = userLocal.nome || 'UsuÃ¡rio';
         
         // Profile Card
-        document.getElementById('profileNome').innerText = userLocal.nome || 'Usuário';
+        document.getElementById('profileNome').innerText = userLocal.nome || 'UsuÃ¡rio';
         document.getElementById('profileEmail').innerText = userLocal.email || '';
         
         // Calcular idade pela data de nascimento
@@ -602,7 +605,7 @@
         }
     }
 
-    // Carregar tema salvo (padrão é escuro)
+    // Carregar tema salvo (padrÃ£o Ã© escuro)
     if (localStorage.getItem('bsfmTheme') !== 'light') {
         document.body.classList.remove('light-mode');
         document.getElementById('themeIcon').className = 'fas fa-sun';
@@ -622,7 +625,7 @@
     // ====== ATUALIZAR PESO ======
     async function atualizarPeso() {
         const novoPeso = document.getElementById('inputNovoPeso').value;
-        if (!novoPeso || parseFloat(novoPeso) <= 0) { alert('Insira um peso válido.'); return; }
+        if (!novoPeso || parseFloat(novoPeso) <= 0) { alert('Insira um peso vÃ¡lido.'); return; }
         try {
             const resp = await fetch(`${API_URL}/atualizar-medicao`, {
                 method: 'POST',
@@ -636,15 +639,15 @@
                 fecharModal('peso');
                 document.getElementById('inputNovoPeso').value = '';
                 atualizarInterface();
-                alert('✅ Peso atualizado com sucesso!');
+                alert('âœ… Peso atualizado com sucesso!');
             } else { alert('Erro ao atualizar peso.'); }
-        } catch(e) { console.error(e); alert('Erro de conexão.'); }
+        } catch(e) { console.error(e); alert('Erro de conexÃ£o.'); }
     }
 
     // ====== ATUALIZAR NOME ======
     async function atualizarNome() {
         const novoNome = document.getElementById('inputNovoNome').value;
-        if (!novoNome || novoNome.length < 3) { alert('Insira um nome válido (mínimo 3 caracteres).'); return; }
+        if (!novoNome || novoNome.length < 3) { alert('Insira um nome vÃ¡lido (mÃ­nimo 3 caracteres).'); return; }
         try {
             const resp = await fetch(`${API_URL}/usuario/atualizar-nome`, {
                 method: 'PUT',
@@ -657,15 +660,15 @@
                 fecharModal('nome');
                 document.getElementById('inputNovoNome').value = '';
                 atualizarInterface();
-                alert('✅ Nome atualizado com sucesso!');
+                alert('âœ… Nome atualizado com sucesso!');
             } else { alert('Erro ao atualizar nome.'); }
-        } catch(e) { console.error(e); alert('Erro de conexão.'); }
+        } catch(e) { console.error(e); alert('Erro de conexÃ£o.'); }
     }
 
     // ====== ATUALIZAR SENHA ======
     async function atualizarSenha() {
         const novaSenha = document.getElementById('inputNovaSenha').value;
-        if (!novaSenha || novaSenha.length < 8) { alert('A senha deve ter no mínimo 8 caracteres.'); return; }
+        if (!novaSenha || novaSenha.length < 8) { alert('A senha deve ter no mÃ­nimo 8 caracteres.'); return; }
         try {
             const resp = await fetch(`${API_URL}/usuario/atualizar-senha`, {
                 method: 'PUT',
@@ -675,9 +678,9 @@
             if (resp.ok) {
                 fecharModal('senha');
                 document.getElementById('inputNovaSenha').value = '';
-                alert('✅ Senha atualizada com sucesso!');
+                alert('âœ… Senha atualizada com sucesso!');
             } else { alert('Erro ao atualizar senha.'); }
-        } catch(e) { console.error(e); alert('Erro de conexão.'); }
+        } catch(e) { console.error(e); alert('Erro de conexÃ£o.'); }
     }
 
     // ====== ATUALIZAR DATA DE NASCIMENTO ======
@@ -696,12 +699,12 @@
                 fecharModal('nascimento');
                 document.getElementById('inputDataNascimento').value = '';
                 await carregarDadosUsuario();
-                alert('✅ Data de nascimento atualizada com sucesso!');
+                alert('âœ… Data de nascimento atualizada com sucesso!');
             } else { alert('Erro ao atualizar data de nascimento.'); }
-        } catch(e) { console.error(e); alert('Erro de conexão.'); }
+        } catch(e) { console.error(e); alert('Erro de conexÃ£o.'); }
     }
 
-    // ====== ÁGUA ======
+    // ====== ÃGUA ======
     async function carregarAgua() {
         try {
             const resp = await fetch(`${API_URL}/agua-diario/${userLocal.id}`);
@@ -724,10 +727,10 @@
             if (resp.ok) {
                 const data = await resp.json();
                 const container = document.getElementById('waterWeek');
-                const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+                const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'SÃ¡b'];
                 container.innerHTML = '';
                 const semana = data.semana || data;
-                const hoje = new Date().getDay(); // 0=Dom, 1=Seg, ..., 6=Sáb
+                const hoje = new Date().getDay(); // 0=Dom, 1=Seg, ..., 6=SÃ¡b
                 semana.forEach((dia, i) => {
                     const total = dia.totalMl || dia.total || 0;
                     const isToday = (i === hoje);
@@ -772,9 +775,9 @@
         input.value = '';
     }
 
-    // ====== REMOVER ÚLTIMO REGISTRO DE ÁGUA ======
+    // ====== REMOVER ÃšLTIMO REGISTRO DE ÃGUA ======
     async function removerUltimaAgua() {
-        if (!confirm('Desfazer o último registro de água?')) return;
+        if (!confirm('Desfazer o Ãºltimo registro de Ã¡gua?')) return;
         try {
             const resp = await fetch(`${API_URL}/remover-ultima-agua/${userLocal.id}`, {
                 method: 'DELETE'
@@ -786,7 +789,7 @@
                 const data = await resp.json();
                 alert(data.mensagem || 'Nenhum registro para desfazer hoje.');
             }
-        } catch(e) { console.error(e); alert('Erro de conexão.'); }
+        } catch(e) { console.error(e); alert('Erro de conexÃ£o.'); }
     }
 
     // ====== SAIR ======
@@ -801,3 +804,7 @@
 
 </body>
 </html>
+
+
+
+

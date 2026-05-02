@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,13 +7,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <title>BSFM - Diário Nutricional IA</title>
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
+    <title>BSFM - DiÃ¡rio Nutricional IA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -40,13 +43,13 @@
                 <a href="dashboard.html" class="p-3 rounded-xl transition" style="background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border);">
                     <i class="fas fa-chevron-left"></i>
                 </a>
-                <h1 class="text-2xl font-bold" style="color: var(--text);">Meu <span class="text-emerald-500">Diário IA</span></h1>
+                <h1 class="text-2xl font-bold" style="color: var(--text);">Meu <span class="text-emerald-500">DiÃ¡rio IA</span></h1>
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="toggleTheme()" class="theme-btn"><i id="themeIcon" class="fas fa-sun"></i></button>
                 <div class="text-right">
                     <p class="text-[10px] uppercase font-bold tracking-widest" style="color: var(--text-secondary);">Resumo 48h</p>
-                    <div id="countRegistros" class="text-emerald-500 font-bold">0 refeições</div>
+                    <div id="countRegistros" class="text-emerald-500 font-bold">0 refeiÃ§Ãµes</div>
                 </div>
             </div>
         </div>
@@ -54,7 +57,7 @@
         <!-- Alerta de Limpeza -->
         <div class="rounded-2xl p-4 mb-6 flex gap-3 items-center" style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3);">
             <i class="fas fa-history" style="color: #f59e0b;"></i>
-            <p class="text-xs" style="color: #f59e0b;">Registros são mantidos por <strong>2 dias</strong> para priorizar seu foco nos objetivos recentes.</p>
+            <p class="text-xs" style="color: #f59e0b;">Registros sÃ£o mantidos por <strong>2 dias</strong> para priorizar seu foco nos objetivos recentes.</p>
         </div>
 
         <!-- Lista de Cards -->
@@ -106,23 +109,23 @@
                             class="w-full px-4 py-3 rounded-2xl font-medium outline-none transition"
                             style="background: var(--bg); color: var(--text); border: 1px solid var(--border);">
                         <option value="Segunda">Segunda-feira</option>
-                        <option value="Terca">Terça-feira</option>
+                        <option value="Terca">TerÃ§a-feira</option>
                         <option value="Quarta">Quarta-feira</option>
                         <option value="Quinta">Quinta-feira</option>
                         <option value="Sexta">Sexta-feira</option>
-                        <option value="Sabado">Sábado</option>
+                        <option value="Sabado">SÃ¡bado</option>
                         <option value="Domingo">Domingo</option>
                     </select>
                 </div>
 
-                <!-- Tipo de Refeição -->
+                <!-- Tipo de RefeiÃ§Ã£o -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-secondary);">Tipo de Refeição</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-secondary);">Tipo de RefeiÃ§Ã£o</label>
                     <select id="planoTipoRefeicao" 
                             class="w-full px-4 py-3 rounded-2xl font-medium outline-none transition"
                             style="background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-                        <option value="Café da Manhã">Café da Manhã</option>
-                        <option value="Almoço">Almoço</option>
+                        <option value="CafÃ© da ManhÃ£">CafÃ© da ManhÃ£</option>
+                        <option value="AlmoÃ§o">AlmoÃ§o</option>
                         <option value="Jantar">Jantar</option>
                         <option value="Lanche">Lanche</option>
                     </select>
@@ -135,7 +138,7 @@
                         <p id="planoCalorias" class="font-bold text-emerald-500">0</p>
                     </div>
                     <div class="text-center">
-                        <p class="text-[9px] font-bold uppercase" style="color: var(--text-secondary);">Proteínas</p>
+                        <p class="text-[9px] font-bold uppercase" style="color: var(--text-secondary);">ProteÃ­nas</p>
                         <p id="planoProteinas" class="font-bold text-rose-500">0g</p>
                     </div>
                     <div class="text-center">
@@ -145,7 +148,7 @@
                 </div>
             </div>
 
-            <!-- Botões -->
+            <!-- BotÃµes -->
             <div class="flex gap-3 mt-6">
                 <button onclick="fecharModalPlano()" 
                         class="flex-1 py-3 rounded-2xl font-bold transition"
@@ -199,8 +202,8 @@
                     container.innerHTML = `
                         <div class="glass-card p-10 text-center border-dashed">
                             <i class="fas fa-utensils text-5xl mb-4" style="color: var(--text-secondary); opacity: 0.3;"></i>
-                            <p class="font-medium" style="color: var(--text-secondary);">Nenhuma análise feita nas últimas 48h.</p>
-                            <a href="analisador-ia.html" class="inline-block mt-4 text-emerald-500 font-bold hover:underline">Analisar prato agora →</a>
+                            <p class="font-medium" style="color: var(--text-secondary);">Nenhuma anÃ¡lise feita nas Ãºltimas 48h.</p>
+                            <a href="analisador-ia.html" class="inline-block mt-4 text-emerald-500 font-bold hover:underline">Analisar prato agora â†’</a>
                         </div>
                     `;
                     return;
@@ -218,9 +221,9 @@
                         <div class="glass-card">
                             <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <span class="text-[10px] font-bold uppercase" style="color: var(--text-secondary);">${diaSemana} • ${dataFormatada}</span>
+                                    <span class="text-[10px] font-bold uppercase" style="color: var(--text-secondary);">${diaSemana} â€¢ ${dataFormatada}</span>
                                     <h3 class="text-lg font-bold capitalize" style="color: var(--text);">${item.alimento}</h3>
-                                    <p class="text-xs" style="color: var(--text-secondary);">Porção ${item.porcao}</p>
+                                    <p class="text-xs" style="color: var(--text-secondary);">PorÃ§Ã£o ${item.porcao}</p>
                                 </div>
                                 <div class="px-3 py-1.5 rounded-xl font-bold text-sm" style="background: #1a1a1a; color: white;">
                                     ${item.calorias > 0 ? item.calorias : 'N/A'} <span class="text-[9px]" style="color: #94a3b8;">${item.calorias > 0 ? 'kcal' : ''}</span>
@@ -233,7 +236,7 @@
                                     <p class="font-bold" style="color: #3b82f6;">${item.carbos > 0 ? item.carbos + 'g' : 'N/A'}</p>
                                 </div>
                                 <div class="rounded-2xl p-3" style="background: rgba(244,63,94,0.1);">
-                                    <p class="text-[9px] font-bold uppercase" style="color: #f43f5e;">Proteínas</p>
+                                    <p class="text-[9px] font-bold uppercase" style="color: #f43f5e;">ProteÃ­nas</p>
                                     <p class="font-bold" style="color: #f43f5e;">${item.proteinas > 0 ? item.proteinas + 'g' : 'N/A'}</p>
                                 </div>
                                 <div class="rounded-2xl p-3" style="background: rgba(245,158,11,0.1);">
@@ -250,7 +253,7 @@
                                 </div>
                             </div>
 
-                            <!-- Botão Salvar nos Planos -->
+                            <!-- BotÃ£o Salvar nos Planos -->
                             <button onclick="abrirModalPlano('${item.id}', '${item.alimento.replace(/'/g, "\\'")}', ${item.calorias > 0 ? item.calorias : 0}, ${item.proteinas > 0 ? item.proteinas : 0}, ${item.carbos > 0 ? item.carbos : 0}, ${item.gorduras > 0 ? item.gorduras : 0})" 
                                     class="mt-4 w-full py-3 rounded-2xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2"
                                     style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
@@ -264,18 +267,18 @@
 
             } catch (err) {
                 console.error(err);
-                document.getElementById('listaDiario').innerHTML = '<p class="text-center text-red-500">Erro ao carregar diário.</p>';
+                document.getElementById('listaDiario').innerHTML = '<p class="text-center text-red-500">Erro ao carregar diÃ¡rio.</p>';
             }
         }
 
         function gerarFeedback(analise, gastoDiario) {
-            // Se a análise tem feedback personalizado do Groq (análise de rótulo ou prato)
+            // Se a anÃ¡lise tem feedback personalizado do Groq (anÃ¡lise de rÃ³tulo ou prato)
             if (analise.analiseEmRelacaoAMeta && analise.analiseEmRelacaoAMeta.length > 10) {
                 // Determina cor/emoji baseado no PodeConsumir
                 if (analise.podeConsumir === true) {
                     return {
                         texto: analise.analiseEmRelacaoAMeta,
-                        emoji: "✅",
+                        emoji: "âœ…",
                         corFundo: "rgba(16,185,129,0.1)",
                         corTexto: "#059669",
                         corBorda: "rgba(16,185,129,0.3)"
@@ -283,7 +286,7 @@
                 } else if (analise.podeConsumir === false) {
                     return {
                         texto: analise.analiseEmRelacaoAMeta,
-                        emoji: "❌",
+                        emoji: "âŒ",
                         corFundo: "rgba(239,68,68,0.1)",
                         corTexto: "#dc2626",
                         corBorda: "rgba(239,68,68,0.3)"
@@ -291,7 +294,7 @@
                 } else if (analise.podeConsumir === null && analise.pontuacaoSaude > 0) {
                     return {
                         texto: analise.analiseEmRelacaoAMeta,
-                        emoji: "⚖️",
+                        emoji: "âš–ï¸",
                         corFundo: "rgba(251,146,60,0.1)",
                         corTexto: "#ea580c",
                         corBorda: "rgba(251,146,60,0.3)"
@@ -303,8 +306,8 @@
             
             if (analise.calorias > limiteRefeicao) {
                 return {
-                    texto: "Esta refeição representa uma grande parte da sua meta diária. Balanceie com um jantar leve para não exceder seu gasto total.",
-                    emoji: "⚖️",
+                    texto: "Esta refeiÃ§Ã£o representa uma grande parte da sua meta diÃ¡ria. Balanceie com um jantar leve para nÃ£o exceder seu gasto total.",
+                    emoji: "âš–ï¸",
                     corFundo: "rgba(251,146,60,0.1)",
                     corTexto: "#ea580c",
                     corBorda: "rgba(251,146,60,0.3)"
@@ -313,8 +316,8 @@
             
             if (analise.proteinas > 20) {
                 return {
-                    texto: "Excelente aporte de proteínas detectado! Isso é fundamental para manter sua massa magra e dar saciedade.",
-                    emoji: "💪",
+                    texto: "Excelente aporte de proteÃ­nas detectado! Isso Ã© fundamental para manter sua massa magra e dar saciedade.",
+                    emoji: "ðŸ’ª",
                     corFundo: "rgba(16,185,129,0.1)",
                     corTexto: "#059669",
                     corBorda: "rgba(16,185,129,0.3)"
@@ -323,8 +326,8 @@
 
             if (analise.alimento.toLowerCase().includes("brocolis") || analise.alimento.toLowerCase().includes("cenoura")) {
                  return {
-                    texto: "Vegetais detectados. Você está fornecendo micronutrientes essenciais que ajudam no seu metabolismo celular.",
-                    emoji: "🥦",
+                    texto: "Vegetais detectados. VocÃª estÃ¡ fornecendo micronutrientes essenciais que ajudam no seu metabolismo celular.",
+                    emoji: "ðŸ¥¦",
                     corFundo: "rgba(34,197,94,0.1)",
                     corTexto: "#16a34a",
                     corBorda: "rgba(34,197,94,0.3)"
@@ -332,8 +335,8 @@
             }
 
             return {
-                texto: "Análise realizada com sucesso. Mantenha-se hidratado e continue monitorando seus pratos para educar seu paladar.",
-                emoji: "🎯",
+                texto: "AnÃ¡lise realizada com sucesso. Mantenha-se hidratado e continue monitorando seus pratos para educar seu paladar.",
+                emoji: "ðŸŽ¯",
                 corFundo: "rgba(59,130,246,0.1)",
                 corTexto: "#2563eb",
                 corBorda: "rgba(59,130,246,0.3)"
@@ -391,7 +394,7 @@
                 });
 
                 if (response.ok) {
-                    alert('✅ Prato salvo em seus planos com sucesso!');
+                    alert('âœ… Prato salvo em seus planos com sucesso!');
                     fecharModalPlano();
                 } else {
                     const err = await response.json();
@@ -399,7 +402,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                alert('Erro de conexão com o servidor.');
+                alert('Erro de conexÃ£o com o servidor.');
             }
         }
 
@@ -407,3 +410,7 @@
     </script>
 </body>
 </html>
+
+
+
+

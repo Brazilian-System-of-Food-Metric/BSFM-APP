@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,13 +7,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <title>BSFM - SOS Saúde</title>
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
+    <title>BSFM - SOS SaÃºde</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -69,12 +72,12 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-5xl mx-auto">
-        <!-- HEADER EMERGÊNCIA -->
+        <!-- HEADER EMERGÃŠNCIA -->
         <header class="flex items-center justify-between mb-8 opacity-0 animate-fade-in-up">
             <div class="flex items-center gap-4">
                 <a href="dashboard.html" class="back-btn"><i class="fas fa-chevron-left text-lg"></i></a>
                 <div>
-                    <h1 class="text-3xl font-black tracking-tighter italic" style="color: var(--text);">SOS <span class="text-red-500">SAÚDE</span></h1>
+                    <h1 class="text-3xl font-black tracking-tighter italic" style="color: var(--text);">SOS <span class="text-red-500">SAÃšDE</span></h1>
                     <p style="color: var(--text-secondary);" class="text-sm">Localize unidades de pronto atendimento</p>
                 </div>
             </div>
@@ -82,18 +85,18 @@
                 <button onclick="toggleTheme()" class="theme-btn"><i id="themeIcon" class="fas fa-sun"></i></button>
                 <div class="flex flex-col gap-3">
                     <a href="tel:192" class="btn-emergency animate-pulse"><i class="fas fa-phone-alt mr-2"></i><span>192 SAMU</span></a>
-                    <button onclick="obterLocalizacao()" class="btn-location"><i class="fas fa-location-dot mr-2"></i><span>Minha Localização</span></button>
+                    <button onclick="obterLocalizacao()" class="btn-location"><i class="fas fa-location-dot mr-2"></i><span>Minha LocalizaÃ§Ã£o</span></button>
                 </div>
             </div>
         </header>
 
-        <!-- MAPA DINÂMICO -->
+        <!-- MAPA DINÃ‚MICO -->
         <div id="map" class="mb-8 opacity-0 animate-fade-in-up animate-delay-100 z-0"></div>
 
-        <!-- CONTAINER DE INFORMAÇÕES -->
+        <!-- CONTAINER DE INFORMAÃ‡Ã•ES -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="lg:col-span-1 glass p-6 opacity-0 animate-fade-in-up animate-delay-200">
-                <h3 class="font-bold mb-4 flex items-center gap-3" style="color: var(--text);"><i class="fas fa-map-marker-alt text-red-500"></i>Sua Localização</h3>
+                <h3 class="font-bold mb-4 flex items-center gap-3" style="color: var(--text);"><i class="fas fa-map-marker-alt text-red-500"></i>Sua LocalizaÃ§Ã£o</h3>
                 <div class="space-y-3">
                     <div class="flex justify-between text-sm">
                         <span style="color: var(--text-secondary);">Latitude:</span>
@@ -104,18 +107,18 @@
                         <span id="lng-display" class="font-medium" style="color: var(--text);">--</span>
                     </div>
                     <div class="flex justify-between text-sm">
-                        <span style="color: var(--text-secondary);">Precisão:</span>
+                        <span style="color: var(--text-secondary);">PrecisÃ£o:</span>
                         <span id="acc-display" class="font-medium text-green-500">--</span>
                     </div>
                 </div>
                 <div class="mt-4 p-3 rounded-lg" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);">
-                    <p class="text-xs" style="color: #ef4444;"><i class="fas fa-info-circle mr-1"></i>Se detectar vômitos severos ou asfixia após ingerir algo suspeito, chame imediatamente a emergência.</p>
+                    <p class="text-xs" style="color: #ef4444;"><i class="fas fa-info-circle mr-1"></i>Se detectar vÃ´mitos severos ou asfixia apÃ³s ingerir algo suspeito, chame imediatamente a emergÃªncia.</p>
                 </div>
             </div>
 
             <div class="lg:col-span-2 space-y-4 opacity-0 animate-fade-in-up animate-delay-300">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xs font-black uppercase tracking-widest" style="color: var(--text-secondary);">Próximos a você (Cuidado Urgente)</h2>
+                    <h2 class="text-xs font-black uppercase tracking-widest" style="color: var(--text-secondary);">PrÃ³ximos a vocÃª (Cuidado Urgente)</h2>
                     <span class="text-xs" style="color: var(--text-secondary);" id="hospital-count">0 unidades</span>
                 </div>
                 <div id="hospital-list" class="space-y-4"></div>
@@ -123,7 +126,7 @@
         </div>
 
         <footer class="text-center opacity-0 animate-fade-in-up animate-delay-400">
-            <p class="text-xs font-bold uppercase tracking-widest" style="color: var(--text-secondary);"><i class="fas fa-shield-alt mr-2"></i>Sistema de localização de emergência BSFM</p>
+            <p class="text-xs font-bold uppercase tracking-widest" style="color: var(--text-secondary);"><i class="fas fa-shield-alt mr-2"></i>Sistema de localizaÃ§Ã£o de emergÃªncia BSFM</p>
         </footer>
     </div>
 
@@ -151,14 +154,14 @@
 
         // Dados de hospitais
         const hospitais = [
-            { nome: "Hospital das Clínicas (HC-FMUSP)", tipo: "Hospital", endereco: "Av. Dr. Enéas de Carvalho Aguiar, 255 - Cerqueira César", distancia: 0, telefone: "(11) 2661-0000", coordenadas: [-23.5592, -46.6694] },
-            { nome: "UPA 24h - Sé", tipo: "UPA", endereco: "Rua Frederico Alvarenga, 259 - Sé", distancia: 0, telefone: "(11) 3101-0000", coordenadas: [-23.5505, -46.6333] },
-            { nome: "Hospital São Paulo (UNIFESP)", tipo: "Hospital", endereco: "Rua Botucatu, 740 - Vila Clementino", distancia: 0, telefone: "(11) 5576-4000", coordenadas: [-23.5932, -46.6375] },
-            { nome: "UPA 24h - Tatuapé", tipo: "UPA", endereco: "Rua Serra de Bragança, 200 - Tatuapé", distancia: 0, telefone: "(11) 2295-0000", coordenadas: [-23.5400, -46.5750] },
-            { nome: "Hospital do Servidor Público Estadual (IAMSPE)", tipo: "Hospital", endereco: "Rua Pedro de Toledo, 1800 - Vila Clementino", distancia: 0, telefone: "(11) 5088-8000", coordenadas: [-23.5950, -46.6400] },
+            { nome: "Hospital das ClÃ­nicas (HC-FMUSP)", tipo: "Hospital", endereco: "Av. Dr. EnÃ©as de Carvalho Aguiar, 255 - Cerqueira CÃ©sar", distancia: 0, telefone: "(11) 2661-0000", coordenadas: [-23.5592, -46.6694] },
+            { nome: "UPA 24h - SÃ©", tipo: "UPA", endereco: "Rua Frederico Alvarenga, 259 - SÃ©", distancia: 0, telefone: "(11) 3101-0000", coordenadas: [-23.5505, -46.6333] },
+            { nome: "Hospital SÃ£o Paulo (UNIFESP)", tipo: "Hospital", endereco: "Rua Botucatu, 740 - Vila Clementino", distancia: 0, telefone: "(11) 5576-4000", coordenadas: [-23.5932, -46.6375] },
+            { nome: "UPA 24h - TatuapÃ©", tipo: "UPA", endereco: "Rua Serra de BraganÃ§a, 200 - TatuapÃ©", distancia: 0, telefone: "(11) 2295-0000", coordenadas: [-23.5400, -46.5750] },
+            { nome: "Hospital do Servidor PÃºblico Estadual (IAMSPE)", tipo: "Hospital", endereco: "Rua Pedro de Toledo, 1800 - Vila Clementino", distancia: 0, telefone: "(11) 5088-8000", coordenadas: [-23.5950, -46.6400] },
             { nome: "UPA 24h - Santo Amaro", tipo: "UPA", endereco: "Av. Adolfo Pinheiro, 1000 - Santo Amaro", distancia: 0, telefone: "(11) 5525-0000", coordenadas: [-23.6520, -46.7100] },
             { nome: "Hospital Albert Einstein", tipo: "Hospital", endereco: "Av. Albert Einstein, 627 - Morumbi", distancia: 0, telefone: "(11) 2151-1233", coordenadas: [-23.6010, -46.7150] },
-            { nome: "UPA 24h - Brasilândia", tipo: "UPA", endereco: "Av. Deputado Cantídio Sampaio, 3000 - Brasilândia", distancia: 0, telefone: "(11) 3975-0000", coordenadas: [-23.4800, -46.6800] }
+            { nome: "UPA 24h - BrasilÃ¢ndia", tipo: "UPA", endereco: "Av. Deputado CantÃ­dio Sampaio, 3000 - BrasilÃ¢ndia", distancia: 0, telefone: "(11) 3975-0000", coordenadas: [-23.4800, -46.6800] }
         ];
 
         const map = L.map('map', { center: [-23.5505, -46.6333], zoom: 14, zoomControl: true, scrollWheelZoom: false });
@@ -200,7 +203,7 @@
                         btn.disabled = false;
                     },
                     (error) => {
-                        console.warn('Geolocalização falhou:', error);
+                        console.warn('GeolocalizaÃ§Ã£o falhou:', error);
                         usarLocalizacaoPadrao();
                         btn.innerHTML = originalText;
                         btn.disabled = false;
@@ -218,14 +221,14 @@
             gerarListaHospitais();
             document.getElementById('lat-display').innerText = '-23.550500';
             document.getElementById('lng-display').innerText = '-46.633300';
-            document.getElementById('acc-display').innerText = 'Padrão';
+            document.getElementById('acc-display').innerText = 'PadrÃ£o';
             document.getElementById('acc-display').className = 'font-medium text-orange-500';
         }
 
         function atualizarMarcadorUsuario() {
             if (userMarker) { userMarker.setLatLng(userLocation); }
             else { userMarker = L.marker(userLocation, { icon: userIcon }).addTo(map); }
-            userMarker.bindPopup(`<div class="text-center"><b class="text-red-600">Sua Localização</b><br><span class="text-xs text-slate-500">Buscando unidades de pronto atendimento...</span></div>`).openPopup();
+            userMarker.bindPopup(`<div class="text-center"><b class="text-red-600">Sua LocalizaÃ§Ã£o</b><br><span class="text-xs text-slate-500">Buscando unidades de pronto atendimento...</span></div>`).openPopup();
         }
 
         function calcularDistancias() {
@@ -264,8 +267,8 @@
                             </div>
                             <p class="text-xs mb-3" style="color: var(--text-secondary);">${hospital.endereco}</p>
                             <div class="flex items-center justify-between text-sm mb-4">
-                                <span style="color: var(--text-secondary);">Distância:</span>
-                                <span class="font-bold" style="color: #ef4444;">${hospital.distancia.toFixed(1)} km • ${tempo}</span>
+                                <span style="color: var(--text-secondary);">DistÃ¢ncia:</span>
+                                <span class="font-bold" style="color: #ef4444;">${hospital.distancia.toFixed(1)} km â€¢ ${tempo}</span>
                             </div>
                             <div class="flex gap-2">
                                 <button onclick="abrirWaze(${hospital.coordenadas[0]}, ${hospital.coordenadas[1]})" class="text-xs font-bold uppercase text-white px-3 py-2 rounded-lg transition" style="background: #dc2626;"><i class="fas fa-route mr-1"></i> Rota Waze</button>
@@ -294,3 +297,7 @@
     </script>
 </body>
 </html>
+
+
+
+

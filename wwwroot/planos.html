@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,12 +7,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
     <title>BSFM - Pratos da Semana</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -59,26 +62,26 @@
         <!-- Tabs Dias -->
         <div class="flex flex-wrap gap-2 mb-6" id="diasTabs">
             <button class="tab-btn active" onclick="selecionarDia('Segunda', this)">Segunda</button>
-            <button class="tab-btn" onclick="selecionarDia('Terça', this)">Terça</button>
+            <button class="tab-btn" onclick="selecionarDia('TerÃ§a', this)">TerÃ§a</button>
             <button class="tab-btn" onclick="selecionarDia('Quarta', this)">Quarta</button>
             <button class="tab-btn" onclick="selecionarDia('Quinta', this)">Quinta</button>
             <button class="tab-btn" onclick="selecionarDia('Sexta', this)">Sexta</button>
-            <button class="tab-btn" onclick="selecionarDia('Sábado', this)">Sábado</button>
+            <button class="tab-btn" onclick="selecionarDia('SÃ¡bado', this)">SÃ¡bado</button>
             <button class="tab-btn" onclick="selecionarDia('Domingo', this)">Domingo</button>
         </div>
 
-        <!-- Refeições do Dia -->
+        <!-- RefeiÃ§Ãµes do Dia -->
         <div id="refeicoesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
 
-        <!-- Botão Adicionar -->
-        <button onclick="abrirModalAdicionar()" class="btn-primary w-full md:w-auto"><i class="fas fa-plus mr-2"></i>Adicionar Refeição</button>
+        <!-- BotÃ£o Adicionar -->
+        <button onclick="abrirModalAdicionar()" class="btn-primary w-full md:w-auto"><i class="fas fa-plus mr-2"></i>Adicionar RefeiÃ§Ã£o</button>
     </div>
 
     <!-- Modal -->
     <div id="modalOverlay" class="modal-overlay">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg" id="modalTitle">Nova Refeição</h3>
+                <h3 class="font-bold text-lg" id="modalTitle">Nova RefeiÃ§Ã£o</h3>
                 <button onclick="fecharModal()" class="text-slate-400 hover:text-slate-600 text-xl">&times;</button>
             </div>
             <div id="modalBody"></div>
@@ -130,10 +133,10 @@
                     const filtradas = todas.filter(r => r.diaSemana === diaAtual);
                     const container = document.getElementById('refeicoesContainer');
                     if (filtradas.length === 0) {
-                        container.innerHTML = `<div class="card col-span-full text-center py-12"><i class="fas fa-utensils text-4xl text-slate-300 mb-3"></i><p class="text-slate-400">Nenhuma refeição para ${diaAtual}. Adicione uma!</p></div>`;
+                        container.innerHTML = `<div class="card col-span-full text-center py-12"><i class="fas fa-utensils text-4xl text-slate-300 mb-3"></i><p class="text-slate-400">Nenhuma refeiÃ§Ã£o para ${diaAtual}. Adicione uma!</p></div>`;
                         return;
                     }
-                    const tipos = ['Café', 'Almoço', 'Jantar', 'Lanche'];
+                    const tipos = ['CafÃ©', 'AlmoÃ§o', 'Jantar', 'Lanche'];
                     let html = '';
                     tipos.forEach(tipo => {
                         const ref = filtradas.filter(r => r.tipoRefeicao === tipo);
@@ -166,20 +169,20 @@
                     });
                     container.innerHTML = html;
                 }
-            } catch (e) { console.error('Erro ao carregar refeições:', e); }
+            } catch (e) { console.error('Erro ao carregar refeiÃ§Ãµes:', e); }
         }
 
         function abrirModalAdicionar() {
             editandoId = null;
-            document.getElementById('modalTitle').innerText = 'Nova Refeição';
+            document.getElementById('modalTitle').innerText = 'Nova RefeiÃ§Ã£o';
             document.getElementById('modalBody').innerHTML = `
-                <select id="inputTipo"><option value="Café">Café</option><option value="Almoço">Almoço</option><option value="Jantar">Jantar</option><option value="Lanche">Lanche</option></select>
+                <select id="inputTipo"><option value="CafÃ©">CafÃ©</option><option value="AlmoÃ§o">AlmoÃ§o</option><option value="Jantar">Jantar</option><option value="Lanche">Lanche</option></select>
                 <input type="text" id="inputNome" placeholder="Nome do prato">
                 <textarea id="inputIngredientes" placeholder="Ingredientes"></textarea>
                 <textarea id="inputPreparo" placeholder="Modo de preparo"></textarea>
                 <div class="grid grid-cols-2 gap-3">
                     <input type="number" id="inputCalorias" placeholder="Calorias" step="0.1">
-                    <input type="number" id="inputProteinas" placeholder="Proteínas (g)" step="0.1">
+                    <input type="number" id="inputProteinas" placeholder="ProteÃ­nas (g)" step="0.1">
                     <input type="number" id="inputCarboidratos" placeholder="Carboidratos (g)" step="0.1">
                     <input type="number" id="inputGorduras" placeholder="Gorduras (g)" step="0.1">
                 </div>
@@ -190,9 +193,9 @@
 
         function abrirModalEditar(id, tipo, nome, ingredientes, preparo, calorias, proteinas, carboidratos, gorduras) {
             editandoId = id;
-            document.getElementById('modalTitle').innerText = 'Editar Refeição';
+            document.getElementById('modalTitle').innerText = 'Editar RefeiÃ§Ã£o';
             document.getElementById('modalBody').innerHTML = `
-                <select id="inputTipo"><option value="Café" ${tipo === 'Café' ? 'selected' : ''}>Café</option><option value="Almoço" ${tipo === 'Almoço' ? 'selected' : ''}>Almoço</option><option value="Jantar" ${tipo === 'Jantar' ? 'selected' : ''}>Jantar</option><option value="Lanche" ${tipo === 'Lanche' ? 'selected' : ''}>Lanche</option></select>
+                <select id="inputTipo"><option value="CafÃ©" ${tipo === 'CafÃ©' ? 'selected' : ''}>CafÃ©</option><option value="AlmoÃ§o" ${tipo === 'AlmoÃ§o' ? 'selected' : ''}>AlmoÃ§o</option><option value="Jantar" ${tipo === 'Jantar' ? 'selected' : ''}>Jantar</option><option value="Lanche" ${tipo === 'Lanche' ? 'selected' : ''}>Lanche</option></select>
                 <input type="text" id="inputNome" value="${nome}" placeholder="Nome do prato">
                 <textarea id="inputIngredientes" placeholder="Ingredientes">${ingredientes}</textarea>
                 <textarea id="inputPreparo" placeholder="Modo de preparo">${preparo}</textarea>
@@ -240,7 +243,7 @@
         }
 
         async function removerRefeicao(id) {
-            if (!confirm('Remover esta refeição?')) return;
+            if (!confirm('Remover esta refeiÃ§Ã£o?')) return;
             try {
                 const resp = await fetch(`${API_URL}/remover-refeicao-semana/${id}`, { method: 'DELETE' });
                 if (resp.ok) { carregarRefeicoes(); }
@@ -250,3 +253,7 @@
     </script>
 </body>
 </html>
+
+
+
+

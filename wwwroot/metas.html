@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,13 +7,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <title>BSFM - Metas & Evolução</title>
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
+    <title>BSFM - Metas & EvoluÃ§Ã£o</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -78,7 +81,7 @@
             <div class="flex items-center gap-4">
                 <a href="dashboard.html" class="back-btn"><i class="fas fa-chevron-left text-lg"></i></a>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight" style="color: var(--text);">Metas <span class="text-emerald-500">& Evolução</span></h1>
+                    <h1 class="text-2xl font-bold tracking-tight" style="color: var(--text);">Metas <span class="text-emerald-500">& EvoluÃ§Ã£o</span></h1>
                     <p style="color: var(--text-secondary);" class="text-sm">Acompanhe seu progresso ao longo do tempo</p>
                 </div>
             </div>
@@ -130,33 +133,33 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div class="card opacity-0 animate-fade-in-up animate-delay-200">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold" style="color: var(--text);"><i class="fas fa-weight text-emerald-500 mr-2"></i>Evolução do Peso</h3>
+                    <h3 class="font-bold" style="color: var(--text);"><i class="fas fa-weight text-emerald-500 mr-2"></i>EvoluÃ§Ã£o do Peso</h3>
                     <span class="text-xs" style="color: var(--text-secondary);" id="weightDataCount">0 registros</span>
                 </div>
                 <div class="chart-container"><canvas id="weightChart"></canvas></div>
                 <div id="emptyWeightChart" class="empty-state hidden">
                     <i class="fas fa-chart-line"></i>
                     <p class="font-medium" style="color: var(--text-secondary);">Nenhum registro de peso ainda</p>
-                    <p class="text-sm mt-1" style="color: var(--text-secondary);">Registre sua pesagem abaixo para começar</p>
+                    <p class="text-sm mt-1" style="color: var(--text-secondary);">Registre sua pesagem abaixo para comeÃ§ar</p>
                 </div>
             </div>
             <div class="card opacity-0 animate-fade-in-up animate-delay-300">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold" style="color: var(--text);"><i class="fas fa-calculator text-blue-500 mr-2"></i>Evolução do IMC</h3>
+                    <h3 class="font-bold" style="color: var(--text);"><i class="fas fa-calculator text-blue-500 mr-2"></i>EvoluÃ§Ã£o do IMC</h3>
                     <span class="text-xs" style="color: var(--text-secondary);" id="imcDataCount">0 registros</span>
                 </div>
                 <div class="chart-container"><canvas id="imcChart"></canvas></div>
                 <div id="emptyImcChart" class="empty-state hidden">
                     <i class="fas fa-chart-area"></i>
                     <p class="font-medium" style="color: var(--text-secondary);">Nenhum registro de IMC ainda</p>
-                    <p class="text-sm mt-1" style="color: var(--text-secondary);">Os dados aparecerão após as pesagens</p>
+                    <p class="text-sm mt-1" style="color: var(--text-secondary);">Os dados aparecerÃ£o apÃ³s as pesagens</p>
                 </div>
             </div>
         </div>
 
         <!-- Set Goal Section -->
         <div class="goal-card mb-8 opacity-0 animate-fade-in-up animate-delay-200">
-            <h3 class="font-bold text-lg mb-4"><i class="fas fa-bullseye mr-2"></i>Qual é o seu objetivo?</h3>
+            <h3 class="font-bold text-lg mb-4"><i class="fas fa-bullseye mr-2"></i>Qual Ã© o seu objetivo?</h3>
             <div class="flex gap-3">
                 <input type="number" id="inputMeta" step="0.1" placeholder="Ex: 75.0 kg" 
                     class="flex-1 bg-white/15 border-white/30 border rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-white/50 outline-none font-semibold">
@@ -164,12 +167,12 @@
                     DEFINIR
                 </button>
             </div>
-            <p class="text-[10px] mt-3 opacity-70 italic"><i class="fas fa-lightbulb mr-1"></i>Metas graduais (0.5-1kg por semana) são mais sustentáveis a longo prazo.</p>
+            <p class="text-[10px] mt-3 opacity-70 italic"><i class="fas fa-lightbulb mr-1"></i>Metas graduais (0.5-1kg por semana) sÃ£o mais sustentÃ¡veis a longo prazo.</p>
         </div>
 
         <!-- Register Weight Section -->
         <div class="card opacity-0 animate-fade-in-up animate-delay-300">
-            <h3 class="font-bold mb-4" style="color: var(--text);"><i class="fas fa-scale-balanced text-emerald-500 mr-2"></i>Registrar Medição de Hoje</h3>
+            <h3 class="font-bold mb-4" style="color: var(--text);"><i class="fas fa-scale-balanced text-emerald-500 mr-2"></i>Registrar MediÃ§Ã£o de Hoje</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-xs font-bold uppercase mb-2" style="color: var(--text-secondary);">Peso (kg)</label>
@@ -224,13 +227,13 @@
     // ====== INICIALIZAR ======
     async function inicializar() {
         if(!userLocal) { window.location.href = 'login.html'; return; }
-        // Buscar dados atualizados do usuário na API
+        // Buscar dados atualizados do usuÃ¡rio na API
         await carregarDadosUsuario();
         await carregarEvolucao();
         inicializarGraficos();
     }
 
-    // ====== CARREGAR DADOS DO USUÁRIO DA API ======
+    // ====== CARREGAR DADOS DO USUÃRIO DA API ======
     async function carregarDadosUsuario() {
         try {
             const resp = await fetch(`${API_URL}/usuario/${userLocal.id}`);
@@ -239,7 +242,7 @@
                 userLocal = { ...userLocal, ...user };
                 localStorage.setItem('usuarioLogado', JSON.stringify(userLocal));
             }
-        } catch(e) { console.error('Erro ao carregar dados do usuário:', e); }
+        } catch(e) { console.error('Erro ao carregar dados do usuÃ¡rio:', e); }
         atualizarDisplayUsuario();
     }
 
@@ -259,12 +262,12 @@
             setTimeout(() => { document.getElementById('barraProgresso').style.width = Math.min(porc, 100) + '%'; }, 300);
         } else {
             document.getElementById('pesoMetaDisplay').innerText = "-- kg";
-            document.getElementById('msgProgresso').innerText = "Defina sua meta abaixo para começar!";
+            document.getElementById('msgProgresso').innerText = "Defina sua meta abaixo para comeÃ§ar!";
             document.getElementById('progressPercent').innerText = '0%';
         }
     }
 
-    // ====== CARREGAR EVOLUÇÃO ======
+    // ====== CARREGAR EVOLUÃ‡ÃƒO ======
     async function carregarEvolucao() {
         try {
             const response = await fetch(`${API_URL}/evolucao/${userLocal.id}`);
@@ -280,7 +283,7 @@
         }
     }
 
-    // ====== INICIALIZAR GRÁFICOS ======
+    // ====== INICIALIZAR GRÃFICOS ======
     function inicializarGraficos() {
         // Weight Chart
         if (evolutionData.length > 0) {
@@ -357,7 +360,7 @@
     async function definirMeta() {
         const metaVal = document.getElementById('inputMeta').value;
         if(!metaVal || parseFloat(metaVal) <= 0) {
-            mostrarToast("Por favor, insira um peso meta válido.", "erro");
+            mostrarToast("Por favor, insira um peso meta vÃ¡lido.", "erro");
             return;
         }
 
@@ -373,24 +376,24 @@
                 userLocal.pesoMeta = data.pesoMeta;
                 localStorage.setItem('usuarioLogado', JSON.stringify(userLocal));
                 
-                // Feedback visual no botão
+                // Feedback visual no botÃ£o
                 const btn = document.querySelector('.goal-card .bg-white');
                 const originalText = btn.innerText;
-                btn.innerText = '✓ DEFINIDA!';
+                btn.innerText = 'âœ“ DEFINIDA!';
                 btn.classList.add('bg-emerald-600', 'text-white');
                 setTimeout(() => {
                     btn.innerText = originalText;
                     btn.classList.remove('bg-emerald-600', 'text-white');
                 }, 2000);
                 
-                mostrarToast("✅ Meta definida com sucesso!", "sucesso");
+                mostrarToast("âœ… Meta definida com sucesso!", "sucesso");
                 atualizarDisplayUsuario();
                 document.getElementById('inputMeta').value = '';
             } else {
                 const errData = await resp.json().catch(() => ({}));
                 // Se o status for 200 mas deu erro no parse, ainda assim deu certo
                 if (resp.status === 200) {
-                    mostrarToast("✅ Meta definida com sucesso!", "sucesso");
+                    mostrarToast("âœ… Meta definida com sucesso!", "sucesso");
                     atualizarDisplayUsuario();
                     document.getElementById('inputMeta').value = '';
                 } else {
@@ -400,7 +403,7 @@
         } catch(e) { 
             console.error('Error setting goal:', e);
             // Se deu erro de rede mas a meta foi salva (refresh mostra), avisa sucesso
-            mostrarToast("✅ Meta definida! (pode levar alguns segundos para atualizar)", "sucesso");
+            mostrarToast("âœ… Meta definida! (pode levar alguns segundos para atualizar)", "sucesso");
             atualizarDisplayUsuario();
             document.getElementById('inputMeta').value = '';
         }
@@ -412,7 +415,7 @@
         const altura = document.getElementById('inputAltura').value || userLocal.altura;
         
         if(!novoPeso || parseFloat(novoPeso) <= 0) {
-            mostrarToast("Por favor, insira um peso válido.", "erro");
+            mostrarToast("Por favor, insira um peso vÃ¡lido.", "erro");
             return;
         }
 
@@ -435,7 +438,7 @@
                 setTimeout(() => { btn.innerHTML = originalText; btn.classList.remove('bg-emerald-600'); }, 2000);
                 
                 document.getElementById('inputPeso').value = '';
-                mostrarToast("✅ Pesagem registrada com sucesso!", "sucesso");
+                mostrarToast("âœ… Pesagem registrada com sucesso!", "sucesso");
                 
                 await carregarEvolucao();
                 atualizarDisplayUsuario();
@@ -447,7 +450,7 @@
             }
         } catch(e) { 
             console.error('Error registering weight:', e);
-            mostrarToast("Erro de conexão. Verifique sua internet.", "erro"); 
+            mostrarToast("Erro de conexÃ£o. Verifique sua internet.", "erro"); 
         }
     }
 
@@ -455,3 +458,7 @@
 </script>
 </body>
 </html>
+
+
+
+

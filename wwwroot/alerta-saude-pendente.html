@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,13 +7,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <title>BSFM - Complete seu Perfil de Saúde</title>
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
+    <title>BSFM - Complete seu Perfil de SaÃºde</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -181,9 +184,9 @@
                 </a>
                 <div>
                     <h1 class="text-2xl font-bold" style="color: var(--text);">
-                        Perfil de <span class="text-emerald-600">Saúde</span>
+                        Perfil de <span class="text-emerald-600">SaÃºde</span>
                     </h1>
-                    <p style="color: var(--text-secondary);" class="text-sm">Personalize sua experiência BSFM</p>
+                    <p style="color: var(--text-secondary);" class="text-sm">Personalize sua experiÃªncia BSFM</p>
                 </div>
             </div>
             <button onclick="toggleTheme()" class="theme-btn" title="Alternar Tema">
@@ -195,10 +198,10 @@
         <div id="alertBanner" class="alert-banner mb-6 opacity-0 animate-fade-in-up flex items-start gap-4">
             <i class="fas fa-exclamation-triangle text-2xl mt-1"></i>
             <div>
-                <h3 class="font-bold text-lg mb-1">Informações de Saúde Pendentes</h3>
+                <h3 class="font-bold text-lg mb-1">InformaÃ§Ãµes de SaÃºde Pendentes</h3>
                 <p class="text-sm opacity-80">
-                    Para uma análise nutricional mais precisa, conte-nos sobre suas condições de saúde. 
-                    Isso ajuda nossa IA a personalizar recomendações para você.
+                    Para uma anÃ¡lise nutricional mais precisa, conte-nos sobre suas condiÃ§Ãµes de saÃºde. 
+                    Isso ajuda nossa IA a personalizar recomendaÃ§Ãµes para vocÃª.
                 </p>
             </div>
         </div>
@@ -207,30 +210,30 @@
         <div class="card p-6 md:p-8 opacity-0 animate-fade-in-up">
             <form id="formSaude" onsubmit="salvarDadosSaude(event)">
                 
-                <!-- Seção: Intolerâncias Alimentares -->
+                <!-- SeÃ§Ã£o: IntolerÃ¢ncias Alimentares -->
                 <div class="mb-8">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
                             <i class="fas fa-exclamation-circle text-red-500"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg" style="color: var(--text);">Intolerâncias Alimentares</h3>
-                            <p class="text-xs" style="color: var(--text-secondary);">Selecione se aplicável</p>
+                            <h3 class="font-bold text-lg" style="color: var(--text);">IntolerÃ¢ncias Alimentares</h3>
+                            <p class="text-xs" style="color: var(--text-secondary);">Selecione se aplicÃ¡vel</p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="option-card" data-value="Não tenho" onclick="toggleIntolerancia(this)" style="border-color: #10b981;">
+                        <div class="option-card" data-value="NÃ£o tenho" onclick="toggleIntolerancia(this)" style="border-color: #10b981;">
                             <i class="fas fa-check-circle text-emerald-500"></i>
-                            <p class="font-semibold text-sm">Não tenho</p>
+                            <p class="font-semibold text-sm">NÃ£o tenho</p>
                         </div>
                         <div class="option-card" data-value="Lactose" onclick="toggleIntolerancia(this)">
                             <i class="fas fa-glass-whiskey text-amber-500"></i>
                             <p class="font-semibold text-sm">Lactose</p>
                         </div>
-                        <div class="option-card" data-value="Glúten" onclick="toggleIntolerancia(this)">
+                        <div class="option-card" data-value="GlÃºten" onclick="toggleIntolerancia(this)">
                             <i class="fas fa-wheat-awn text-yellow-600"></i>
-                            <p class="font-semibold text-sm">Glúten</p>
+                            <p class="font-semibold text-sm">GlÃºten</p>
                         </div>
                         <div class="option-card" data-value="Amendoim" onclick="toggleIntolerancia(this)">
                             <i class="fas fa-seedling text-green-700"></i>
@@ -252,12 +255,12 @@
 
                     <div class="mt-3">
                         <input type="text" id="outrasIntolerancias" class="input-field" 
-                               placeholder="Outras intolerâncias (ex: corantes, conservantes...)" 
+                               placeholder="Outras intolerÃ¢ncias (ex: corantes, conservantes...)" 
                                style="display: none;">
                     </div>
                 </div>
 
-                <!-- Seção: Diabetes -->
+                <!-- SeÃ§Ã£o: Diabetes -->
                 <div class="mb-8">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -265,14 +268,14 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-lg" style="color: var(--text);">Diabetes</h3>
-                            <p class="text-xs" style="color: var(--text-secondary);">Informe se você tem diagnóstico de diabetes</p>
+                            <p class="text-xs" style="color: var(--text-secondary);">Informe se vocÃª tem diagnÃ³stico de diabetes</p>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="option-card" data-value="Não" onclick="selecionarDiabetes(this)">
+                        <div class="option-card" data-value="NÃ£o" onclick="selecionarDiabetes(this)">
                             <i class="fas fa-check-circle text-emerald-500"></i>
-                            <p class="font-semibold text-sm">Não tenho</p>
+                            <p class="font-semibold text-sm">NÃ£o tenho</p>
                         </div>
                         <div class="option-card" data-value="Tipo 1" onclick="selecionarDiabetes(this)">
                             <i class="fas fa-syringe text-red-500"></i>
@@ -282,9 +285,9 @@
                             <i class="fas fa-pills text-amber-500"></i>
                             <p class="font-semibold text-sm">Tipo 2</p>
                         </div>
-                        <div class="option-card" data-value="Pré-diabetes" onclick="selecionarDiabetes(this)">
+                        <div class="option-card" data-value="PrÃ©-diabetes" onclick="selecionarDiabetes(this)">
                             <i class="fas fa-heartbeat text-orange-500"></i>
-                            <p class="font-semibold text-sm">Pré-diabetes</p>
+                            <p class="font-semibold text-sm">PrÃ©-diabetes</p>
                         </div>
                         <div class="option-card col-span-2" data-value="Gestacional" onclick="selecionarDiabetes(this)">
                             <i class="fas fa-baby text-pink-500"></i>
@@ -293,10 +296,10 @@
                     </div>
                 </div>
 
-                <!-- Botão Salvar -->
+                <!-- BotÃ£o Salvar -->
                 <button type="submit" id="btnSalvar" class="btn-primary">
                     <i class="fas fa-save mr-2"></i>
-                    <span>Salvar Informações de Saúde</span>
+                    <span>Salvar InformaÃ§Ãµes de SaÃºde</span>
                 </button>
 
                 <!-- Pular -->
@@ -315,10 +318,10 @@
             <div class="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-check-circle text-emerald-500 text-4xl"></i>
             </div>
-            <h3 class="text-2xl font-bold mb-2" style="color: var(--text);">Informações Salvas!</h3>
+            <h3 class="text-2xl font-bold mb-2" style="color: var(--text);">InformaÃ§Ãµes Salvas!</h3>
             <p class="mb-6" style="color: var(--text-secondary);">
-                Suas informações de saúde foram registradas. 
-                Agora a IA BSFM poderá fornecer recomendações mais precisas para você.
+                Suas informaÃ§Ãµes de saÃºde foram registradas. 
+                Agora a IA BSFM poderÃ¡ fornecer recomendaÃ§Ãµes mais precisas para vocÃª.
             </p>
             <a href="dashboard.html" class="btn-primary inline-block text-center">
                 <i class="fas fa-arrow-left mr-2"></i>
@@ -328,12 +331,12 @@
     </div>
 
 <script>
-    // ====== CONFIGURAÇÃO ======
+    // ====== CONFIGURAÃ‡ÃƒO ======
     const API_URL = 'https://bsfm-nutri.onrender.com';
     let intoleranciasSelecionadas = [];
     let diabetesSelecionado = '';
 
-    // ====== VERIFICAR SE USUÁRIO ESTÁ LOGADO ======
+    // ====== VERIFICAR SE USUÃRIO ESTÃ LOGADO ======
     const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
     if (!userData) {
         window.location.href = 'login.html';
@@ -346,7 +349,7 @@
             if (response.ok) {
                 const data = await response.json();
                 
-                // Carrega intolerâncias
+                // Carrega intolerÃ¢ncias
                 if (data.intolerancia) {
                     const intolerancias = data.intolerancia.split(',').map(i => i.trim());
                     document.querySelectorAll('.option-card[onclick*="toggleIntolerancia"]').forEach(card => {
@@ -357,9 +360,9 @@
                             }
                         }
                     });
-                    // Mostra outras intolerâncias se houver
+                    // Mostra outras intolerÃ¢ncias se houver
                     const outras = intolerancias.filter(i => 
-                        !['Lactose', 'Glúten', 'Amendoim', 'Frutos do Mar', 'Ovo', 'Soja'].includes(i)
+                        !['Lactose', 'GlÃºten', 'Amendoim', 'Frutos do Mar', 'Ovo', 'Soja'].includes(i)
                     );
                     if (outras.length > 0) {
                         document.getElementById('outrasIntolerancias').style.display = 'block';
@@ -368,7 +371,7 @@
                 }
                 
                 // Carrega diabetes
-                if (data.diabetes && data.diabetes !== 'Não informado') {
+                if (data.diabetes && data.diabetes !== 'NÃ£o informado') {
                     diabetesSelecionado = data.diabetes;
                     document.querySelectorAll('.option-card[onclick*="selecionarDiabetes"]').forEach(card => {
                         if (card.dataset.value === data.diabetes) {
@@ -378,38 +381,38 @@
                 }
             }
         } catch (err) {
-            console.warn('Não foi possível carregar dados de saúde:', err);
+            console.warn('NÃ£o foi possÃ­vel carregar dados de saÃºde:', err);
         }
     }
 
-    // ====== TOGGLE INTOLERÂNCIA ======
+    // ====== TOGGLE INTOLERÃ‚NCIA ======
     function toggleIntolerancia(element) {
         const value = element.dataset.value;
         
-        // Se clicou em "Não tenho"
-        if (value === 'Não tenho') {
-            // Se já estava selecionado, desmarca
+        // Se clicou em "NÃ£o tenho"
+        if (value === 'NÃ£o tenho') {
+            // Se jÃ¡ estava selecionado, desmarca
             if (element.classList.contains('selected')) {
                 element.classList.remove('selected');
                 intoleranciasSelecionadas = [];
             } else {
-                // Remove seleção de todas as outras
+                // Remove seleÃ§Ã£o de todas as outras
                 document.querySelectorAll('.option-card[onclick*="toggleIntolerancia"]').forEach(card => {
                     card.classList.remove('selected');
                 });
                 element.classList.add('selected');
-                intoleranciasSelecionadas = ['Não tenho'];
+                intoleranciasSelecionadas = ['NÃ£o tenho'];
             }
         } else {
-            // Se clicou em uma intolerância específica
-            // Remove "Não tenho" se estiver selecionado
-            const naoTenhoCard = document.querySelector('.option-card[data-value="Não tenho"]');
+            // Se clicou em uma intolerÃ¢ncia especÃ­fica
+            // Remove "NÃ£o tenho" se estiver selecionado
+            const naoTenhoCard = document.querySelector('.option-card[data-value="NÃ£o tenho"]');
             if (naoTenhoCard) {
                 naoTenhoCard.classList.remove('selected');
-                intoleranciasSelecionadas = intoleranciasSelecionadas.filter(i => i !== 'Não tenho');
+                intoleranciasSelecionadas = intoleranciasSelecionadas.filter(i => i !== 'NÃ£o tenho');
             }
             
-            // Toggle da intolerância clicada
+            // Toggle da intolerÃ¢ncia clicada
             element.classList.toggle('selected');
             if (intoleranciasSelecionadas.includes(value)) {
                 intoleranciasSelecionadas = intoleranciasSelecionadas.filter(i => i !== value);
@@ -418,9 +421,9 @@
             }
         }
 
-        // Mostra campo de outras intolerâncias se houver seleção
+        // Mostra campo de outras intolerÃ¢ncias se houver seleÃ§Ã£o
         const outrasInput = document.getElementById('outrasIntolerancias');
-        if (intoleranciasSelecionadas.length > 0 && !intoleranciasSelecionadas.includes('Não tenho')) {
+        if (intoleranciasSelecionadas.length > 0 && !intoleranciasSelecionadas.includes('NÃ£o tenho')) {
             outrasInput.style.display = 'block';
         } else {
             outrasInput.style.display = 'none';
@@ -437,7 +440,7 @@
         diabetesSelecionado = element.dataset.value;
     }
 
-    // ====== SALVAR DADOS DE SAÚDE ======
+    // ====== SALVAR DADOS DE SAÃšDE ======
     async function salvarDadosSaude(event) {
         event.preventDefault();
         
@@ -445,11 +448,11 @@
         btnSalvar.disabled = true;
         btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Salvando...';
 
-        // Monta lista de intolerâncias
+        // Monta lista de intolerÃ¢ncias
         const outrasIntolerancias = document.getElementById('outrasIntolerancias').value.trim();
         let todasIntolerancias = [...intoleranciasSelecionadas];
         if (outrasIntolerancias) {
-            // Adiciona cada item separado por vírgula
+            // Adiciona cada item separado por vÃ­rgula
             outrasIntolerancias.split(',').forEach(item => {
                 const trimmed = item.trim();
                 if (trimmed && !todasIntolerancias.includes(trimmed)) {
@@ -461,7 +464,7 @@
         const payload = {
             usuarioId: userData.id,
             intolerancia: todasIntolerancias.join(', '),
-            diabetes: diabetesSelecionado || 'Não informado'
+            diabetes: diabetesSelecionado || 'NÃ£o informado'
         };
 
         try {
@@ -472,7 +475,7 @@
             });
 
             if (response.ok) {
-                // Esconde formulário, mostra sucesso
+                // Esconde formulÃ¡rio, mostra sucesso
                 document.getElementById('formSaude').style.display = 'none';
                 document.getElementById('successMessage').classList.remove('hidden');
                 document.getElementById('successMessage').classList.add('opacity-0');
@@ -484,11 +487,11 @@
                 alert('Erro ao salvar: ' + (err.mensagem || 'Tente novamente.'));
             }
         } catch (err) {
-            console.error('Erro ao salvar dados de saúde:', err);
+            console.error('Erro ao salvar dados de saÃºde:', err);
             alert('Servidor BSFM offline. Tente novamente mais tarde.');
         } finally {
             btnSalvar.disabled = false;
-            btnSalvar.innerHTML = '<i class="fas fa-save mr-2"></i><span>Salvar Informações de Saúde</span>';
+            btnSalvar.innerHTML = '<i class="fas fa-save mr-2"></i><span>Salvar InformaÃ§Ãµes de SaÃºde</span>';
         }
     }
 
@@ -519,9 +522,13 @@
         document.getElementById('themeIcon').className = 'fas fa-moon';
     }
 
-    // ====== INICIALIZAÇÃO ======
+    // ====== INICIALIZAÃ‡ÃƒO ======
     carregarDadosSaude();
 </script>
 
 </body>
 </html>
+
+
+
+

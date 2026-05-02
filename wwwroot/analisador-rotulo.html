@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,13 +7,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <title>BSFM - Analisador de Rótulos</title>
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
+    <title>BSFM - Analisador de RÃ³tulos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -218,7 +221,7 @@
                 </a>
                 <div>
                     <h1 class="text-2xl font-bold" style="color: var(--text);">
-                        Analisador de <span class="text-emerald-600">Rótulos</span>
+                        Analisador de <span class="text-emerald-600">RÃ³tulos</span>
                     </h1>
                     <p style="color: var(--text-secondary);" class="text-sm">Escaneie a tabela nutricional</p>
                 </div>
@@ -252,7 +255,7 @@
 
             <p class="text-xs text-center" style="color: var(--text-secondary);">
                 <i class="fas fa-info-circle mr-1"></i>
-                O OCR é processado 100% no seu navegador. Nenhuma imagem é enviada ao servidor.
+                O OCR Ã© processado 100% no seu navegador. Nenhuma imagem Ã© enviada ao servidor.
             </p>
         </div>
 
@@ -284,10 +287,10 @@
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold">
                     <i class="fas fa-file-alt text-emerald-500 mr-2"></i>
-                    Texto Extraído
+                    Texto ExtraÃ­do
                 </h3>
                 <span class="text-xs px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">
-                    <i class="fas fa-check mr-1"></i> OCR Concluído
+                    <i class="fas fa-check mr-1"></i> OCR ConcluÃ­do
                 </span>
             </div>
 
@@ -314,12 +317,12 @@
                     <i class="fas fa-spinner fa-spin text-emerald-500 text-2xl"></i>
                 </div>
                 <h3 class="text-lg font-bold mb-1">Consultando NutriBrain IA...</h3>
-                <p class="text-sm" style="color: var(--text-secondary);">Analisando o rótulo com Groq Llama 3</p>
+                <p class="text-sm" style="color: var(--text-secondary);">Analisando o rÃ³tulo com Groq Llama 3</p>
                 <!-- Aviso de tempo -->
                 <div class="mt-4 p-3 rounded-xl bg-amber-900/20 border border-amber-700/30">
                     <p class="text-xs text-amber-300">
                         <i class="fas fa-clock mr-1"></i>
-                        A análise pode levar até <strong>30 segundos</strong>. Não feche esta página.
+                        A anÃ¡lise pode levar atÃ© <strong>30 segundos</strong>. NÃ£o feche esta pÃ¡gina.
                     </p>
                 </div>
             </div>
@@ -339,7 +342,7 @@
                     <!-- Health Score Bar -->
                     <div class="mb-4">
                         <div class="flex justify-between text-xs mb-1">
-                            <span style="color: var(--text-secondary);">Pontuação de Saúde</span>
+                            <span style="color: var(--text-secondary);">PontuaÃ§Ã£o de SaÃºde</span>
                             <span id="scoreValue" class="font-bold"></span>
                         </div>
                         <div class="ocr-progress">
@@ -353,7 +356,7 @@
                         <span id="statusTexto">Analisando...</span>
                     </div>
 
-                    <!-- Macros Nutricionais Extraídos do OCR -->
+                    <!-- Macros Nutricionais ExtraÃ­dos do OCR -->
                     <div id="macrosContainer" class="grid grid-cols-2 gap-3 mb-4 hidden">
                         <div class="rounded-xl p-3" style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);">
                             <p class="text-[9px] font-bold uppercase" style="color: #10b981;">Calorias</p>
@@ -364,7 +367,7 @@
                             <p id="macroCarbos" class="font-bold text-lg" style="color: #3b82f6;">0g</p>
                         </div>
                         <div class="rounded-xl p-3" style="background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.2);">
-                            <p class="text-[9px] font-bold uppercase" style="color: #f43f5e;">Proteínas</p>
+                            <p class="text-[9px] font-bold uppercase" style="color: #f43f5e;">ProteÃ­nas</p>
                             <p id="macroProteinas" class="font-bold text-lg" style="color: #f43f5e;">0g</p>
                         </div>
                         <div class="rounded-xl p-3" style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2);">
@@ -372,11 +375,11 @@
                             <p id="macroGorduras" class="font-bold text-lg" style="color: #f59e0b;">0g</p>
                         </div>
                         <div class="rounded-xl p-3" style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);">
-                            <p class="text-[9px] font-bold uppercase" style="color: #ef4444;">Sódio</p>
+                            <p class="text-[9px] font-bold uppercase" style="color: #ef4444;">SÃ³dio</p>
                             <p id="macroSodio" class="font-bold text-lg" style="color: #ef4444;">0mg</p>
                         </div>
                         <div class="rounded-xl p-3" style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2);">
-                            <p class="text-[9px] font-bold uppercase" style="color: #a855f7;">Açúcar</p>
+                            <p class="text-[9px] font-bold uppercase" style="color: #a855f7;">AÃ§Ãºcar</p>
                             <p id="macroAcucar" class="font-bold text-lg" style="color: #a855f7;">0g</p>
                         </div>
                     </div>
@@ -385,7 +388,7 @@
                     <div class="bg-black/20 rounded-xl p-4 mb-4">
                         <p class="text-sm font-semibold mb-2">
                             <i class="fas fa-chart-line text-emerald-500 mr-1"></i>
-                            Análise em Relação à Meta
+                            AnÃ¡lise em RelaÃ§Ã£o Ã  Meta
                         </p>
                         <p id="analiseMeta" class="text-sm leading-relaxed" style="color: var(--text-secondary);"></p>
                     </div>
@@ -414,19 +417,19 @@
     </div>
 
 <script>
-    // ====== CONFIGURAÇÃO ======
+    // ====== CONFIGURAÃ‡ÃƒO ======
     const API_URL = 'https://bsfm-nutri.onrender.com';
     let capturedImageData = null;
     let ocrText = '';
     let stream = null;
 
-    // ====== VERIFICAR USUÁRIO ======
+    // ====== VERIFICAR USUÃRIO ======
     const userData = JSON.parse(localStorage.getItem('usuarioLogado'));
     if (!userData) {
         window.location.href = 'login.html';
     }
 
-    // ====== INICIAR CÂMERA ======
+    // ====== INICIAR CÃ‚MERA ======
     async function iniciarCamera() {
         try {
             stream = await navigator.mediaDevices.getUserMedia({
@@ -438,8 +441,8 @@
             });
             document.getElementById('video').srcObject = stream;
         } catch (err) {
-            console.error('Erro ao acessar câmera:', err);
-            alert('Não foi possível acessar a câmera. Verifique as permissões.');
+            console.error('Erro ao acessar cÃ¢mera:', err);
+            alert('NÃ£o foi possÃ­vel acessar a cÃ¢mera. Verifique as permissÃµes.');
         }
     }
 
@@ -454,7 +457,7 @@
         
         capturedImageData = canvas.toDataURL('image/jpeg', 0.8);
         
-        // Para o stream da câmera
+        // Para o stream da cÃ¢mera
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
@@ -508,7 +511,7 @@
 
             const result = await Tesseract.recognize(
                 imageData,
-                'por+eng',  // Português + Inglês para labels de embalagens
+                'por+eng',  // PortuguÃªs + InglÃªs para labels de embalagens
                 {
                     logger: (m) => {
                         if (m.status === 'recognizing text') {
@@ -529,9 +532,9 @@
             );
 
             progressBar.style.width = '100%';
-            statusText.textContent = 'OCR concluído!';
+            statusText.textContent = 'OCR concluÃ­do!';
 
-            // Pós-processamento: limpa o texto OCR
+            // PÃ³s-processamento: limpa o texto OCR
             ocrText = posProcessarOCR(result.data.text);
 
             // Mostra resultado
@@ -546,26 +549,26 @@
 
         } catch (err) {
             console.error('Erro no OCR:', err);
-            statusText.textContent = 'Erro no OCR. Tente novamente com uma foto mais nítida.';
+            statusText.textContent = 'Erro no OCR. Tente novamente com uma foto mais nÃ­tida.';
             progressBar.style.width = '0%';
             progressBar.style.background = '#ef4444';
         }
     }
 
-    // ====== PÓS-PROCESSAMENTO OCR ======
+    // ====== PÃ“S-PROCESSAMENTO OCR ======
     function posProcessarOCR(texto) {
-        // Remove linhas muito curtas (ruído)
+        // Remove linhas muito curtas (ruÃ­do)
         let linhas = texto.split('\n')
             .map(l => l.trim())
             .filter(l => l.length > 2);
         
-        // Remove caracteres não alfanuméricos repetidos
+        // Remove caracteres nÃ£o alfanumÃ©ricos repetidos
         linhas = linhas.map(l => l.replace(/[^\w\s.,%:;()\-/]/g, ''));
         
         // Junta linhas quebradas
         let textoLimpo = linhas.join('\n');
         
-        // Limita a 2000 caracteres para não estourar tokens do Groq
+        // Limita a 2000 caracteres para nÃ£o estourar tokens do Groq
         if (textoLimpo.length > 2000) {
             textoLimpo = textoLimpo.substring(0, 2000);
         }
@@ -595,26 +598,26 @@
 
             if (!response.ok) {
                 const err = await response.json();
-                throw new Error(err.mensagem || 'Erro na análise');
+                throw new Error(err.mensagem || 'Erro na anÃ¡lise');
             }
 
             const data = await response.json();
             exibirResultado(data);
 
         } catch (err) {
-            console.error('Erro na análise IA:', err);
+            console.error('Erro na anÃ¡lise IA:', err);
             document.getElementById('aiLoading').classList.add('hidden');
             document.getElementById('aiResult').classList.remove('hidden');
             
-            // Mostra erro amigável
-            document.getElementById('produtoNome').textContent = 'Erro na Análise';
+            // Mostra erro amigÃ¡vel
+            document.getElementById('produtoNome').textContent = 'Erro na AnÃ¡lise';
             document.getElementById('produtoStatus').textContent = 'Tente novamente';
             document.getElementById('scoreRing').style.background = 'conic-gradient(#ef4444 0deg, #ef4444 360deg)';
             document.getElementById('scoreRing').textContent = '?';
             document.getElementById('scoreValue').textContent = '0/10';
             document.getElementById('scoreBar').style.width = '0%';
-            document.getElementById('analiseMeta').textContent = err.message || 'Servidor temporariamente indisponível. Tente novamente mais tarde.';
-            document.getElementById('dicaBSFM').textContent = 'Verifique sua conexão com a internet e tente novamente.';
+            document.getElementById('analiseMeta').textContent = err.message || 'Servidor temporariamente indisponÃ­vel. Tente novamente mais tarde.';
+            document.getElementById('dicaBSFM').textContent = 'Verifique sua conexÃ£o com a internet e tente novamente.';
         }
     }
 
@@ -624,7 +627,7 @@
         document.getElementById('aiResult').classList.remove('hidden');
 
         // Produto
-        document.getElementById('produtoNome').textContent = data.produtoDetectado || 'Produto não identificado';
+        document.getElementById('produtoNome').textContent = data.produtoDetectado || 'Produto nÃ£o identificado';
 
         // Status (PodeConsumir) - estilo igual ao analisador-ia.html
         const statusEl = document.getElementById('produtoStatus');
@@ -657,18 +660,18 @@
         if (data.podeConsumir === true) {
             statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-emerald-100 text-emerald-700';
             statusIcon.className = 'fas fa-check-circle';
-            statusTexto.innerText = 'Pode consumir! Opção saudável.';
+            statusTexto.innerText = 'Pode consumir! OpÃ§Ã£o saudÃ¡vel.';
         } else if (data.podeConsumir === false) {
             statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-red-100 text-red-700';
             statusIcon.className = 'fas fa-times-circle';
-            statusTexto.innerText = 'Evite consumir. Não é recomendado.';
+            statusTexto.innerText = 'Evite consumir. NÃ£o Ã© recomendado.';
         } else {
             statusDiv.className = 'flex items-center gap-2 mb-3 px-3 py-2 rounded-xl text-sm font-bold bg-amber-100 text-amber-700';
             statusIcon.className = 'fas fa-exclamation-circle';
-            statusTexto.innerText = 'Consuma com moderação.';
+            statusTexto.innerText = 'Consuma com moderaÃ§Ã£o.';
         }
 
-        // Macros Nutricionais Extraídos do OCR
+        // Macros Nutricionais ExtraÃ­dos do OCR
         const macrosContainer = document.getElementById('macrosContainer');
         macrosContainer.classList.remove('hidden');
         document.getElementById('macroCalorias').innerHTML = `${data.calorias > 0 ? Math.round(data.calorias) : 'N/A'} <span class="text-xs" style="color: var(--text-secondary);">${data.calorias > 0 ? 'kcal' : ''}</span>`;
@@ -678,9 +681,9 @@
         document.getElementById('macroSodio').innerHTML = `${data.sodio > 0 ? Math.round(data.sodio) : 'N/A'} <span class="text-xs" style="color: var(--text-secondary);">${data.sodio > 0 ? 'mg' : ''}</span>`;
         document.getElementById('macroAcucar').innerHTML = `${data.acucar > 0 ? data.acucar.toFixed(1) : 'N/A'} <span class="text-xs" style="color: var(--text-secondary);">${data.acucar > 0 ? 'g' : ''}</span>`;
 
-        // Análise
-        document.getElementById('analiseMeta').textContent = data.analiseEmRelacaoAMeta || 'Análise não disponível.';
-        document.getElementById('dicaBSFM').textContent = data.dicaBSFM || 'Consulte um nutricionista para orientação personalizada.';
+        // AnÃ¡lise
+        document.getElementById('analiseMeta').textContent = data.analiseEmRelacaoAMeta || 'AnÃ¡lise nÃ£o disponÃ­vel.';
+        document.getElementById('dicaBSFM').textContent = data.dicaBSFM || 'Consulte um nutricionista para orientaÃ§Ã£o personalizada.';
     }
 
     // ====== RESETAR ======
@@ -735,9 +738,13 @@
         document.getElementById('themeIcon').className = 'fas fa-moon';
     }
 
-    // ====== INICIALIZAÇÃO ======
+    // ====== INICIALIZAÃ‡ÃƒO ======
     iniciarCamera();
 </script>
 
 </body>
 </html>
+
+
+
+

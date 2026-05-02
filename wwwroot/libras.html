@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -7,12 +7,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BSFM">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
-    <link rel="icon" type="image/png" href="icons/Iconebsfm.png">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
     <title>BSFM - LIBRAS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -38,7 +41,7 @@
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-4">
                 <button onclick="window.location.href='dashboard.html'" class="btn-secondary"><i class="fas fa-arrow-left mr-2"></i>Voltar</button>
-                <h1 class="text-2xl font-bold" style="color: var(--text);"><i class="fas fa-hands-asl-interpreting text-emerald-500 mr-3"></i>Módulo LIBRAS</h1>
+                <h1 class="text-2xl font-bold" style="color: var(--text);"><i class="fas fa-hands-asl-interpreting text-emerald-500 mr-3"></i>MÃ³dulo LIBRAS</h1>
             </div>
             <button onclick="toggleTheme()" class="theme-btn"><i id="themeIcon" class="fas fa-sun"></i></button>
         </div>
@@ -46,17 +49,17 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="card">
                 <div class="video-wrapper mb-3">
-                    <iframe src="https://www.youtube.com/embed/7vQ5n0G6mHk" title="Alimentação Saudável em LIBRAS" frameborder="0" allowfullscreen></iframe>
+                    <iframe src="https://www.youtube.com/embed/7vQ5n0G6mHk" title="AlimentaÃ§Ã£o SaudÃ¡vel em LIBRAS" frameborder="0" allowfullscreen></iframe>
                 </div>
-                <h3 class="font-bold" style="color: var(--text);">Alimentação Saudável</h3>
-                <p class="text-sm" style="color: var(--text-secondary);">Dicas de alimentação saudável em LIBRAS</p>
+                <h3 class="font-bold" style="color: var(--text);">AlimentaÃ§Ã£o SaudÃ¡vel</h3>
+                <p class="text-sm" style="color: var(--text-secondary);">Dicas de alimentaÃ§Ã£o saudÃ¡vel em LIBRAS</p>
             </div>
             <div class="card">
                 <div class="video-wrapper mb-3">
-                    <iframe src="https://www.youtube.com/embed/5qap5aO4i9A" title="Nutrição em LIBRAS" frameborder="0" allowfullscreen></iframe>
+                    <iframe src="https://www.youtube.com/embed/5qap5aO4i9A" title="NutriÃ§Ã£o em LIBRAS" frameborder="0" allowfullscreen></iframe>
                 </div>
-                <h3 class="font-bold" style="color: var(--text);">Nutrição e Alimentos</h3>
-                <p class="text-sm" style="color: var(--text-secondary);">Vocabulário de nutrição em LIBRAS</p>
+                <h3 class="font-bold" style="color: var(--text);">NutriÃ§Ã£o e Alimentos</h3>
+                <p class="text-sm" style="color: var(--text-secondary);">VocabulÃ¡rio de nutriÃ§Ã£o em LIBRAS</p>
             </div>
             <div class="card">
                 <div class="video-wrapper mb-3">
@@ -77,14 +80,14 @@
                     <iframe src="https://www.youtube.com/embed/6w0y42cJN2M" title="Bebidas em LIBRAS" frameborder="0" allowfullscreen></iframe>
                 </div>
                 <h3 class="font-bold" style="color: var(--text);">Bebidas em LIBRAS</h3>
-                <p class="text-sm" style="color: var(--text-secondary);">Vocabulário de bebidas</p>
+                <p class="text-sm" style="color: var(--text-secondary);">VocabulÃ¡rio de bebidas</p>
             </div>
             <div class="card">
                 <div class="video-wrapper mb-3">
                     <iframe src="https://www.youtube.com/embed/4bP4JhV0iGc" title="Hospital em LIBRAS" frameborder="0" allowfullscreen></iframe>
                 </div>
-                <h3 class="font-bold" style="color: var(--text);">Hospital e Saúde</h3>
-                <p class="text-sm" style="color: var(--text-secondary);">Sinais para emergências médicas</p>
+                <h3 class="font-bold" style="color: var(--text);">Hospital e SaÃºde</h3>
+                <p class="text-sm" style="color: var(--text-secondary);">Sinais para emergÃªncias mÃ©dicas</p>
             </div>
         </div>
     </div>
@@ -111,3 +114,7 @@
     </script>
 </body>
 </html>
+
+
+
+
