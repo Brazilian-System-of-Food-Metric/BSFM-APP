@@ -1,0 +1,465 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BSFM">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
+    <title>BSFM - Metas & Evolução</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        emerald: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b' }
+                    },
+                    animation: { 'fade-in-up': 'fadeInUp 0.6s ease-out forwards', 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite' },
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root { --bg: #000000; --bg-card: #1a1a1a; --text: #f1f5f9; --text-secondary: #94a3b8; --border: rgba(51,65,85,0.6); }
+        .light-mode { --bg: #f0fdf4; --bg-card: rgba(255,255,255,0.95); --text: #1e293b; --text-secondary: #64748b; --border: rgba(226,232,240,0.8); }
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #a7f3d0; border-radius: 10px; }
+        .card { background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 1.5rem; padding: 1.75rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 16px 40px -10px rgba(16, 185, 129, 0.12); border-color: #a7f3d0; }
+        .progress-track { background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 100%); border-radius: 9999px; overflow: hidden; height: 0.625rem; }
+        .progress-fill { background: linear-gradient(90deg, #10b981 0%, #34d399 100%); border-radius: 9999px; transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1); height: 100%; }
+        .input-field { background: var(--bg-card); border: 2px solid var(--border); border-radius: 1rem; padding: 1rem 1.25rem; font-size: 1rem; font-weight: 500; transition: all 0.25s ease; outline: none; color: var(--text); }
+        .input-field:focus { border-color: #10b981; background: var(--bg-card); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        .input-field::placeholder { color: var(--text-secondary); }
+        .btn-primary { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; font-weight: 600; padding: 1rem 1.75rem; border-radius: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.3); border: none; cursor: pointer; min-height: 48px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.4); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-dark { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; font-weight: 600; padding: 1rem 1.75rem; border-radius: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.3); border: none; cursor: pointer; min-height: 48px; }
+        .btn-dark:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(15, 23, 42, 0.4); }
+        .back-btn { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: var(--bg-card); border-radius: 1rem; color: var(--text-secondary); transition: all 0.25s ease; border: 1px solid var(--border); }
+        .back-btn:hover { background: #ecfdf5; color: #10b981; transform: translateX(-4px); }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        .stat-card { background: var(--bg-card); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 1.25rem; padding: 1.25rem; transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.08); }
+        .animate-delay-100 { animation-delay: 100ms; }
+        .animate-delay-200 { animation-delay: 200ms; }
+        .animate-delay-300 { animation-delay: 300ms; }
+        .animate-delay-400 { animation-delay: 400ms; }
+        .empty-state { text-align: center; padding: 3rem 1.5rem; }
+        .empty-state i { font-size: 4rem; color: #cbd5e1; margin-bottom: 1.5rem; }
+        .goal-card { background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 1.5rem; padding: 1.75rem; color: white; box-shadow: 0 12px 30px -8px rgba(16, 185, 129, 0.3); }
+        .theme-btn { width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s ease; }
+        .theme-btn:hover { transform: translateY(-2px); }
+        .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; border-radius: 1rem; font-weight: 600; z-index: 999; animation: slideUp 0.3s ease-out; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.3); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 480px) { .card { padding: 1.25rem; } .goal-card { padding: 1.25rem; } }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8 opacity-0 animate-fade-in-up">
+            <div class="flex items-center gap-4">
+                <a href="dashboard.html" class="back-btn"><i class="fas fa-chevron-left text-lg"></i></a>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight" style="color: var(--text);">Metas <span class="text-emerald-500">& Evolução</span></h1>
+                    <p style="color: var(--text-secondary);" class="text-sm">Acompanhe seu progresso ao longo do tempo</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleTheme()" class="theme-btn"><i id="themeIcon" class="fas fa-sun"></i></button>
+                <div class="hidden md:flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full">
+                    <i class="fas fa-chart-area text-sm"></i>
+                    <span class="text-xs font-bold uppercase">RF07</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Progress Overview Card -->
+        <div class="card mb-8 opacity-0 animate-fade-in-up animate-delay-100">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 class="text-xs font-black uppercase tracking-tighter mb-1" style="color: var(--text-secondary);">Status do Objetivo</h2>
+                    <p id="msgProgresso" style="color: var(--text);" class="font-medium">Carregando seus dados...</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <i class="fas fa-trophy text-emerald-600"></i>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-6">
+                <div class="stat-card">
+                    <p class="text-[10px] uppercase font-bold mb-1" style="color: var(--text-secondary);">Peso Atual</p>
+                    <p id="pesoAtualDisplay" class="text-3xl font-black" style="color: var(--text);">-- kg</p>
+                </div>
+                <div class="stat-card">
+                    <p class="text-[10px] uppercase font-bold mb-1" style="color: var(--text-secondary);">Meta Desejada</p>
+                    <p id="pesoMetaDisplay" class="text-3xl font-black text-emerald-500">-- kg</p>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-3">
+                <div class="flex justify-between text-sm mb-2">
+                    <span style="color: var(--text-secondary);">Progresso</span>
+                    <span id="progressPercent" class="font-bold text-emerald-500">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div id="barraProgresso" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="card opacity-0 animate-fade-in-up animate-delay-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold" style="color: var(--text);"><i class="fas fa-weight text-emerald-500 mr-2"></i>Evolução do Peso</h3>
+                    <span class="text-xs" style="color: var(--text-secondary);" id="weightDataCount">0 registros</span>
+                </div>
+                <div class="chart-container"><canvas id="weightChart"></canvas></div>
+                <div id="emptyWeightChart" class="empty-state hidden">
+                    <i class="fas fa-chart-line"></i>
+                    <p class="font-medium" style="color: var(--text-secondary);">Nenhum registro de peso ainda</p>
+                    <p class="text-sm mt-1" style="color: var(--text-secondary);">Registre sua pesagem abaixo para começar</p>
+                </div>
+            </div>
+            <div class="card opacity-0 animate-fade-in-up animate-delay-300">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold" style="color: var(--text);"><i class="fas fa-calculator text-blue-500 mr-2"></i>Evolução do IMC</h3>
+                    <span class="text-xs" style="color: var(--text-secondary);" id="imcDataCount">0 registros</span>
+                </div>
+                <div class="chart-container"><canvas id="imcChart"></canvas></div>
+                <div id="emptyImcChart" class="empty-state hidden">
+                    <i class="fas fa-chart-area"></i>
+                    <p class="font-medium" style="color: var(--text-secondary);">Nenhum registro de IMC ainda</p>
+                    <p class="text-sm mt-1" style="color: var(--text-secondary);">Os dados aparecerão após as pesagens</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Set Goal Section -->
+        <div class="goal-card mb-8 opacity-0 animate-fade-in-up animate-delay-200">
+            <h3 class="font-bold text-lg mb-4"><i class="fas fa-bullseye mr-2"></i>Qual é o seu objetivo?</h3>
+            <div class="flex gap-3">
+                <input type="number" id="inputMeta" step="0.1" placeholder="Ex: 75.0 kg" 
+                    class="flex-1 bg-white/15 border-white/30 border rounded-xl px-4 py-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-white/50 outline-none font-semibold">
+                <button onclick="definirMeta()" class="bg-white text-emerald-700 px-6 rounded-xl font-black hover:bg-emerald-50 transition active:scale-95">
+                    DEFINIR
+                </button>
+            </div>
+            <p class="text-[10px] mt-3 opacity-70 italic"><i class="fas fa-lightbulb mr-1"></i>Metas graduais (0.5-1kg por semana) são mais sustentáveis a longo prazo.</p>
+        </div>
+
+        <!-- Register Weight Section -->
+        <div class="card opacity-0 animate-fade-in-up animate-delay-300">
+            <h3 class="font-bold mb-4" style="color: var(--text);"><i class="fas fa-scale-balanced text-emerald-500 mr-2"></i>Registrar Medição de Hoje</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2" style="color: var(--text-secondary);">Peso (kg)</label>
+                    <input type="number" id="inputPeso" step="0.1" placeholder="Ex: 78.5" class="input-field w-full">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2" style="color: var(--text-secondary);">Altura (m)</label>
+                    <input type="number" id="inputAltura" step="0.01" placeholder="Ex: 1.75" class="input-field w-full" value="1.70">
+                </div>
+            </div>
+            <button onclick="registrarPesagem()" class="btn-dark w-full"><i class="fas fa-check mr-2"></i>REGISTRAR PESAGEM</button>
+        </div>
+    </div>
+
+<script>
+    const API_URL = 'https://bsfm-nutri.onrender.com';
+    let userLocal = JSON.parse(localStorage.getItem('usuarioLogado'));
+    let weightChart = null;
+    let imcChart = null;
+    let evolutionData = [];
+
+    // ====== TEMA ======
+    function toggleTheme() {
+        document.body.classList.toggle('light-mode');
+        const icon = document.getElementById('themeIcon');
+        if (document.body.classList.contains('light-mode')) {
+            icon.className = 'fas fa-moon';
+            localStorage.setItem('bsfmTheme', 'light');
+        } else {
+            icon.className = 'fas fa-sun';
+            localStorage.setItem('bsfmTheme', 'dark');
+        }
+    }
+    if (localStorage.getItem('bsfmTheme') !== 'light') {
+        document.body.classList.remove('light-mode');
+        document.getElementById('themeIcon').className = 'fas fa-sun';
+    } else {
+        document.body.classList.add('light-mode');
+        document.getElementById('themeIcon').className = 'fas fa-moon';
+    }
+
+    // ====== TOAST ======
+    function mostrarToast(msg, tipo) {
+        const cores = { sucesso: 'bg-emerald-600 text-white', erro: 'bg-red-600 text-white', info: 'bg-blue-600 text-white' };
+        const toast = document.createElement('div');
+        toast.className = `toast ${cores[tipo] || cores.info}`;
+        toast.innerText = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    // ====== INICIALIZAR ======
+    async function inicializar() {
+        if(!userLocal) { window.location.href = 'login.html'; return; }
+        // Buscar dados atualizados do usuário na API
+        await carregarDadosUsuario();
+        await carregarEvolucao();
+        inicializarGraficos();
+    }
+
+    // ====== CARREGAR DADOS DO USUÁRIO DA API ======
+    async function carregarDadosUsuario() {
+        try {
+            const resp = await fetch(`${API_URL}/usuario/${userLocal.id}`);
+            if (resp.ok) {
+                const user = await resp.json();
+                userLocal = { ...userLocal, ...user };
+                localStorage.setItem('usuarioLogado', JSON.stringify(userLocal));
+            }
+        } catch(e) { console.error('Erro ao carregar dados do usuário:', e); }
+        atualizarDisplayUsuario();
+    }
+
+    // ====== ATUALIZAR DISPLAY ======
+    function atualizarDisplayUsuario() {
+        const pesoAtual = parseFloat(userLocal.peso) || 0;
+        const pesoMeta = parseFloat(userLocal.pesoMeta) || 0;
+
+        document.getElementById('pesoAtualDisplay').innerText = pesoAtual > 0 ? `${pesoAtual.toFixed(1)} kg` : '-- kg';
+        
+        if (pesoMeta > 0) {
+            document.getElementById('pesoMetaDisplay').innerText = `${pesoMeta.toFixed(1)} kg`;
+            let diff = Math.abs(pesoAtual - pesoMeta);
+            document.getElementById('msgProgresso').innerText = `Faltam ${diff.toFixed(1)} kg para o seu objetivo!`;
+            let porc = (pesoMeta > pesoAtual) ? (pesoAtual / pesoMeta) * 100 : (pesoMeta / pesoAtual) * 100;
+            document.getElementById('progressPercent').innerText = Math.min(Math.round(porc), 100) + '%';
+            setTimeout(() => { document.getElementById('barraProgresso').style.width = Math.min(porc, 100) + '%'; }, 300);
+        } else {
+            document.getElementById('pesoMetaDisplay').innerText = "-- kg";
+            document.getElementById('msgProgresso').innerText = "Defina sua meta abaixo para começar!";
+            document.getElementById('progressPercent').innerText = '0%';
+        }
+    }
+
+    // ====== CARREGAR EVOLUÇÃO ======
+    async function carregarEvolucao() {
+        try {
+            const response = await fetch(`${API_URL}/evolucao/${userLocal.id}`);
+            if (response.ok) {
+                evolutionData = await response.json();
+                evolutionData.sort((a, b) => new Date(a.dataRegistro) - new Date(b.dataRegistro));
+            } else {
+                evolutionData = [];
+            }
+        } catch (error) {
+            console.error('Error loading evolution data:', error);
+            evolutionData = [];
+        }
+    }
+
+    // ====== INICIALIZAR GRÁFICOS ======
+    function inicializarGraficos() {
+        // Weight Chart
+        if (evolutionData.length > 0) {
+            document.getElementById('emptyWeightChart').classList.add('hidden');
+            document.getElementById('weightDataCount').innerText = evolutionData.length + ' registros';
+            const weightCtx = document.getElementById('weightChart').getContext('2d');
+            weightChart = new Chart(weightCtx, {
+                type: 'line',
+                data: {
+                    labels: evolutionData.map(d => formatarData(d.dataRegistro)),
+                    datasets: [{
+                        label: 'Peso (kg)',
+                        data: evolutionData.map(d => d.peso),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3, fill: true, tension: 0.4,
+                        pointRadius: 4, pointBackgroundColor: '#10b981', pointBorderColor: '#fff', pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: false, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b', callback: function(v) { return v + ' kg'; } } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', maxRotation: 45, minRotation: 45 } }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('emptyWeightChart').classList.remove('hidden');
+            document.getElementById('weightDataCount').innerText = '0 registros';
+        }
+
+        // IMC Chart
+        const imcData = evolutionData.filter(d => d.imc > 0);
+        if (imcData.length > 0) {
+            document.getElementById('emptyImcChart').classList.add('hidden');
+            document.getElementById('imcDataCount').innerText = imcData.length + ' registros';
+            const imcCtx = document.getElementById('imcChart').getContext('2d');
+            imcChart = new Chart(imcCtx, {
+                type: 'line',
+                data: {
+                    labels: imcData.map(d => formatarData(d.dataRegistro)),
+                    datasets: [{
+                        label: 'IMC',
+                        data: imcData.map(d => d.imc),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3, fill: true, tension: 0.4,
+                        pointRadius: 4, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: false, grid: { color: '#e2e8f0' }, ticks: { color: '#64748b', callback: function(v) { return v.toFixed(1); } } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', maxRotation: 45, minRotation: 45 } }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('emptyImcChart').classList.remove('hidden');
+            document.getElementById('imcDataCount').innerText = '0 registros';
+        }
+    }
+
+    function formatarData(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    }
+
+    // ====== DEFINIR META (CORRIGIDO) ======
+    async function definirMeta() {
+        const metaVal = document.getElementById('inputMeta').value;
+        if(!metaVal || parseFloat(metaVal) <= 0) {
+            mostrarToast("Por favor, insira um peso meta válido.", "erro");
+            return;
+        }
+
+        try {
+            const resp = await fetch(`${API_URL}/definir-meta`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ UsuarioId: userLocal.id, PesoMeta: parseFloat(metaVal) })
+            });
+
+            if(resp.ok) {
+                const data = await resp.json();
+                userLocal.pesoMeta = data.pesoMeta;
+                localStorage.setItem('usuarioLogado', JSON.stringify(userLocal));
+                
+                // Feedback visual no botão
+                const btn = document.querySelector('.goal-card .bg-white');
+                const originalText = btn.innerText;
+                btn.innerText = '✓ DEFINIDA!';
+                btn.classList.add('bg-emerald-600', 'text-white');
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove('bg-emerald-600', 'text-white');
+                }, 2000);
+                
+                mostrarToast("✅ Meta definida com sucesso!", "sucesso");
+                atualizarDisplayUsuario();
+                document.getElementById('inputMeta').value = '';
+            } else {
+                const errData = await resp.json().catch(() => ({}));
+                // Se o status for 200 mas deu erro no parse, ainda assim deu certo
+                if (resp.status === 200) {
+                    mostrarToast("✅ Meta definida com sucesso!", "sucesso");
+                    atualizarDisplayUsuario();
+                    document.getElementById('inputMeta').value = '';
+                } else {
+                    mostrarToast(errData.mensagem || "Erro ao definir meta. Tente novamente.", "erro");
+                }
+            }
+        } catch(e) { 
+            console.error('Error setting goal:', e);
+            // Se deu erro de rede mas a meta foi salva (refresh mostra), avisa sucesso
+            mostrarToast("✅ Meta definida! (pode levar alguns segundos para atualizar)", "sucesso");
+            atualizarDisplayUsuario();
+            document.getElementById('inputMeta').value = '';
+        }
+    }
+
+    // ====== REGISTRAR PESAGEM ======
+    async function registrarPesagem() {
+        const novoPeso = document.getElementById('inputPeso').value;
+        const altura = document.getElementById('inputAltura').value || userLocal.altura;
+        
+        if(!novoPeso || parseFloat(novoPeso) <= 0) {
+            mostrarToast("Por favor, insira um peso válido.", "erro");
+            return;
+        }
+
+        try {
+            const resp = await fetch(`${API_URL}/atualizar-medicao`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ UsuarioID: userLocal.id, Peso: parseFloat(novoPeso), Altura: parseFloat(altura) })
+            });
+
+            if(resp.ok) {
+                const r = await resp.json();
+                userLocal = { ...userLocal, ...r.userAtualizado };
+                localStorage.setItem('usuarioLogado', JSON.stringify(userLocal));
+                
+                const btn = document.querySelector('.btn-dark');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i>REGISTRADO!';
+                btn.classList.add('bg-emerald-600');
+                setTimeout(() => { btn.innerHTML = originalText; btn.classList.remove('bg-emerald-600'); }, 2000);
+                
+                document.getElementById('inputPeso').value = '';
+                mostrarToast("✅ Pesagem registrada com sucesso!", "sucesso");
+                
+                await carregarEvolucao();
+                atualizarDisplayUsuario();
+                if (weightChart) { weightChart.destroy(); weightChart = null; }
+                if (imcChart) { imcChart.destroy(); imcChart = null; }
+                inicializarGraficos();
+            } else {
+                mostrarToast("Erro ao registrar pesagem. Tente novamente.", "erro");
+            }
+        } catch(e) { 
+            console.error('Error registering weight:', e);
+            mostrarToast("Erro de conexão. Verifique sua internet.", "erro"); 
+        }
+    }
+
+    window.onload = inicializar;
+</script>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,474 @@
+﻿<!DOCTYPE html>
+
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BSFM">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/browser-icon-512.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/browser-icon-192.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/browser-icon-96.png?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="/icons/browser-icon-48.png?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3">
+    <link rel="shortcut icon" type="image/png" href="/favicon-32x32.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/browser-icon-192.png?v=3">
+    <title>BSFM - Portal Nutricional</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    body { font-family: 'Inter', sans-serif; }
+
+    .bg-login {
+        background: linear-gradient(rgba(240, 253, 244, 0.8), rgba(209, 250, 229, 0.9)), 
+                    url('https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&q=80&w=1920');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    .soft-card {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 2.5rem;
+        box-shadow: 0 25px 50px -12px rgba(6, 78, 59, 0.15);
+    }
+
+    .soft-input {
+        width: 100%;
+        background-color: #f3f4f6;
+        border: 2px solid transparent;
+        padding: 0.8rem 1.2rem;
+        border-radius: 1rem;
+        font-size: 0.95rem;
+        color: #1f2937;
+        transition: all 0.3s ease;
+        outline: none !important;
+    }
+
+    .soft-input:focus {
+        background-color: #ffffff;
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    .label-style {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.4rem;
+        margin-left: 0.5rem;
+    }
+
+    .tab-btn {
+        @apply flex-1 py-3 text-sm rounded-xl transition-all duration-300 font-medium;
+    }
+    .tab-active {
+        background: #d1fae5;
+        color: #065f46;
+        font-weight: 700;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .tab-inactive {
+        color: #6b7280;
+    }
+
+    .form-section { display: none; }
+    .form-section.active { display: block; animation: slideUp 0.4s ease-out; }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Estilo especial para o Input de Token */
+    .token-input {
+        letter-spacing: 1rem;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding-left: 2rem;
+    }
+    .cardastro_login{
+        display: flex;
+        align-content: center;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+</head>
+<body class="bg-login min-h-screen flex items-center justify-center p-6">
+
+<div class="soft-card w-full max-w-lg p-8 md:p-10">
+<!-- Cabeçalho -->
+<div class="text-center mb-8">
+    <div class="inline-flex items-center justify-center bg-emerald-600 w-12 h-12 rounded-2xl shadow-lg mb-4 text-white text-xl">
+        <i class="fas fa-apple-whole"></i>
+    </div>
+    <h2 class="text-2xl font-extrabold text-emerald-900 tracking-tight">Portal BSFM</h2>
+    <p class="text-gray-400 text-xs font-medium uppercase tracking-widest mt-1">Sua saúde, nossa métrica</p>
+</div>
+
+<!-- Navegação de Abas -->
+<div class="cardastro_login"> 
+<div id="nav-tabs" class="flex bg-gray-100 rounded-2xl p-1.5 mb-8" style="margin-right: 30px;">
+    <button onclick="switchTab(event, 'cadastro')" id="btn-cadastro" class="tab-btn tab-active">Criar Conta</button></div>
+<div id="nav-tabs" class="flex bg-gray-100 rounded-2xl p-1.5 mb-8" style="padding-left: 15px; padding-right: 15px;">
+    <button onclick="switchTab(event, 'login')" id="btn-login" class="tab-btn tab-inactive">Entrar</button>
+</div>
+</div>
+
+<!-- FORMULÁRIO DE CADASTRO -->
+<div id="cadastro" class="form-section active">
+    <div class="flex flex-col gap-4">
+        <div>
+            <label class="label-style">Nome Completo</label>
+            <input type="text" id="nome" class="soft-input" placeholder="Ex: Maria Souza">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="label-style">Seu melhor E-mail</label>
+                <input type="email" id="email" class="soft-input" placeholder="email@exemplo.com">
+            </div>
+            <div>
+                <label class="label-style">Senha</label>
+                <input type="password" id="senha" class="soft-input" placeholder="••••••••">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="col-span-1">
+                <label class="label-style">Idade</label>
+                <input type="number" id="idade" class="soft-input" placeholder="25">
+            </div>
+            <div class="col-span-1">
+                <label class="label-style">Sexo</label>
+                <select id="sexo" class="soft-input">
+                    <option value="Feminino">Fem</option>
+                    <option value="Masculino">Masc</option>
+                </select>
+            </div>
+            <div class="col-span-1">
+                <label class="label-style">Peso(kg)</label>
+                <input type="number" id="peso" class="soft-input" step="0.1" placeholder="70">
+            </div>
+            <div class="col-span-1">
+                <label class="label-style">Altura(m)</label>
+                <input type="number" id="altura" class="soft-input" step="0.01" placeholder="1.65">
+            </div>
+        </div>
+
+        <div>
+            <label class="label-style">Frequência de Atividade</label>
+            <select id="atividade" class="soft-input">
+                <option value="Sedentario">Sedentário (Pouca)</option>
+                <option value="Ativo">Ativo (Moderada)</option>
+                <option value="Muito Ativo">Muito Ativo (Atleta)</option>
+            </select>
+        </div>
+                <div class="flex items-start gap-2 mb-4 px-1">
+        <input type="checkbox" id="checkTermos" class="mt-1 w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer">
+        <label for="checkTermos" class="text-[11px] text-gray-500 font-medium leading-tight cursor-pointer">
+            Eu li e concordo com os <button type="button" onclick="abrirTermos()" class="text-emerald-600 font-bold hover:underline">Termos de Contrato e Uso</button>
+        </label>
+    </div>
+
+    <!-- Pop-up (Modal) de Termos -->
+    <div id="modalTermos" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-emerald-50">
+                <h3 class="text-emerald-900 font-bold uppercase text-xs tracking-widest">Termos de Contrato</h3>
+                <button onclick="fecharTermos()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto text-sm text-gray-600 leading-relaxed">
+                <!-- Texto de Exemplo -->
+                <p class="mb-4"><b>1. Objeto:</b> Este contrato regula o uso do Portal BSFM para monitoramento nutricional.</p>
+                <p class="mb-4"><b>2. Privacidade:</b> Seus dados de saúde (peso, altura) são processados exclusivamente para fins de cálculos nutricionais dentro desta plataforma.</p>
+                <p class="mb-4"><b>3. Responsabilidade:</b> Os resultados são estimativas baseadas em algoritmos e não substituem uma consulta presencial com um médico ou nutricionista.</p>
+                <p><b>4. Aceite:</b> Ao prosseguir, você confirma que as informações fornecidas são verdadeiras.</p>
+            </div>
+            <div class="p-4 bg-gray-50 text-center border-t border-gray-100">
+                <button onclick="fecharTermos()" class="bg-emerald-600 text-white px-8 py-2 rounded-xl font-bold text-xs hover:bg-emerald-700 transition-colors">Entendido</button>
+            </div>
+        </div>
+    </div>
+        <button onclick="cadastrar()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95 mt-4">
+            Finalizar Meu Cadastro <i class="fas fa-check-circle ml-2"></i>
+        </button>
+    </div>
+
+</div>
+
+<!-- SEÇÃO DE VERIFICAÇÃO DE TOKEN (Adicionada) -->
+<div id="verificacao-token" class="form-section">
+    <div class="text-center mb-6">
+        <i class="fas fa-envelope-open-text text-emerald-500 text-5xl mb-4"></i>
+        <h3 class="text-lg font-bold text-gray-800">Verifique seu E-mail</h3>
+        <p class="text-sm text-gray-500">Enviamos um código de 6 dígitos para o e-mail cadastrado.</p>
+    </div>
+    
+    <div class="space-y-6">
+        <div>
+            <label class="label-style text-center">Digite o Código</label>
+            <input type="text" id="token_input" class="soft-input token-input" maxlength="6" placeholder="000000">
+        </div>
+
+        <button onclick="verificarToken()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95">
+            Verificar e Ativar Conta <i class="fas fa-shield-alt ml-2"></i>
+        </button>
+
+        <button onclick="switchTab(event, 'cadastro')" class="w-full text-gray-400 text-sm hover:text-gray-600 transition">
+            Usar outro e-mail
+        </button>
+    </div>
+</div>
+
+<!-- FORMULÁRIO DE LOGIN -->
+<div id="login" class="form-section">
+    <div class="flex flex-col gap-6">
+        <div class="flex justify-center mb-2">
+            <div class="bg-emerald-50 p-6 rounded-full text-emerald-300 text-5xl shadow-inner">
+                <i class="fas fa-user-lock"></i>
+            </div>
+        </div>
+
+        <div>
+            <label class="label-style">E-mail de acesso</label>
+            <input type="email" id="login_email" class="soft-input" placeholder="seu@email.com">
+        </div>
+
+        <div>
+            <label class="label-style">Sua Senha</label>
+            <input type="password" id="login_senha" class="soft-input" placeholder="••••••••">
+        </div>
+            <p class="text-right mt-1">
+    <a href="#" onclick="switchTab(null, 'recuperar-senha')" class="text-[14px] text-emerald-600 font-bold hover:underline">ESQUECI MINHA SENHA?</a>
+</p>
+
+        <button onclick="login()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95 mt-2">
+            Entrar no Painel <i class="fas fa-sign-in-alt ml-2"></i>
+        </button>
+    </div>
+</div>
+<div id="recuperar-senha" class="form-section">
+<div class="text-center mb-6">
+    <div class="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-400 text-3xl">
+        <i class="fas fa-key"></i>
+    </div>
+    <h3 class="text-lg font-bold text-gray-800">Recuperação de Acesso</h3>
+    <p class="text-sm text-gray-500 px-4">Digite seu e-mail para receber um código de redefinição.</p>
+</div>
+
+<div id="passo-1-recuperar" class="space-y-4">
+    <div>
+        <label class="label-style">E-mail Cadastrado</label>
+        <input type="email" id="recuperar_email" class="soft-input" placeholder="seu@email.com">
+    </div>
+    <button onclick="solicitarCodigoRecuperacao()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95">
+        Enviar Código <i class="fas fa-paper-plane ml-2"></i>
+    </button>
+</div>
+
+<div id="passo-2-recuperar" class="space-y-4 hidden mt-6 pt-6 border-t border-gray-100">
+    <div>
+        <label class="label-style text-center">Digite o Código de 6 dígitos</label>
+        <input type="text" id="recuperar_token" class="soft-input token-input" maxlength="6" placeholder="000000">
+    </div>
+    <div>
+        <label class="label-style text-center">Nova Senha</label>
+        <input type="password" id="recuperar_nova_senha" class="soft-input" placeholder="Crie uma nova senha">
+    </div>
+    <button onclick="finalizarRecuperacao()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl shadow-lg transition-all transform active:scale-95">
+        Salvar Nova Senha <i class="fas fa-save ml-2"></i>
+    </button>
+</div>
+
+<button onclick="switchTab(null, 'login')" class="w-full text-gray-400 text-sm mt-6 hover:text-emerald-600 transition">
+    <i class="fas fa-arrow-left"></i> Voltar para Login
+</button>
+</div>
+    <!-- MENSAGEM DE FEEDBACK -->
+    <div id="resultado" class="hidden mt-6 p-4 rounded-2xl text-sm font-semibold text-center border transition-all duration-300"></div>
+
+</div>
+
+<script>
+    // CORREÇÃO: URL EM HTTPS CONFORME EXIGIDO PELO RAILWAY
+    // URL da API - backend no Render
+    const API_URL = 'https://bsfm-nutri.onrender.com';
+    
+    let emailAcao = ""; 
+    let tokenSistema = ""; 
+    let usuarioTemporario = {}; 
+
+    function abrirTermos() { document.getElementById('modalTermos').classList.remove('hidden'); }
+    function fecharTermos() { document.getElementById('modalTermos').classList.add('hidden'); }
+
+    function switchTab(event, tabId) { 
+        document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active'); 
+        
+        const abas = document.getElementById('nav-tabs');
+        if(tabId === 'recuperar-senha' || tabId === 'verificacao-token') {
+            abas.classList.add('hidden');
+        } else {
+            abas.classList.remove('hidden');
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('tab-active');
+            btn.classList.add('tab-inactive');
+        });
+
+        if(event && event.currentTarget) {
+            event.currentTarget.classList.add('tab-active');
+            event.currentTarget.classList.remove('tab-inactive');
+        }
+
+        document.getElementById('resultado').style.display = 'none';
+        document.getElementById('resultado').classList.add('hidden');
+    }
+
+    function exibirMensagem(texto, fundo, cor) {
+        const resDiv = document.getElementById('resultado');
+        resDiv.style.display = "block";
+        resDiv.classList.remove('hidden');
+        resDiv.style.backgroundColor = fundo;
+        resDiv.style.color = cor;
+        resDiv.innerHTML = texto;
+    }
+
+    async function cadastrar() {
+        const checkTermos = document.getElementById('checkTermos');
+        const emailInput = document.getElementById('email').value.trim();
+        const senhaInput = document.getElementById('senha').value;
+        const peso = document.getElementById('peso').value;
+        const altura = document.getElementById('altura').value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.(com|org|net|br|[a-z]{2,})$/i;
+
+        if (!checkTermos.checked) { exibirMensagem("⚠️ Aceite os termos para prosseguir.", "#fffbeb", "#92400e"); return; }
+        if (!emailInput || !senhaInput || !peso || !altura) { exibirMensagem("⚠️ Preencha todos os campos.", "#fffbeb", "#92400e"); return; }
+
+        // Validação Senha
+        if (senhaInput.length < 8 || !/[0-9]/.test(senhaInput) || !/[!@#$%^&*()]/.test(senhaInput)) {
+            exibirMensagem("⚠️ Senha deve ter 8+ letras, 1 número e 1 símbolo.", "#fffbeb", "#92400e"); return;
+        }
+        
+        if (!emailRegex.test(emailInput)) {
+            exibirMensagem("⚠️ Por favor, insira um e-mail válido.", "#fffbeb", "#92400e"); 
+            return;
+}
+
+        usuarioTemporario = {
+            Nome: document.getElementById('nome').value,
+            Email: emailInput,
+            SenhaHash: senhaInput,
+            Idade: parseInt(document.getElementById('idade').value) || 0,
+            Peso: parseFloat(peso),
+            Altura: parseFloat(altura),
+            Sexo: document.getElementById('sexo').value,
+            TipoPessoa: document.getElementById('atividade').value,
+            AceitouTermos: true
+        };
+
+        try {
+            exibirMensagem("⏳ Verificando dados...", "#fffbeb", "#92400e");
+            const resp = await fetch(`${API_URL}/solicitar-codigo`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Email: usuarioTemporario.Email })
+            });
+
+            if(resp.ok) {
+                const data = await resp.json();
+                tokenSistema = data.tokenParaJs;
+                emailAcao = usuarioTemporario.Email;
+                exibirMensagem("📩 Verifique seu código no Mailtrap!", "#f0fdf4", "#166534");
+                setTimeout(() => switchTab(null, 'verificacao-token'), 1500);
+            } else {
+                exibirMensagem("❌ Erro ao solicitar código.", "#fef2f2", "#991b1b");
+            }
+        } catch(e) { exibirMensagem("❌ Sem conexão com o servidor.", "#fef2f2", "#991b1b"); }
+    }
+
+    async function verificarToken() {
+        const digitado = document.getElementById('token_input').value;
+        if(digitado === tokenSistema) {
+            exibirMensagem("🔄 Ativando Perfil...", "#f0fdf4", "#166534");
+            const final = await fetch(`${API_URL}/cadastrar-usuario-final`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(usuarioTemporario)
+            });
+            if(final.ok) {
+                exibirMensagem("✅ Perfil ativado com sucesso!", "#f0fdf4", "#166534");
+                setTimeout(() => location.reload(), 2000);
+            }
+        } else { exibirMensagem("⚠️ Código inválido.", "#fef2f2", "#991b1b"); }
+    }
+
+    async function solicitarCodigoRecuperacao() {
+        emailAcao = document.getElementById('recuperar_email').value;
+        if(!emailAcao) { exibirMensagem("⚠️ Informe seu e-mail.", "#fffbeb", "#92400e"); return; }
+        try {
+            const resp = await fetch(`${API_URL}/esqueci-senha`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ Email: emailAcao })
+            });
+            if(resp.ok) {
+                const data = await resp.json();
+                tokenSistema = data.tokenParaJs;
+                document.getElementById('passo-1-recuperar').style.display = 'none';
+                document.getElementById('passo-2-recuperar').classList.remove('hidden');
+                exibirMensagem("🔑 Verifique o código no seu e-mail.", "#f0fdf4", "#166534");
+            } else { exibirMensagem("❌ E-mail não encontrado.", "#fef2f2", "#991b1b"); }
+        } catch(e) { exibirMensagem("❌ Erro de conexão.", "#fef2f2", "#991b1b"); }
+    }
+
+    async function finalizarRecuperacao() {
+        const tok = document.getElementById('recuperar_token').value;
+        const nPass = document.getElementById('recuperar_nova_senha').value;
+        if(tok === tokenSistema && nPass.length >= 8) {
+            await fetch(`${API_URL}/redefinir-senha`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ Email: emailAcao, NovaSenha: nPass })
+            });
+            exibirMensagem("✅ Senha atualizada!", "#f0fdf4", "#166534");
+            setTimeout(() => location.reload(), 2000);
+        } else { exibirMensagem("⚠️ Código errado ou senha curta.", "#fef2f2", "#991b1b"); }
+    }
+
+    async function login() {
+        const d = { 
+            Email: document.getElementById('login_email').value, 
+            Senha: document.getElementById('login_senha').value 
+        };
+        try {
+            const r = await fetch(`${API_URL}/login`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(d)
+            });
+            if(r.ok) {
+                const info = await r.json();
+                localStorage.setItem('usuarioLogado', JSON.stringify(info));
+                window.location.href = 'dashboard.html';
+            } else { exibirMensagem("⚠️ Login inválido.", "#fef2f2", "#991b1b"); }
+        } catch(e) { exibirMensagem("❌ Servidor indisponível.", "#fef2f2", "#991b1b"); }
+    }
+</script>
+
+</body>
+</html>
+
+
+
+
