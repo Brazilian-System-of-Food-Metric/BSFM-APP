@@ -230,7 +230,7 @@ wwwroot/
 - Chart.js Documentation
 - FontAwesome Icons
 - Google Fonts - Inter
-
+ 
 ---
 
 *Última atualização: 02/04/2026*
