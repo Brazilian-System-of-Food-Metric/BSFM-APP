@@ -57,6 +57,9 @@ public static class PreparadorSchema
             "ALTER TABLE \"AnalisesIA\" ADD COLUMN IF NOT EXISTS \"ImagemHash\" character varying(64);",
             "ALTER TABLE \"AnalisesIA\" ADD COLUMN IF NOT EXISTS \"Origem\" character varying(20) NOT NULL DEFAULT 'foto';",
 
+            "ALTER TABLE \"RefeicoesAgendadas\" ADD COLUMN IF NOT EXISTS \"Concluida\" boolean NOT NULL DEFAULT false;",
+            "ALTER TABLE \"RefeicoesAgendadas\" ADD COLUMN IF NOT EXISTS \"ConcluidaEm\" timestamp with time zone;",
+
             "ALTER TABLE \"Hospitais\" ADD COLUMN IF NOT EXISTS \"Cnes\" character varying(20);",
             "ALTER TABLE \"Hospitais\" ADD COLUMN IF NOT EXISTS \"NomeFantasia\" character varying(300);",
             "ALTER TABLE \"Hospitais\" ADD COLUMN IF NOT EXISTS \"TipoEstabelecimento\" character varying(120);",

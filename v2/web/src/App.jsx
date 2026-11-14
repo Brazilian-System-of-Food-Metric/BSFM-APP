@@ -6,6 +6,7 @@ import Recuperar from './Recuperar.jsx'
 import Rotulo from './Rotulo.jsx'
 import Prescricao from './Prescricao.jsx'
 import Camera from './Camera.jsx'
+import Mapa from './Mapa.jsx'
 
 /* ==========================================================================
    BSFM — interface
@@ -1162,6 +1163,7 @@ function Perfil({ usuario, aoSair, avisar, instalar, podeInstalar, instalado, te
 
       <div className="cartao" style={{ marginBottom: 14 }}>
         <div className="cartao-titulo">Emergências próximas (São Paulo)</div>
+        <Mapa pontos={HOSPITAIS} />
         <ul className="lista">
           {HOSPITAIS.map((h) => (
             <li className="item" key={h.nome}>
@@ -1396,6 +1398,7 @@ const DIAS = ['Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado', 'Doming
 const TIPOS = ['Cafe', 'Almoco', 'Jantar', 'Lanche']
 
 function Planos({ avisar }) {
+  const [concluidas, setConcluidas] = useState(0)
   const [itens, setItens] = useState([])
   const [calorias, setCalorias] = useState(0)
   const [form, setForm] = useState({ diaSemana: 'Segunda', tipoRefeicao: 'Almoco', nomePrato: '', calorias: '' })
@@ -1435,6 +1438,15 @@ function Planos({ avisar }) {
     }
   }
 
+  async function alternarConclusao(item) {
+    try {
+      await api.concluirRefeicao(item.id, !item.concluida)
+      carregar()
+    } catch {
+      avisar('Não foi possível atualizar a refeição.', 'erro')
+    }
+  }
+
   async function remover(id) {
     try {
       await api.removerRefeicao(id)
@@ -1450,7 +1462,7 @@ function Planos({ avisar }) {
       <div className="cartao" style={{ marginBottom: 14 }}>
         <div className="cartao-titulo">Plano da semana</div>
         <div className="valor-simples">{itens.length}<small>refeições</small></div>
-        <div className="rodape-cartao">{numero(calorias)} kcal planejadas</div>
+        <div className="rodape-cartao">{numero(calorias)} kcal planejadas · {concluidas} cumpridas</div>
       </div>
 
       <form className="cartao" onSubmit={adicionar} style={{ marginBottom: 14 }}>
@@ -1496,7 +1508,12 @@ function Planos({ avisar }) {
                 <li className="item" key={item.id}>
                   <div>
                     <div className="item-titulo">{item.nomePrato}</div>
-                    <div className="item-meta">{item.tipoRefeicao} · {numero(item.calorias)} kcal</div>
+                    <div className="item-meta">
+                      <label style={{ display: "inline-flex", gap: 8, alignItems: "center", cursor: "pointer" }}>
+                        <input type="checkbox" checked={Boolean(item.concluida)} onChange={() => alternarConclusao(item)} />
+                        {item.tipoRefeicao} · {numero(item.calorias)} kcal
+                      </label>
+                    </div>
                   </div>
                   <button className="btn btn-perigo btn-mini" onClick={() => remover(item.id)}>Remover</button>
                 </li>

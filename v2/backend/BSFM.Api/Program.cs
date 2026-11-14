@@ -184,6 +184,8 @@ using (var escopo = app.Services.CreateScope())
             if (!bancoExistente)
             {
                 db.Database.Migrate();
+                // Migrations antigas nao conhecem as colunas novas: aplica o aditivo.
+                BSFM.Api.Servicos.PreparadorSchema.ExecutarAditivo(db, app.Logger);
                 app.Logger.LogInformation("Banco novo: migrations aplicadas.");
             }
         }

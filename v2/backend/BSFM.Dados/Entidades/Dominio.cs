@@ -156,6 +156,11 @@ public class RefeicaoAgendada
     public double Carboidratos { get; set; }
     public double Gorduras { get; set; }
     public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
+    /// <summary>Marca se a refeição planejada já foi cumprida.</summary>
+    public bool Concluida { get; set; }
+
+    public DateTime? ConcluidaEm { get; set; }
+
 }
 
 /// <summary>Plano alimentar semanal (cabeçalho).</summary>

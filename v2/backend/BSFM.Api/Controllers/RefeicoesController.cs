@@ -48,15 +48,18 @@ public sealed class RefeicoesController : ControllerBase
         var itens = await _db.RefeicoesAgendadas.AsNoTracking()
             .Where(r => r.UsuarioId == UsuarioId)
             .OrderBy(r => r.DiaSemana).ThenBy(r => r.TipoRefeicao)
-            .Select(r => new RefeicaoSaida(
+            .Select(r => new
+            {
                 r.Id, r.DiaSemana, r.TipoRefeicao, r.NomePrato, r.Ingredientes, r.ModoPreparo,
-                r.Calorias, r.Proteinas, r.Carboidratos, r.Gorduras))
+                r.Calorias, r.Proteinas, r.Carboidratos, r.Gorduras, r.Concluida, r.ConcluidaEm,
+            })
             .ToListAsync(ct);
 
         return Ok(new
         {
             total = itens.Count,
             caloriasSemana = Math.Round(itens.Sum(i => i.Calorias), 1),
+            concluidas = itens.Count(i => i.Concluida),
             itens,
         });
     }
@@ -111,6 +114,24 @@ public sealed class RefeicoesController : ControllerBase
     }
 
     // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    /// <summary>Marca ou desmarca uma refeicao planejada como cumprida.</summary>
+    [HttpPut("{id:int}/concluir")]
+    public async Task<IActionResult> Concluir(int id, [FromBody] ConcluirEntrada entrada, CancellationToken ct)
+    {
+        var refeicao = await _db.RefeicoesAgendadas
+            .SingleOrDefaultAsync(r => r.Id == id && r.UsuarioId == UsuarioId, ct);
+
+        if (refeicao is null)
+            return NotFound(new { erro = "refeicao_inexistente" });
+
+        refeicao.Concluida = entrada.Concluida;
+        refeicao.ConcluidaEm = entrada.Concluida ? DateTime.UtcNow : null;
+        await _db.SaveChangesAsync(ct);
+
+        return Ok(new { id, concluida = refeicao.Concluida, concluidaEm = refeicao.ConcluidaEm });
+    }
+
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Remover(int id, CancellationToken ct)
     {
@@ -145,3 +166,5 @@ public sealed class RefeicoesController : ControllerBase
         return aceitos.FirstOrDefault(a => a.ToLowerInvariant() == semAcento);
     }
 }
+
+public sealed record ConcluirEntrada(bool Concluida);
