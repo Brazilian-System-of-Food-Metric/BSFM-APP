@@ -136,6 +136,16 @@ export const api = {
 
   metas: () => requisitar('GET', '/api/eu/metas'),
 
+  metasHistorico: () => requisitar('GET', '/api/eu/metas/historico'),
+
+  definirMeta: (dados) => requisitar('PUT', '/api/eu/metas', dados),
+
+  refeicoes: () => requisitar('GET', '/api/eu/refeicoes'),
+
+  criarRefeicao: (dados) => requisitar('POST', '/api/eu/refeicoes', dados),
+
+  removerRefeicao: (id) => requisitar('DELETE', `/api/eu/refeicoes/${id}`),
+
   resumo: () => requisitar('GET', '/api/eu/analises/resumo'),
 
   aguaHoje: () => requisitar('GET', '/api/eu/agua'),
@@ -149,6 +159,9 @@ export const api = {
 
   previa: (nome, gramas) =>
     requisitar('POST', '/api/nutricao/por-nome', { nome, gramas }, { autenticado: false }),
+
+  analisarImagem: (imagemBase64, gramas) =>
+    requisitar('POST', '/api/nutricao/por-imagem', { imagemBase64, gramas }, { autenticado: false }),
 
   registrarAnalise: (nome, gramas) =>
     requisitar('POST', '/api/eu/analises/do-catalogo', { nome, gramas }),

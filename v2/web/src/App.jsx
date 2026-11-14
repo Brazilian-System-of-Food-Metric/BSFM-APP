@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api, ErroApi, sessao } from './api.js'
+import Landing from './Landing.jsx'
 
 /* ==========================================================================
    BSFM — interface
@@ -39,6 +40,8 @@ const Icones = {
   agua: (p) => <Traco {...p} d="M12 2.7s6 6.3 6 10.3a6 6 0 0 1-12 0c0-4 6-10.3 6-10.3Z" />,
   mais: (p) => <Traco {...p} d="M12 5v14M5 12h14" />,
   voltar: (p) => <Traco {...p} d="m15 18-6-6 6-6" />,
+  planos: (p) => <Traco {...p} d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />,
+  metas: (p) => <Traco {...p} d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0-3a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />,
 }
 
 /* ----------------------------------------------------------------- ajuda --- */
@@ -74,8 +77,8 @@ function useTema() {
 
 /* ---------------------------------------------------------------- entrada --- */
 
-function Acesso({ aoEntrar }) {
-  const [modo, setModo] = useState('entrar')
+function Acesso({ aoEntrar, modoInicial = 'entrar', aoVoltarSite, instalar, podeInstalar, instalado }) {
+  const [modo, setModo] = useState(modoInicial)
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
   const [codigo, setCodigo] = useState('')
@@ -260,6 +263,21 @@ function Acesso({ aoEntrar }) {
             </button>
           </>
         )}
+
+        <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--borda)', textAlign: 'center' }}>
+          {instalado ? (
+            <span className="item-meta">Aplicativo instalado neste dispositivo</span>
+          ) : (
+            <button type="button" className="btn btn-fantasma btn-mini" onClick={instalar} disabled={!podeInstalar}>
+              {podeInstalar ? 'Instalar aplicativo' : 'Instalar pelo menu do navegador'}
+            </button>
+          )}
+          <div style={{ marginTop: 10 }}>
+            <button type="button" className="btn btn-mini" onClick={aoVoltarSite} style={{ background: 'transparent', color: 'var(--texto-medio)' }}>
+              ← Voltar ao site
+            </button>
+          </div>
+        </div>
 
         {modo === 'verificar' && (
           <>
@@ -474,6 +492,7 @@ function Analisar({ avisar, aoRegistrar }) {
   const [gramas, setGramas] = useState(100)
   const [previa, setPrevia] = useState(null)
   const [salvando, setSalvando] = useState(false)
+  const [analisandoFoto, setAnalisandoFoto] = useState(false)
   const temporizador = useRef(null)
 
   useEffect(() => {
@@ -515,6 +534,49 @@ function Analisar({ avisar, aoRegistrar }) {
     }
   }, [escolhido, gramas])
 
+  // Envia a imagem ao servidor; quem decide se reconhece é o provedor de visão.
+  async function enviarFoto(evento) {
+    const arquivo = evento.target.files?.[0]
+    if (!arquivo) return
+
+    if (arquivo.size > 6 * 1024 * 1024) {
+      avisar('Imagem acima de 6 MB. Reduza antes de enviar.', 'erro')
+      return
+    }
+
+    setAnalisandoFoto(true)
+    try {
+      const base64 = await new Promise((resolver, rejeitar) => {
+        const leitor = new FileReader()
+        leitor.onload = () => resolver(String(leitor.result).split(',')[1])
+        leitor.onerror = rejeitar
+        leitor.readAsDataURL(arquivo)
+      })
+
+      const resultado = await api.analisarImagem(base64, gramas)
+      const nome = resultado?.alimento?.nome
+      if (!nome) {
+        avisar('Não foi possível identificar o alimento na foto.', 'erro')
+        return
+      }
+
+      setEscolhido({ nome, grupo: resultado.alimento.grupo ?? 'Foto', por100g: resultado.porcao })
+      avisar(`Reconhecido: ${nome}`)
+    } catch (falha) {
+      const motivo = falha?.corpo?.motivo
+      const mensagem =
+        motivo === 'provedor_de_visao_indisponivel' || falha?.status === 503
+          ? 'Reconhecimento por imagem desligado no servidor (falta BSFM_GEMINI_API_KEY). Use a busca por nome.'
+          : falha instanceof ErroApi
+            ? falha.message
+            : 'Falha ao analisar a foto.'
+      avisar(mensagem, 'erro')
+    } finally {
+      setAnalisandoFoto(false)
+      evento.target.value = ''
+    }
+  }
+
   async function registrar() {
     if (!escolhido) return
     setSalvando(true)
@@ -534,6 +596,22 @@ function Analisar({ avisar, aoRegistrar }) {
 
   return (
     <div className="pagina" style={{ maxWidth: 720 }}>
+      <div className="cartao" style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Analisar por foto</div>
+        <p className="rodape-cartao" style={{ marginTop: 0 }}>
+          Envie a foto do prato. O servidor identifica o alimento e calcula os nutrientes.
+        </p>
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={enviarFoto}
+          disabled={analisandoFoto}
+          style={{ marginTop: 10 }}
+          aria-label="Enviar foto do prato"
+        />
+        {analisandoFoto && <div className="rodape-cartao" style={{ marginTop: 8 }}>Analisando a imagem…</div>}
+      </div>
+
       <div className="busca">
         <span className="busca-icone"><Icones.analisar tamanho={18} /></span>
         <input
@@ -803,17 +881,260 @@ function Perfil({ usuario, aoSair, avisar, instalar, podeInstalar, instalado, te
   )
 }
 
+/* ------------------------------------------------------------------ metas --- */
+
+function Metas({ avisar }) {
+  const [meta, setMeta] = useState(null)
+  const [historico, setHistorico] = useState([])
+  const [form, setForm] = useState({ caloriasAlvo: '', proteinasAlvo: '', aguaAlvoMl: '', pesoAlvo: '' })
+  const [salvando, setSalvando] = useState(false)
+
+  const carregar = useCallback(async () => {
+    try {
+      const [atual, lista] = await Promise.all([api.metas(), api.metasHistorico()])
+      setMeta(atual)
+      setHistorico(lista ?? [])
+      setForm({
+        caloriasAlvo: Math.round(atual.caloriasAlvo ?? 0),
+        proteinasAlvo: Math.round(atual.proteinasAlvo ?? 0),
+        aguaAlvoMl: Math.round(atual.aguaAlvoMl ?? 0),
+        pesoAlvo: Number(atual.pesoAlvo ?? 0).toFixed(1),
+      })
+    } catch (falha) {
+      avisar(falha instanceof ErroApi ? falha.message : 'Falha ao carregar metas.', 'erro')
+    }
+  }, [avisar])
+
+  useEffect(() => {
+    carregar()
+  }, [carregar])
+
+  async function salvar(evento) {
+    evento.preventDefault()
+    setSalvando(true)
+    try {
+      await api.definirMeta({
+        caloriasAlvo: Number(form.caloriasAlvo),
+        proteinasAlvo: Number(form.proteinasAlvo),
+        aguaAlvoMl: Number(form.aguaAlvoMl),
+        pesoAlvo: Number(form.pesoAlvo),
+      })
+      avisar('Meta atualizada')
+      carregar()
+    } catch (falha) {
+      avisar(falha instanceof ErroApi ? falha.message : 'Falha ao salvar a meta.', 'erro')
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  const atualizar = (campo) => (e) => setForm((f) => ({ ...f, [campo]: e.target.value }))
+
+  return (
+    <div className="pagina" style={{ maxWidth: 760 }}>
+      <div className="cartao" style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Meta atual</div>
+        <div className="grade grade-3">
+          <div>
+            <div className="valor-simples">{numero(meta?.caloriasAlvo)}<small>kcal</small></div>
+            <div className="rodape-cartao">{numero(meta?.caloriasConsumidasHoje)} consumidas hoje</div>
+          </div>
+          <div>
+            <div className="valor-simples">{numero(meta?.aguaAlvoMl)}<small>ml</small></div>
+            <div className="rodape-cartao">meta de água</div>
+          </div>
+          <div>
+            <div className="valor-simples">{numero(meta?.pesoAlvo, 1)}<small>kg</small></div>
+            <div className="rodape-cartao">peso alvo</div>
+          </div>
+        </div>
+        <div className={`barra${(meta?.percentualCalorico ?? 0) > 100 ? ' alerta' : ''}`} style={{ marginTop: 16 }}>
+          <span style={{ width: `${Math.min(100, meta?.percentualCalorico ?? 0)}%` }} />
+        </div>
+        <div className="rodape-cartao">{numero(meta?.percentualCalorico, 1)}% da meta calórica de hoje</div>
+      </div>
+
+      <form className="cartao" onSubmit={salvar} style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Definir nova meta</div>
+        <div className="linha-campos">
+          <div className="campo">
+            <label htmlFor="kcal">Calorias (kcal)</label>
+            <input id="kcal" type="number" min="1" value={form.caloriasAlvo} onChange={atualizar('caloriasAlvo')} required />
+          </div>
+          <div className="campo">
+            <label htmlFor="prot">Proteínas (g)</label>
+            <input id="prot" type="number" min="0" value={form.proteinasAlvo} onChange={atualizar('proteinasAlvo')} />
+          </div>
+        </div>
+        <div className="linha-campos">
+          <div className="campo">
+            <label htmlFor="agua">Água (ml)</label>
+            <input id="agua" type="number" min="0" value={form.aguaAlvoMl} onChange={atualizar('aguaAlvoMl')} />
+          </div>
+          <div className="campo">
+            <label htmlFor="pesoAlvo">Peso alvo (kg)</label>
+            <input id="pesoAlvo" type="number" step="0.1" min="1" value={form.pesoAlvo} onChange={atualizar('pesoAlvo')} />
+          </div>
+        </div>
+        <button className="btn" type="submit" disabled={salvando}>
+          {salvando ? 'Salvando…' : 'Salvar meta'}
+        </button>
+      </form>
+
+      <div className="cartao">
+        <div className="cartao-titulo">Histórico de metas</div>
+        {historico.length === 0 ? (
+          <div className="rodape-cartao">A primeira meta definida aparece aqui.</div>
+        ) : (
+          <ul className="lista">
+            {historico.map((m) => (
+              <li className="item" key={m.id}>
+                <div>
+                  <div className="item-titulo">{numero(m.caloriasAlvo)} kcal · {numero(m.pesoAlvo, 1)} kg</div>
+                  <div className="item-meta">{dataCurta(m.criadoEm)} · água {numero(m.aguaAlvoMl)} ml</div>
+                </div>
+                {m.ativa ? <span className="tag tag-ok">ativa</span> : <span className="tag">substituída</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ----------------------------------------------------------------- planos --- */
+
+const DIAS = ['Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado', 'Domingo']
+const TIPOS = ['Cafe', 'Almoco', 'Jantar', 'Lanche']
+
+function Planos({ avisar }) {
+  const [itens, setItens] = useState([])
+  const [calorias, setCalorias] = useState(0)
+  const [form, setForm] = useState({ diaSemana: 'Segunda', tipoRefeicao: 'Almoco', nomePrato: '', calorias: '' })
+  const [salvando, setSalvando] = useState(false)
+
+  const carregar = useCallback(async () => {
+    try {
+      const dados = await api.refeicoes()
+      setItens(dados.itens ?? [])
+      setCalorias(dados.caloriasSemana ?? 0)
+    } catch (falha) {
+      avisar(falha instanceof ErroApi ? falha.message : 'Falha ao carregar os planos.', 'erro')
+    }
+  }, [avisar])
+
+  useEffect(() => {
+    carregar()
+  }, [carregar])
+
+  async function adicionar(evento) {
+    evento.preventDefault()
+    setSalvando(true)
+    try {
+      await api.criarRefeicao({
+        diaSemana: form.diaSemana,
+        tipoRefeicao: form.tipoRefeicao,
+        nomePrato: form.nomePrato.trim(),
+        calorias: Number(form.calorias) || 0,
+      })
+      avisar('Refeição adicionada ao plano')
+      setForm((f) => ({ ...f, nomePrato: '', calorias: '' }))
+      carregar()
+    } catch (falha) {
+      avisar(falha instanceof ErroApi ? falha.message : 'Falha ao adicionar.', 'erro')
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  async function remover(id) {
+    try {
+      await api.removerRefeicao(id)
+      carregar()
+    } catch (falha) {
+      avisar(falha instanceof ErroApi ? falha.message : 'Falha ao remover.', 'erro')
+    }
+  }
+
+  return (
+    <div className="pagina" style={{ maxWidth: 760 }}>
+      <div className="cartao" style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Plano da semana</div>
+        <div className="valor-simples">{itens.length}<small>refeições</small></div>
+        <div className="rodape-cartao">{numero(calorias)} kcal planejadas</div>
+      </div>
+
+      <form className="cartao" onSubmit={adicionar} style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Adicionar refeição</div>
+        <div className="linha-campos">
+          <div className="campo">
+            <label htmlFor="dia">Dia</label>
+            <select id="dia" value={form.diaSemana} onChange={(e) => setForm({ ...form, diaSemana: e.target.value })}>
+              {DIAS.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
+          <div className="campo">
+            <label htmlFor="tipo">Refeição</label>
+            <select id="tipo" value={form.tipoRefeicao} onChange={(e) => setForm({ ...form, tipoRefeicao: e.target.value })}>
+              {TIPOS.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="linha-campos">
+          <div className="campo" style={{ flex: 2 }}>
+            <label htmlFor="prato">Prato</label>
+            <input id="prato" value={form.nomePrato} onChange={(e) => setForm({ ...form, nomePrato: e.target.value })} required minLength={2} placeholder="Frango com arroz" />
+          </div>
+          <div className="campo">
+            <label htmlFor="kcalPrato">Calorias</label>
+            <input id="kcalPrato" type="number" min="0" value={form.calorias} onChange={(e) => setForm({ ...form, calorias: e.target.value })} />
+          </div>
+        </div>
+        <button className="btn" type="submit" disabled={salvando}>{salvando ? 'Salvando…' : 'Adicionar'}</button>
+      </form>
+
+      {itens.length === 0 ? (
+        <div className="vazio">
+          <strong>Nenhum plano ainda</strong>
+          Monte a semana adicionando refeições acima.
+        </div>
+      ) : (
+        DIAS.filter((d) => itens.some((i) => i.diaSemana === d)).map((dia) => (
+          <section key={dia}>
+            <div className="grupo-dia">{dia}</div>
+            <ul className="lista">
+              {itens.filter((i) => i.diaSemana === dia).map((item) => (
+                <li className="item" key={item.id}>
+                  <div>
+                    <div className="item-titulo">{item.nomePrato}</div>
+                    <div className="item-meta">{item.tipoRefeicao} · {numero(item.calorias)} kcal</div>
+                  </div>
+                  <button className="btn btn-perigo btn-mini" onClick={() => remover(item.id)}>Remover</button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      )}
+    </div>
+  )
+}
+
 /* ------------------------------------------------------------------ shell --- */
 
 const ABAS = [
   { id: 'painel', rotulo: 'Painel', icone: Icones.painel, titulo: 'Painel', sub: 'Resumo do seu dia' },
   { id: 'analisar', rotulo: 'Analisar', icone: Icones.analisar, titulo: 'Analisar alimento', sub: 'Busque e registre em segundos' },
   { id: 'diario', rotulo: 'Diário', icone: Icones.diario, titulo: 'Diário alimentar', sub: 'Tudo o que você registrou' },
+  { id: 'planos', rotulo: 'Planos', icone: Icones.planos, titulo: 'Planos da semana', sub: 'Monte a semana alimentar' },
+  { id: 'metas', rotulo: 'Metas', icone: Icones.metas, titulo: 'Metas', sub: 'Calorias, água e peso alvo' },
   { id: 'perfil', rotulo: 'Perfil', icone: Icones.perfil, titulo: 'Perfil', sub: 'Conta, dispositivos e aplicativo' },
 ]
 
 function App() {
   const [usuario, setUsuario] = useState(null)
+  const [rota, setRota] = useState(() => (sessao.ativa ? 'app' : 'landing'))
   const [aba, setAba] = useState('painel')
   const [versao, setVersao] = useState(0)
   const [mensagem, setMensagem] = useState(null)
@@ -863,10 +1184,34 @@ function App() {
     sessao.limpar()
     setUsuario(null)
     setAba('painel')
+    setRota('landing')
   }
 
   if (!usuario && !sessao.ativa) {
-    return <Acesso aoEntrar={setUsuario} />
+    // Landing pública primeiro: é a porta de entrada do projeto, com o botão de
+    // instalar. Só quem escolhe "Entrar"/"Criar conta" vê o formulário.
+    if (rota === 'landing') {
+      return (
+        <Landing
+          aoEntrar={() => setRota('entrar')}
+          aoCriarConta={() => setRota('cadastro')}
+          instalar={instalar}
+          podeInstalar={Boolean(convite)}
+          instalado={instalado}
+        />
+      )
+    }
+
+    return (
+      <Acesso
+        modoInicial={rota}
+        aoEntrar={setUsuario}
+        aoVoltarSite={() => setRota('landing')}
+        instalar={instalar}
+        podeInstalar={Boolean(convite)}
+        instalado={instalado}
+      />
+    )
   }
 
   const atual = ABAS.find((a) => a.id === aba) ?? ABAS[0]
@@ -945,6 +1290,8 @@ function App() {
           />
         )}
         {aba === 'diario' && <Diario avisar={avisar} versao={versao} />}
+        {aba === 'planos' && <Planos avisar={avisar} />}
+        {aba === 'metas' && <Metas avisar={avisar} />}
         {aba === 'perfil' && (
           <Perfil
             usuario={usuario}

@@ -24,5 +24,16 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <!-- Libras: widget oficial do governo, mesmo recurso da versão anterior. -->
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js" defer></script>
+    <script defer>
+      window.addEventListener('load', () => {
+        if (window.VLibras) new window.VLibras.Widget('https://vlibras.gov.br/app')
+      })
+    </script>
   </body>
 </html>
