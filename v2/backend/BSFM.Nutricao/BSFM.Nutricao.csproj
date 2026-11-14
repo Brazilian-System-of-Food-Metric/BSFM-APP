@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>BSFM.Nutricao</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Base TACO: copiada para o output para o catálogo subir junto com a API. -->
+    <Content Include="dados\taco.csv" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

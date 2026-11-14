@@ -1,0 +1,30 @@
+# Build e artefatos
+bin/
+obj/
+out/
+*.user
+*.suo
+.vs/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Banco local de desenvolvimento
+*.db
+*.db-shm
+*.db-wal
+
+# Ambiente e segredos — NUNCA commitar
+.env
+.env.*
+*.pfx
+secrets.json
+
+# Telas geradas pela verificação visual
+tela-*.png
+
+# SO
+Thumbs.db
+.DS_Store

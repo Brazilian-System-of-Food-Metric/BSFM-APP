@@ -1,7 +1,17 @@
-# render.yaml - Configuração para deploy no Render
+# render.yaml — deploy no Render
 # https://render.com/docs/infrastructure-as-code
+#
+# Dois serviços convivem:
+#   bsfm-api  — aplicação v1 (legado, .NET 8, YOLO/OCR). Mantida intacta.
+#   bsfm-v2   — aplicação v2 (Docker, .NET 10 + React). Sobe junto e pode ser
+#               testada em paralelo até a migração definitiva.
+#
+# Para desativar a v2 sem perder o deploy antigo, remova o bloco "bsfm-v2".
 
 services:
+  # ------------------------------------------------------------------------
+  # v1 — legado (não alterado nesta entrega)
+  # ------------------------------------------------------------------------
   - type: web
     name: bsfm-api
     runtime: dotnet
@@ -9,16 +19,49 @@ services:
     plan: free
     buildCommand: dotnet publish -c Release -o out
     startCommand: ./out/MeusApp
+    healthCheckPath: /
+    autoDeploy: true
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        sync: false  # Será configurada manualmente no Dashboard do Render
+        sync: false
       - key: BREVO_API_KEY
-        sync: false  # Será configurada manualmente no Dashboard do Render
+        sync: false
       - key: USDA_API_KEY
-        sync: false  # Será configurada manualmente no Dashboard do Render
-    healthCheckPath: /
+        sync: false
+
+  # ------------------------------------------------------------------------
+  # v2 — API .NET 10 + front React, em um único container
+  # ------------------------------------------------------------------------
+  - type: web
+    name: bsfm-v2
+    runtime: docker
+    region: ohio
+    plan: free
+    dockerfilePath: ./v2/Dockerfile
+    dockerContext: ./v2
+    healthCheckPath: /saude
     autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: PORT
+        value: 10000
+      # Segredos: gerar no Render, nunca no código.
+      # openssl rand -base64 48
+      - key: BSFM_JWT_SECRET
+        generateValue: true
+      - key: BSFM_HMAC_SECRET
+        generateValue: true
+      # Mesmo Postgres (Neon) da v1. As migrations da v2 são aditivas.
+      - key: DATABASE_URL
+        sync: false
+      # Visão multimodal (opcional). Sem a chave, o app responde 503 com motivo
+      # e a busca por nome continua funcionando.
+      - key: BSFM_GEMINI_API_KEY
+        sync: false
+      - key: BSFM_GEMINI_MODEL
+        value: gemini-2.5-flash
