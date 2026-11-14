@@ -12,6 +12,17 @@ const Icone = ({ d, tamanho = 22 }) => (
   </svg>
 )
 
+// Basta colar a URL de um vídeo (mp4) ou de um embed do YouTube para trocar a
+// galeria de capturas pelo vídeo. Vazio = mostra as telas reais do app.
+const VIDEO_DEMO = ''
+
+const CAPTURAS = [
+  { arquivo: '/demo/painel.png', titulo: 'Painel', descricao: 'Calorias do dia, hidratação e evolução' },
+  { arquivo: '/demo/rotulo.png', titulo: 'Rótulo', descricao: 'OCR lido no próprio aparelho' },
+  { arquivo: '/demo/metas.png', titulo: 'Metas', descricao: 'Alvos e gráficos de peso e IMC' },
+  { arquivo: '/demo/perfil.png', titulo: 'Perfil', descricao: 'Saúde, dispositivos e instalação' },
+]
+
 const RECURSOS = [
   {
     titulo: 'Catálogo TACO completo',
@@ -71,6 +82,7 @@ export default function Landing({ aoEntrar, aoCriarConta, instalar, podeInstalar
         </div>
 
         <nav className="landing-nav" aria-label="Seções">
+          <a href="#telas">Telas</a>
           <a href="#recursos">Recursos</a>
           <a href="#como-funciona">Como funciona</a>
           <a href="#instalar">Aplicativo</a>
@@ -113,7 +125,40 @@ export default function Landing({ aoEntrar, aoCriarConta, instalar, podeInstalar
           </p>
         </section>
 
-        <section id="recursos" className="bloco">
+        <section id="telas" className="bloco">
+          <h2>Veja o app por dentro</h2>
+          {VIDEO_DEMO ? (
+            <div className="video-moldura">
+              {VIDEO_DEMO.includes('youtube') || VIDEO_DEMO.includes('youtu.be') ? (
+                <iframe
+                  src={VIDEO_DEMO}
+                  title="Demonstração do BSFM"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video src={VIDEO_DEMO} controls preload="metadata" />
+              )}
+            </div>
+          ) : (
+            <>
+              <p>Todas as telas abaixo são do app em produção, não são protótipos.</p>
+              <div className="galeria">
+                {CAPTURAS.map((c) => (
+                  <figure className="captura" key={c.arquivo}>
+                    <img src={c.arquivo} alt={`Tela de ${c.titulo}`} loading="lazy" width="560" height="394" />
+                    <figcaption>
+                      <strong>{c.titulo}</strong>
+                      <span>{c.descricao}</span>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+<section id="recursos" className="bloco">
           <h2>O que o BSFM faz</h2>
           <div className="grade-recursos">
             {RECURSOS.map((r) => (
