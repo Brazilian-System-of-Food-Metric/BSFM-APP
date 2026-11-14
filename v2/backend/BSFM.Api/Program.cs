@@ -177,15 +177,21 @@ using (var escopo = app.Services.CreateScope())
         // remediação — o caso comum é e-mail duplicado bloqueando o índice único.
         try
         {
-            db.Database.Migrate();
-            app.Logger.LogInformation("Migrations aplicadas com sucesso.");
+            // Banco já existente (v1): schema aditivo idempotente, sem recriar tabelas.
+            // Banco novo: migration normal.
+            var bancoExistente = BSFM.Api.Servicos.PreparadorSchema.ExecutarAditivo(db, app.Logger);
+
+            if (!bancoExistente)
+            {
+                db.Database.Migrate();
+                app.Logger.LogInformation("Banco novo: migrations aplicadas.");
+            }
         }
         catch (Exception excecao)
         {
             app.Logger.LogError(excecao,
-                "FALHA AO APLICAR MIGRATIONS. Causa comum: e-mails duplicados em Usuarios " +
-                "bloqueando IX_Usuarios_Email_Unico. Rode o SQL de deduplicação do " +
-                "DOC-03 (seção 1.6) e reinicie o serviço.");
+                "FALHA AO PREPARAR O SCHEMA. O serviço continua no ar, mas consultas que usam " +
+                "colunas novas podem falhar até o schema ser corrigido.");
         }
     }
 
