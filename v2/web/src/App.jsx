@@ -4,6 +4,7 @@ import { GraficoBarras, GraficoLinha } from './Graficos.jsx'
 import Landing from './Landing.jsx'
 import Recuperar from './Recuperar.jsx'
 import Rotulo from './Rotulo.jsx'
+import Prescricao from './Prescricao.jsx'
 
 /* ==========================================================================
    BSFM — interface
@@ -788,6 +789,26 @@ function Analisar({ avisar, aoRegistrar }) {
 /* ----------------------------------------------------------------- diário --- */
 
 function Diario({ avisar, versao }) {
+  const [feedbacks, setFeedbacks] = useState({})
+
+  async function pedirFeedback(item) {
+    try {
+      const r = await api.feedback({
+        kcal: item.calorias ?? 0,
+        proteina: item.proteinas ?? 0,
+        carboidrato: item.carbos ?? 0,
+        gordura: item.gorduras ?? 0,
+        fibra: null,
+        metaKcal: 2000,
+        consumidoKcal: 0,
+        diabetes: null,
+        intolerancia: null,
+      })
+      setFeedbacks((f) => ({ ...f, [item.id]: r }))
+    } catch {
+      avisar('Não foi possível gerar o feedback.', 'erro')
+    }
+  }
   const [itens, setItens] = useState([])
   const [carregando, setCarregando] = useState(true)
 
@@ -860,8 +881,24 @@ function Diario({ avisar, versao }) {
                       {item.porcao} · {new Date(item.dataAnalise).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
-                  <div className="etiqueta-kcal"><strong>{numero(item.calorias)}</strong> kcal</div>
-                </li>
+                  <div style={{ textAlign: 'right' }}>
+                    <div className="etiqueta-kcal"><strong>{numero(item.calorias)}</strong> kcal</div>
+                    <button
+                      className="btn btn-fantasma btn-mini"
+                      style={{ marginTop: 6 }}
+                      onClick={() => pedirFeedback(item)}
+                    >
+                      Feedback
+                    </button>
+                  </div>
+                  {feedbacks[item.id] && (
+                    <p className="rodape-cartao" style={{ flexBasis: '100%', margin: 0 }}>
+                      <span className={`tag${feedbacks[item.id].classificacao === 'adequado' ? ' tag-ok' : ''}`}>
+                        {feedbacks[item.id].classificacao} · {feedbacks[item.id].pontuacao}/10
+                      </span>{' '}
+                      {feedbacks[item.id].dicas?.[0] ?? feedbacks[item.id].mensagem}
+                    </p>
+                  )}                </li>
               ))}
             </ul>
           </section>
@@ -1302,6 +1339,7 @@ function Planos({ avisar }) {
 
   return (
     <div className="pagina" style={{ maxWidth: 760 }}>
+      <Prescricao avisar={avisar} aoImportar={carregar} />
       <div className="cartao" style={{ marginBottom: 14 }}>
         <div className="cartao-titulo">Plano da semana</div>
         <div className="valor-simples">{itens.length}<small>refeições</small></div>

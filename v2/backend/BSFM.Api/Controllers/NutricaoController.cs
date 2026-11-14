@@ -161,6 +161,56 @@ public sealed class NutricaoController : ControllerBase
     }
 
     // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    /// <summary>Feedback de uma refeicao, por regras (sem LLM).</summary>
+    [HttpPost("feedback")]
+    public IActionResult Feedback([FromBody] FeedbackEntrada entrada)
+    {
+        if (entrada.Kcal < 0 || entrada.Proteina < 0 || entrada.Carboidrato < 0 || entrada.Gordura < 0)
+            return BadRequest(new { erro = "valores_invalidos" });
+
+        var resultado = AnalisadorRefeicao.Avaliar(new AnalisadorRefeicao.Entrada(
+            entrada.Kcal, entrada.Proteina, entrada.Carboidrato, entrada.Gordura,
+            entrada.Fibra, entrada.MetaKcal ?? 2000, entrada.ConsumidoKcal ?? 0,
+            entrada.Diabetes, entrada.Intolerancia));
+
+        return Ok(new
+        {
+            classificacao = resultado.Classificacao,
+            pontuacao = resultado.Pontuacao,
+            mensagem = resultado.Mensagem,
+            dicas = resultado.Dicas,
+            motor = "regras-v1",
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    /// <summary>Extrai refeicoes do texto de uma prescricao nutricional.</summary>
+    [HttpPost("prescricao")]
+    public IActionResult Prescricao([FromBody] PrescricaoEntrada entrada)
+    {
+        if (string.IsNullOrWhiteSpace(entrada.Texto) || entrada.Texto!.Length < 10)
+            return BadRequest(new { erro = "texto_ausente" });
+
+        var leitura = LeitorPrescricao.Ler(entrada.Texto);
+
+        if (leitura.Refeicoes.Count == 0)
+            return UnprocessableEntity(new
+            {
+                erro = "prescricao_nao_interpretada",
+                mensagem = "Nao identificamos refeicoes no texto. Use uma foto mais nitida ou cole o plano.",
+            });
+
+        return Ok(new
+        {
+            totalItens = leitura.TotalItens,
+            refeicoes = leitura.Refeicoes.Select(r => new
+            {
+                nome = r.Nome,
+                itens = r.Itens.Select(i => new { descricao = i.Descricao, kcal = i.Kcal }),
+            }),
+        });
+    }
     [HttpGet("provedor")]
     public IActionResult Provedor()
         => Ok(new
@@ -225,3 +275,6 @@ public sealed record PorNomeEntrada(string? Nome, double? Gramas);
 public sealed record PorImagemEntrada(string? ImagemBase64, string? Dica, double? Gramas);
 
 public sealed record RotuloEntrada(string? Texto);
+
+public sealed record FeedbackEntrada(double Kcal, double Proteina, double Carboidrato, double Gordura, double? Fibra, double? MetaKcal, double? ConsumidoKcal, string? Diabetes, string? Intolerancia);
+public sealed record PrescricaoEntrada(string? Texto);

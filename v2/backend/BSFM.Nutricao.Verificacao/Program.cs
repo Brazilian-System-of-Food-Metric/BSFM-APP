@@ -300,6 +300,69 @@ Verificar("texto vazio e recusado", LeitorRotulo.Ler("").Confianca == 0);
 var semPorcao = LeitorRotulo.Ler("Energia 100 kcal Proteinas 5 g Carboidratos 10 g Gorduras 2 g");
 Verificar("sem porcao assume 100 g e avisa",
     semPorcao.GramasDaPorcao == 100 && semPorcao.Aviso == "porcao_nao_identificada_assumido_100g", semPorcao.Aviso);
+
+// ---------------------------------------------------------------------------
+Console.WriteLine("\n[11] Feedback de refeicao por regras");
+// ---------------------------------------------------------------------------
+var equilibrada = AnalisadorRefeicao.Avaliar(new AnalisadorRefeicao.Entrada(
+    500, 30, 50, 12, 6, 2000, 800, "Não", null));
+Verificar("refeicao equilibrada pontua alto", equilibrada.Pontuacao >= 8, $"{equilibrada.Pontuacao}");
+Verificar("refeicao equilibrada e adequada", equilibrada.Classificacao == "adequado", equilibrada.Classificacao);
+Verificar("reconhece proteina boa", equilibrada.Dicas.Any(d => d.Contains("proteína")), string.Join(" | ", equilibrada.Dicas));
+
+var gordurosa = AnalisadorRefeicao.Avaliar(new AnalisadorRefeicao.Entrada(
+    700, 20, 30, 40, 1, 2000, 500, "Não", null));
+Verificar("gordura alta derruba a pontuacao", gordurosa.Pontuacao <= 5, $"{gordurosa.Pontuacao}");
+Verificar("aponta gordura acima de 45%", gordurosa.Dicas.Any(d => d.Contains("Gordura acima")), string.Join(" | ", gordurosa.Dicas));
+
+var diabetico = AnalisadorRefeicao.Avaliar(new AnalisadorRefeicao.Entrada(
+    500, 10, 80, 10, 3, 2000, 600, "Tipo 2", null));
+Verificar("diabetes com carbo alto gera alerta",
+    diabetico.Dicas.Any(d => d.Contains("diabetes")), string.Join(" | ", diabetico.Dicas));
+
+var intolerante = AnalisadorRefeicao.Avaliar(new AnalisadorRefeicao.Entrada(
+    600, 15, 40, 30, 4, 2000, 500, "Não", "lactose, gluten"));
+Verificar("intolerancia a lactose gera lembrete",
+    intolerante.Dicas.Any(d => d.Contains("lactose")), string.Join(" | ", intolerante.Dicas));
+
+var excedeu = AnalisadorRefeicao.Avaliar(new AnalisadorRefeicao.Entrada(
+    900, 30, 60, 30, 5, 2000, 1500, "Não", null));
+Verificar("detecta que passa da meta do dia",
+    excedeu.Dicas.Any(d => d.Contains("meta do dia")), string.Join(" | ", excedeu.Dicas));
+
+var semMacros = AnalisadorRefeicao.Avaliar(new AnalisadorRefeicao.Entrada(
+    0, 0, 0, 0, null, 2000, 0, null, null));
+Verificar("refeicao vazia nao quebra", semMacros.Pontuacao >= 0, $"{semMacros.Pontuacao}");
+
+// ---------------------------------------------------------------------------
+Console.WriteLine("\n[12] Leitor de prescricao nutricional");
+// ---------------------------------------------------------------------------
+var prescricao = LeitorPrescricao.Ler(
+    "PLANO ALIMENTAR - SEMANA 1\n" +
+    "Café da manhã\n" +
+    "- 2 fatias de pão integral\n" +
+    "- 1 ovo mexido\n" +
+    "- 1 copo de leite desnatado\n" +
+    "Almoço\n" +
+    "- arroz integral 100g\n" +
+    "- feijão 1 concha (120 kcal)\n" +
+    "- frango grelhado\n" +
+    "Jantar\n" +
+    "- sopa de legumes\n" +
+    "Lanche\n" +
+    "- 1 banana\n");
+
+Verificar("identifica 4 refeicoes", prescricao.Refeicoes.Count == 4, $"{prescricao.Refeicoes.Count}");
+Verificar("conta 8 itens", prescricao.TotalItens == 8, $"{prescricao.TotalItens}");
+Verificar("primeira refeicao e cafe", prescricao.Refeicoes[0].Nome == "Cafe", prescricao.Refeicoes[0].Nome);
+Verificar("captura kcal do item",
+    prescricao.Refeicoes[1].Itens.Any(i => i.Kcal == 120), string.Join(" | ", prescricao.Refeicoes[1].Itens.Select(i => $"{i.Descricao}={i.Kcal}")));
+Verificar("remove marcador de lista", prescricao.Refeicoes[0].Itens[0].Descricao.StartsWith("2 fatias"), prescricao.Refeicoes[0].Itens[0].Descricao);
+
+var semCabecalho = LeitorPrescricao.Ler("comer bem e beber agua todos os dias");
+Verificar("texto sem refeicao nao inventa", semCabecalho.Refeicoes.Count == 0 && semCabecalho.Aviso == "nenhuma_refeicao_identificada", semCabecalho.Aviso);
+
+Verificar("prescricao vazia e recusada", LeitorPrescricao.Ler("").TotalItens == 0);
 Console.WriteLine($"\n================  {passou} PASS / {falhou} FAIL  ================");
 return falhou == 0 ? 0 : 1;
 

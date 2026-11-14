@@ -132,6 +132,10 @@ export const api = {
   redefinirSenha: (email, codigo, novaSenha) =>
     requisitar('POST', '/api/auth/redefinir-senha', { email, codigo, novaSenha }, { autenticado: false }),
 
+  feedback: (dados) => requisitar('POST', '/api/nutricao/feedback', dados, { autenticado: false }),
+
+  lerPrescricao: (texto) => requisitar('POST', '/api/nutricao/prescricao', { texto }, { autenticado: false }),
+
   lerRotulo: (texto) =>
     requisitar('POST', '/api/nutricao/rotulo', { texto }, { autenticado: false }),
 
