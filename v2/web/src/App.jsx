@@ -906,6 +906,147 @@ function Perfil({ usuario, aoSair, avisar, instalar, podeInstalar, instalado, te
       </div>
 
       <div className="cartao" style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Dados pessoais</div>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault()
+            try {
+              await api.trocarEmail(e.target.email.value.trim(), e.target.senhaEmail.value)
+              avisar('E-mail atualizado. Verifique a nova caixa.')
+              window.location.reload()
+            } catch (falha) {
+              avisar(
+                falha?.corpo?.erro === 'senha_incorreta'
+                  ? 'Senha incorreta para trocar o e-mail.'
+                  : falha?.corpo?.erro === 'email_em_uso'
+                    ? 'Este e-mail já pertence a outra conta.'
+                    : 'Não foi possível trocar o e-mail.',
+                'erro',
+              )
+            }
+          }}
+          style={{ marginBottom: 18 }}
+        >
+          <div className="campo">
+            <label htmlFor="novoEmail">E-mail</label>
+            <input id="novoEmail" name="email" type="email" defaultValue={usuario?.email ?? ''} required />
+          </div>
+          <div className="campo">
+            <label htmlFor="senhaEmail">Senha atual (confirmação)</label>
+            <input id="senhaEmail" name="senhaEmail" type="password" required autoComplete="current-password" />
+          </div>
+          <button className="btn btn-fantasma btn-mini" type="submit">Salvar e-mail</button>
+        </form>
+
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault()
+            try {
+              await api.definirNascimento(e.target.nascimento.value)
+              avisar('Data de nascimento atualizada')
+              window.location.reload()
+            } catch {
+              avisar('Não foi possível salvar a data.', 'erro')
+            }
+          }}
+        >
+          <div className="campo">
+            <label htmlFor="nascimento">Data de nascimento</label>
+            <input
+              id="nascimento"
+              name="nascimento"
+              type="date"
+              defaultValue={usuario?.dataNascimento?.slice(0, 10) ?? ''}
+              required
+            />
+          </div>
+          <button className="btn btn-fantasma btn-mini" type="submit">Salvar data</button>
+        </form>
+      </div>
+
+      <div className="cartao" style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Perfil de saúde</div>
+        <p className="rodape-cartao" style={{ marginTop: 0 }}>
+          Usado para adaptar as recomendações alimentares. Sem isso, o painel mostra um aviso
+          de perfil incompleto — como na v1.
+        </p>
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault()
+            try {
+              await api.atualizarSaude(e.target.diabetes.value, e.target.intolerancia.value.trim())
+              avisar('Perfil de saúde atualizado')
+              window.location.reload()
+            } catch {
+              avisar('Não foi possível salvar o perfil de saúde.', 'erro')
+            }
+          }}
+        >
+          <div className="campo">
+            <label htmlFor="diabetes">Diabetes</label>
+            <select id="diabetes" name="diabetes" defaultValue={usuario?.diabetes ?? 'Não informado'}>
+              <option>Não informado</option>
+              <option>Não</option>
+              <option>Tipo 1</option>
+              <option>Tipo 2</option>
+              <option>Pré-diabetes</option>
+              <option>Gestacional</option>
+            </select>
+          </div>
+          <div className="campo">
+            <label htmlFor="intolerancia">Intolerâncias / restrições</label>
+            <input
+              id="intolerancia"
+              name="intolerancia"
+              defaultValue={usuario?.intolerancia ?? ''}
+              placeholder="Ex: lactose, glúten"
+              maxLength={400}
+            />
+          </div>
+          <button className="btn btn-fantasma btn-mini" type="submit">Salvar saúde</button>
+        </form>
+      </div>
+
+      <div className="cartao" style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Emergências próximas (São Paulo)</div>
+        <ul className="lista">
+          {HOSPITAIS.map((h) => (
+            <li className="item" key={h.nome}>
+              <div>
+                <div className="item-titulo">{h.nome}</div>
+                <div className="item-meta">{h.endereco} · {h.tipo}</div>
+              </div>
+              <div className="acoes">
+                <a className="btn btn-fantasma btn-mini" href={`tel:${h.telefone.replace(/\D/g, '')}`}>Ligar</a>
+                <a
+                  className="btn btn-fantasma btn-mini"
+                  href={`https://waze.com/ul?ll=${h.lat},${h.lng}&navigate=yes`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Waze
+                </a>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p className="rodape-cartao" style={{ marginTop: 10 }}>
+          Em emergência ligue 192 (SAMU). Esta lista é referência, não substitui atendimento.
+        </p>
+      </div>
+
+      <div className="cartao" style={{ marginBottom: 14 }}>
+        <div className="cartao-titulo">Termos de uso e LGPD</div>
+        <details>
+          <summary className="rodape-cartao" style={{ cursor: 'pointer' }}>
+            Ler os termos completos
+          </summary>
+          <div className="texto-ocr" style={{ whiteSpace: 'pre-wrap' }}>
+{TERMOS}
+          </div>
+        </details>
+      </div>
+      <div className="cartao" style={{ marginBottom: 14 }}>
         <div className="cartao-titulo">Sessões</div>
         {sessoes.length === 0 ? (
           <div className="rodape-cartao">Nenhuma sessão listada.</div>
@@ -1215,6 +1356,22 @@ function Planos({ avisar }) {
 }
 
 /* ------------------------------------------------------------------ shell --- */
+
+const HOSPITAIS = [
+  { nome: 'Hospital das Clínicas (HC-FMUSP)', tipo: 'Hospital', endereco: 'Av. Dr. Enéas de Carvalho Aguiar, 255 - Cerqueira César', telefone: '(11) 2661-0000', lat: -23.5592, lng: -46.6694 },
+  { nome: 'Hospital São Paulo (UNIFESP)', tipo: 'Hospital', endereco: 'Rua Botucatu, 740 - Vila Clementino', telefone: '(11) 5576-4000', lat: -23.5932, lng: -46.6375 },
+  { nome: 'Hospital do Servidor Público Estadual (IAMSPE)', tipo: 'Hospital', endereco: 'Rua Pedro de Toledo, 1800 - Vila Clementino', telefone: '(11) 5088-8000', lat: -23.595, lng: -46.64 },
+  { nome: 'UPA 24h - Sé', tipo: 'UPA', endereco: 'Rua Frederico Alvarenga, 259 - Sé', telefone: '(11) 3101-0000', lat: -23.5505, lng: -46.6333 },
+  { nome: 'UPA 24h - Tatuapé', tipo: 'UPA', endereco: 'Rua Serra de Bragança, 200 - Tatuapé', telefone: '(11) 2295-0000', lat: -23.54, lng: -46.575 },
+]
+
+const TERMOS = `Ao criar uma conta no BSFM você concorda que:
+
+1. Os dados informados (peso, altura, refeições, água) são usados exclusivamente para calcular indicadores nutricionais e exibir seu histórico.
+2. O BSFM é um projeto acadêmico e não substitui consulta com nutricionista ou médico.
+3. Você pode solicitar a exclusão da sua conta e dos seus dados a qualquer momento.
+4. O e-mail é usado para verificação da conta e recuperação de senha.
+5. Nenhum dado de saúde é compartilhado com terceiros.`
 
 const ABAS = [
   { id: 'painel', rotulo: 'Painel', icone: Icones.painel, titulo: 'Painel', sub: 'Resumo do seu dia' },

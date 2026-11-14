@@ -183,5 +183,11 @@ export const api = {
 
   evolucao: () => requisitar('GET', '/api/eu/evolucao'),
 
+  trocarEmail: (email, senha) => requisitar('PUT', '/api/eu/email', { email, senha }),
+
+  definirNascimento: (dataNascimento) => requisitar('PUT', '/api/eu/nascimento', { dataNascimento }),
+
+  atualizarSaude: (diabetes, intolerancia) => requisitar('PUT', '/api/eu/saude', { diabetes, intolerancia }),
+
   sessoes: () => requisitar('GET', '/api/eu/sessoes'),
 }

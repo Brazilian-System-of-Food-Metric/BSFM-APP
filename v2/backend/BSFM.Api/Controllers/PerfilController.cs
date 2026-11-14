@@ -58,6 +58,10 @@ public sealed class PerfilController : ControllerBase
             pesoMeta = usuario.PesoMeta,
             idade = usuario.CalcularIdade(),
             totpHabilitado = usuario.TotpHabilitado,
+            dataNascimento = usuario.DataNascimento,
+            diabetes = usuario.Diabetes,
+            intolerancia = usuario.Intolerancia,
+            saudeCompleta = usuario.Diabetes != "Não informado" || !string.IsNullOrWhiteSpace(usuario.Intolerancia),
             papel = usuario.Papel,
             criadoEm = usuario.CriadoEm,
             jti = HttpContext.Jti(),
@@ -168,6 +172,91 @@ public sealed class PerfilController : ControllerBase
     }
 
     // -----------------------------------------------------------------------
+    /// <summary>Troca o e-mail. Exige senha atual e derruba a verificação.</summary>
+    [HttpPut("email")]
+    public async Task<IActionResult> TrocarEmail([FromBody] TrocarEmailEntrada entrada, CancellationToken ct)
+    {
+        var email = (entrada.Email ?? string.Empty).Trim().ToLowerInvariant();
+
+        if (email.Length < 5 || email.Length > 320 || !email.Contains('@') || !email.Contains('.'))
+            return BadRequest(new { erro = "email_invalido" });
+
+        if (string.IsNullOrWhiteSpace(entrada.Senha))
+            return BadRequest(new { erro = "senha_obrigatoria" });
+
+        var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+        if (usuario is null) return NotFound(new { erro = "usuario_inexistente" });
+
+        if (!ServicoSenha.Verificar(entrada.Senha, usuario.SenhaHash))
+            return BadRequest(new { erro = "senha_incorreta" });
+
+        if (await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == email && u.ID != UsuarioId, ct))
+            return Conflict(new { erro = "email_em_uso" });
+
+        usuario.Email = email;
+        usuario.EmailVerificado = false;
+        usuario.AtualizadoEm = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+
+        await _auditoria.RegistrarAsync("email_alterado", usuario.ID, "Usuario", usuario.ID.ToString(),
+            null, ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+
+        return Ok(new { mensagem = "E-mail atualizado. Verifique a nova caixa.", email, emailVerificado = false });
+    }
+
+    // -----------------------------------------------------------------------
+    /// <summary>Define a data de nascimento (a idade passa a ser derivada dela).</summary>
+    [HttpPut("nascimento")]
+    public async Task<IActionResult> DefinirNascimento([FromBody] NascimentoEntrada entrada, CancellationToken ct)
+    {
+        if (entrada.DataNascimento is null)
+            return BadRequest(new { erro = "data_obrigatoria" });
+
+        var data = entrada.DataNascimento.Value.Date;
+        var hoje = DateTime.UtcNow.Date;
+
+        if (data > hoje) return BadRequest(new { erro = "data_futura" });
+        if (data < hoje.AddYears(-120)) return BadRequest(new { erro = "data_antiga" });
+
+        var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+        if (usuario is null) return NotFound(new { erro = "usuario_inexistente" });
+
+        usuario.DataNascimento = data;
+        usuario.AtualizadoEm = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+
+        return Ok(new { mensagem = "Data de nascimento atualizada.", dataNascimento = data, idade = usuario.Idade });
+    }
+
+    // -----------------------------------------------------------------------
+    /// <summary>Perfil de saúde usado pelo feedback alimentar (v1 chamava de "alerta pendente").</summary>
+    [HttpPut("saude")]
+    public async Task<IActionResult> AtualizarSaude([FromBody] SaudePerfilEntrada entrada, CancellationToken ct)
+    {
+        var diabetes = (entrada.Diabetes ?? "Não informado").Trim();
+        var intolerancia = (entrada.Intolerancia ?? string.Empty).Trim();
+
+        string[] permitidos = { "Não informado", "Não", "Tipo 1", "Tipo 2", "Pré-diabetes", "Gestacional" };
+        if (!permitidos.Contains(diabetes, StringComparer.OrdinalIgnoreCase))
+            return BadRequest(new { erro = "diabetes_invalido" });
+
+        if (intolerancia.Length > 400)
+            return BadRequest(new { erro = "intolerancia_longa" });
+
+        var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+        if (usuario is null) return NotFound(new { erro = "usuario_inexistente" });
+
+        usuario.Diabetes = diabetes;
+        usuario.Intolerancia = intolerancia;
+        usuario.AtualizadoEm = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+
+        await _auditoria.RegistrarAsync("saude_atualizada", usuario.ID, "Usuario", usuario.ID.ToString(),
+            null, ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+
+        return Ok(new { mensagem = "Perfil de saúde atualizado.", diabetes, intolerancia, saudeCompleta = true });
+    }
+    // -----------------------------------------------------------------------
     [HttpDelete("sessoes")]
     public async Task<IActionResult> EncerrarTodas(CancellationToken ct)
     {
@@ -175,3 +264,7 @@ public sealed class PerfilController : ControllerBase
         return NoContent();
     }
 }
+
+public sealed record TrocarEmailEntrada(string? Email, string? Senha);
+public sealed record NascimentoEntrada(DateTime? DataNascimento);
+public sealed record SaudePerfilEntrada(string? Diabetes, string? Intolerancia);
