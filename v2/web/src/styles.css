@@ -1783,3 +1783,56 @@ strong, b { font-weight: 680; }
 @media (min-width: 960px) {
   .marca-logo { width: 44px; height: 44px; }
 }
+/* ------------------------------------------------- rede de saúde (CNES) ---- */
+
+.filtros-saude {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.campo-busca {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px 16px;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pill);
+  background: var(--surface-2);
+  outline: none;
+}
+.campo-busca:focus { border-color: var(--acento); }
+
+.chip-sus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--texto-medio);
+  white-space: nowrap;
+}
+.chip-sus input { width: 17px; height: 17px; accent-color: var(--acento); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+
+.chip {
+  padding: 7px 15px;
+  border-radius: var(--raio-pill);
+  border: 1px solid var(--borda);
+  background: transparent;
+  color: var(--texto-medio);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.chip:hover { color: var(--texto); border-color: var(--borda-forte); }
+.chip.ativo { background: var(--acento-suave); border-color: var(--acento); color: var(--acento); }
+
+.tag-sus {
+  margin-left: 8px;
+  background: var(--acento-suave);
+  color: var(--acento);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ErroApi, api } from './api.js'
 import { Icone } from './Icones.jsx'
-import Mapa from './Mapa.jsx'
+import Emergencias from './Emergencias.jsx'
 import { ModalTermos } from './Termos.jsx'
 import { Selo, dataCompleta, dataCurta, iniciais, numero } from './ui.jsx'
 
@@ -9,16 +9,6 @@ import { Selo, dataCompleta, dataCurta, iniciais, numero } from './ui.jsx'
    emergências e aplicativo. Tudo o que a v1 espalhava em modais, aqui em
    seções com estado explícito. */
 
-const HOSPITAIS = [
-  { nome: 'Hospital das Clínicas (HC-FMUSP)', tipo: 'Hospital', endereco: 'Av. Dr. Enéas de Carvalho Aguiar, 255 — Cerqueira César', telefone: '(11) 2661-0000', lat: -23.5592, lng: -46.6694 },
-  { nome: 'Hospital São Paulo (UNIFESP)', tipo: 'Hospital', endereco: 'Rua Botucatu, 740 — Vila Clementino', telefone: '(11) 5576-4000', lat: -23.5932, lng: -46.6375 },
-  { nome: 'Hospital do Servidor Público Estadual (IAMSPE)', tipo: 'Hospital', endereco: 'Rua Pedro de Toledo, 1800 — Vila Clementino', telefone: '(11) 5088-8000', lat: -23.595, lng: -46.64 },
-  { nome: 'Hospital Albert Einstein', tipo: 'Hospital', endereco: 'Av. Albert Einstein, 627 — Morumbi', telefone: '(11) 2151-1233', lat: -23.601, lng: -46.715 },
-  { nome: 'UPA 24h — Sé', tipo: 'UPA', endereco: 'Rua Frederico Alvarenga, 259 — Sé', telefone: '(11) 3101-0000', lat: -23.5505, lng: -46.6333 },
-  { nome: 'UPA 24h — Tatuapé', tipo: 'UPA', endereco: 'Rua Serra de Bragança, 200 — Tatuapé', telefone: '(11) 2295-0000', lat: -23.54, lng: -46.575 },
-  { nome: 'UPA 24h — Santo Amaro', tipo: 'UPA', endereco: 'Av. Adolfo Pinheiro, 1000 — Santo Amaro', telefone: '(11) 5525-0000', lat: -23.652, lng: -46.71 },
-  { nome: 'UPA 24h — Brasilândia', tipo: 'UPA', endereco: 'Av. Deputado Cantídio Sampaio, 3000 — Brasilândia', telefone: '(11) 3975-0000', lat: -23.48, lng: -46.68 },
-]
 
 function distanciaKm(a, b) {
   const raio = 6371
@@ -338,14 +328,7 @@ export default function Perfil({
     )
   }
 
-  const hospitais = useMemo(() => {
-    const lista = HOSPITAIS.map((h) => ({
-      ...h,
-      distancia: posicao ? distanciaKm(posicao, h) : null,
-    }))
-    return posicao ? lista.sort((a, b) => a.distancia - b.distancia) : lista
-  }, [posicao])
-
+  
   const outrasSessoes = sessoes.filter((s) => !s.revogadaEm && !s.atual)
   const sessoesAtivas = sessoes.filter((s) => !s.revogadaEm)
 
@@ -733,45 +716,7 @@ export default function Perfil({
         </div>
       </section>
 
-      <section className="cartao" id="perfil-emergencias">
-        <div className="cartao-cabeca">
-          <div><span className="olho">São Paulo</span><h3>Emergências próximas</h3></div>
-          <button className="btn btn-fantasma btn-mini" onClick={localizar} disabled={buscandoLocal}>
-            <Icone nome="mapa" tamanho={15} /> {buscandoLocal ? 'Localizando…' : 'Usar minha localização'}
-          </button>
-        </div>
-
-        <Mapa pontos={hospitais} posicao={posicao} />
-        <ul className="lista lista-compacta">
-          {hospitais.map((h) => (
-            <li className="item" key={h.nome}>
-              <div>
-                <div className="item-titulo">{h.nome}</div>
-                <div className="item-meta">
-                  {h.endereco} · {h.tipo}
-                  {h.distancia != null && ` · ${numero(h.distancia, 1)} km`}
-                </div>
-              </div>
-              <div className="acoes">
-                <a className="btn btn-fantasma btn-mini" href={`tel:${h.telefone.replace(/\D/g, '')}`}>
-                  <Icone nome="telefone" tamanho={13} /> Ligar
-                </a>
-                <a
-                  className="btn btn-fantasma btn-mini"
-                  href={`https://waze.com/ul?ll=${h.lat},${h.lng}&navigate=yes`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Waze
-                </a>
-              </div>
-            </li>
-          ))}
-        </ul>
-        <p className="rodape-cartao">
-          Em emergência ligue 192 (SAMU). Esta lista é referência e não substitui atendimento.
-        </p>
-      </section>
+      <Emergencias posicao={posicao} localizar={localizar} buscandoLocal={buscandoLocal} />
 
       <section className="cartao" id="perfil-app">
         <div className="cartao-cabeca">
