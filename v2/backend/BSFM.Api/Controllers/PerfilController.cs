@@ -257,6 +257,235 @@ public sealed class PerfilController : ControllerBase
         return Ok(new { mensagem = "Perfil de saúde atualizado.", diabetes, intolerancia, saudeCompleta = true });
     }
     // -----------------------------------------------------------------------
+    // Segundo fator (TOTP).
+    //
+    // Ativar exige a senha atual (não basta ter a sessão aberta) e a confirmação
+    // com um código do aplicativo autenticador. Desativar exige senha + código:
+    // um token roubado sozinho não consegue desligar a proteção.
+    [HttpPost("2fa/iniciar")]
+    public async Task<IActionResult> Iniciar2fa([FromBody] Iniciar2faEntrada entrada, CancellationToken ct)
+    {
+        var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+        if (usuario is null) return NotFound(new { erro = "usuario_inexistente" });
+
+        if (!ServicoSenha.Verificar(entrada.Senha ?? string.Empty, usuario.SenhaHash))
+            return BadRequest(new { erro = "senha_incorreta" });
+
+        if (usuario.TotpHabilitado)
+            return Conflict(new { erro = "2fa_ja_ativo" });
+
+        usuario.TotpSegredo = Totp.GerarSegredo();
+        usuario.AtualizadoEm = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+
+        var conta = Uri.EscapeDataString(usuario.Email);
+        var otpauth = $"otpauth://totp/BSFM:{conta}?secret={usuario.TotpSegredo}&issuer=BSFM&algorithm=SHA1&digits=6&period=30";
+
+        return Ok(new
+        {
+            segredo = usuario.TotpSegredo,
+            conta = usuario.Email,
+            emissor = "BSFM",
+            otpauth,
+            mensagem = "Adicione a conta no aplicativo autenticador e confirme o código.",
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    [HttpPost("2fa/ativar")]
+    public async Task<IActionResult> Ativar2fa([FromBody] Confirmar2faEntrada entrada, CancellationToken ct)
+    {
+        var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+        if (usuario is null) return NotFound(new { erro = "usuario_inexistente" });
+
+        if (usuario.TotpHabilitado)
+            return Conflict(new { erro = "2fa_ja_ativo" });
+
+        if (!Totp.Verificar(usuario.TotpSegredo ?? string.Empty, entrada.Codigo))
+            return BadRequest(new { erro = "codigo_invalido" });
+
+        usuario.TotpHabilitado = true;
+        usuario.AtualizadoEm = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+
+        await _auditoria.RegistrarAsync("2fa_ativado", usuario.ID, "Usuario", usuario.ID.ToString(),
+            null, ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+
+        return Ok(new { mensagem = "Verificação em duas etapas ativada.", totpHabilitado = true });
+    }
+
+    // -----------------------------------------------------------------------
+    [HttpPost("2fa/desativar")]
+    public async Task<IActionResult> Desativar2fa([FromBody] Desativar2faEntrada entrada, CancellationToken ct)
+    {
+        var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+        if (usuario is null) return NotFound(new { erro = "usuario_inexistente" });
+
+        if (!usuario.TotpHabilitado)
+            return Ok(new { mensagem = "A verificação em duas etapas já está desligada.", totpHabilitado = false });
+
+        if (!ServicoSenha.Verificar(entrada.Senha ?? string.Empty, usuario.SenhaHash))
+            return BadRequest(new { erro = "senha_incorreta" });
+
+        if (!Totp.Verificar(usuario.TotpSegredo ?? string.Empty, entrada.Codigo))
+            return BadRequest(new { erro = "codigo_invalido" });
+
+        usuario.TotpHabilitado = false;
+        // Rotaciona o segredo: códigos antigos não continuam válidos para e-mail.
+        usuario.TotpSegredo = Totp.GerarSegredo();
+        usuario.AtualizadoEm = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+
+        await _auditoria.RegistrarAsync("2fa_desativado", usuario.ID, "Usuario", usuario.ID.ToString(),
+            null, ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+
+        return Ok(new { mensagem = "Verificação em duas etapas desligada.", totpHabilitado = false });
+    }
+
+    // -----------------------------------------------------------------------
+    /// <summary>
+    /// Exporta os dados do próprio usuário em JSON (portabilidade, LGPD art. 18).
+    /// Não inclui hash de senha, segredo TOTP nem auditoria de terceiros.
+    /// </summary>
+    [HttpGet("exportar")]
+    public async Task<IActionResult> Exportar(CancellationToken ct)
+    {
+        var usuario = await _db.Usuarios.AsNoTracking()
+            .SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+
+        if (usuario is null) return NotFound(new { erro = "usuario_inexistente" });
+
+        var analises = await _db.AnalisesIA.AsNoTracking()
+            .Where(a => a.UsuarioID == UsuarioId)
+            .OrderByDescending(a => a.DataAnalise)
+            .Take(5000)
+            .Select(a => new
+            {
+                a.ID, a.Alimento, a.Calorias, a.Proteinas, a.Carbos, a.Gorduras,
+                a.Porcao, a.DataAnalise, a.PodeConsumir, a.PontuacaoSaude,
+                a.AnaliseEmRelacaoAMeta, a.DicaBSFM, a.Confianca, a.ModeloVersao, a.Origem,
+            })
+            .ToListAsync(ct);
+
+        var agua = await _db.ConsumoAgua.AsNoTracking()
+            .Where(a => a.UsuarioId == UsuarioId)
+            .OrderByDescending(a => a.DataRegistro)
+            .Take(5000)
+            .Select(a => new { a.Id, a.Ml, a.DataRegistro })
+            .ToListAsync(ct);
+
+        var refeicoes = await _db.RefeicoesAgendadas.AsNoTracking()
+            .Where(r => r.UsuarioId == UsuarioId)
+            .Select(r => new
+            {
+                r.Id, r.DiaSemana, r.TipoRefeicao, r.NomePrato, r.Ingredientes,
+                r.ModoPreparo, r.Calorias, r.Proteinas, r.Carboidratos, r.Gorduras,
+                r.Concluida, r.ConcluidaEm, r.DataCriacao,
+            })
+            .ToListAsync(ct);
+
+        var metas = await _db.Metas.AsNoTracking()
+            .Where(m => m.UsuarioId == UsuarioId)
+            .OrderByDescending(m => m.CriadoEm)
+            .Select(m => new { m.Id, m.CaloriasAlvo, m.ProteinasAlvo, m.AguaAlvoMl, m.PesoAlvo, m.CriadoEm, m.Ativa })
+            .ToListAsync(ct);
+
+        var historico = await _db.Historicos.AsNoTracking()
+            .Where(h => h.UsuarioID == UsuarioId)
+            .OrderByDescending(h => h.DataRegistro)
+            .Take(5000)
+            .Select(h => new { h.ID, h.Peso, h.Altura, h.IMC, h.DataRegistro })
+            .ToListAsync(ct);
+
+        var sessoes = await _db.Sessoes.AsNoTracking()
+            .Where(s => s.UsuarioId == UsuarioId)
+            .OrderByDescending(s => s.CriadaEm)
+            .Select(s => new { s.Id, s.CriadaEm, s.ExpiraEm, s.RevogadaEm, s.RevogadaMotivo })
+            .ToListAsync(ct);
+
+        var consentimentos = await _db.ConsentimentosLGPD.AsNoTracking()
+            .Where(c => c.UsuarioId == UsuarioId)
+            .Select(c => new { c.Finalidade, c.VersaoTermo, c.Concedido, c.DataHora, c.Origem })
+            .ToListAsync(ct);
+
+        await _auditoria.RegistrarAsync("dados_exportados", usuario.ID, "Usuario", usuario.ID.ToString(),
+            null, ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+
+        return Ok(new
+        {
+            geradoEm = DateTime.UtcNow,
+            formato = "bsfm-lgpd-v1",
+            conta = new
+            {
+                usuario.ID, usuario.Nome, usuario.Email, usuario.EmailVerificado,
+                usuario.Peso, usuario.Altura, usuario.PesoMeta, usuario.IMC, usuario.TMB,
+                usuario.GastoTotal, usuario.Sexo, usuario.TipoPessoa, usuario.Diabetes,
+                usuario.Intolerancia, usuario.DataNascimento, usuario.Idade,
+                usuario.AceitouTermos, usuario.DataAceite, usuario.VersaoTermos,
+                usuario.CriadoEm,
+            },
+            analises,
+            agua,
+            refeicoes,
+            metas,
+            historico,
+            sessoes,
+            consentimentos,
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    /// <summary>
+    /// Exclui a conta e os dados pessoais (LGPD art. 18, VI). Exige senha e a
+    /// palavra EXCLUIR digitada — não é uma ação de um clique.
+    ///
+    /// A trilha de auditoria permanece, mas sem vínculo nominal: o usuário é
+    /// removido e os eventos ficam anônimos.
+    /// </summary>
+    [HttpPost("conta/excluir")]
+    public async Task<IActionResult> ExcluirConta([FromBody] ExcluirContaEntrada entrada, CancellationToken ct)
+    {
+        var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+        if (usuario is null) return NotFound(new { erro = "usuario_inexistente" });
+
+        if (!ServicoSenha.Verificar(entrada.Senha ?? string.Empty, usuario.SenhaHash))
+            return BadRequest(new { erro = "senha_incorreta" });
+
+        if (!string.Equals((entrada.Confirmacao ?? string.Empty).Trim(), "EXCLUIR", StringComparison.Ordinal))
+            return BadRequest(new { erro = "confirmacao_invalida" });
+
+        var id = usuario.ID;
+
+        await using var transacao = await _db.Database.BeginTransactionAsync(ct);
+
+        var sessoesIds = await _db.Sessoes.Where(s => s.UsuarioId == id).Select(s => s.Id).ToListAsync(ct);
+        _db.RefreshTokens.RemoveRange(_db.RefreshTokens.Where(r => sessoesIds.Contains(r.SessaoId)));
+        _db.Sessoes.RemoveRange(_db.Sessoes.Where(s => s.UsuarioId == id));
+
+        _db.AnalisesIA.RemoveRange(_db.AnalisesIA.Where(a => a.UsuarioID == id));
+        _db.ConsumoAgua.RemoveRange(_db.ConsumoAgua.Where(a => a.UsuarioId == id));
+        _db.RefeicoesAgendadas.RemoveRange(_db.RefeicoesAgendadas.Where(r => r.UsuarioId == id));
+        _db.Metas.RemoveRange(_db.Metas.Where(m => m.UsuarioId == id));
+        _db.Historicos.RemoveRange(_db.Historicos.Where(h => h.UsuarioID == id));
+
+        var cronogramas = await _db.CronogramasSemanais.Where(c => c.UsuarioId == id).Select(c => c.Id).ToListAsync(ct);
+        _db.RefeicoesDiarias.RemoveRange(_db.RefeicoesDiarias.Where(r => cronogramas.Contains(r.CronogramaSemanalId)));
+        _db.CronogramasSemanais.RemoveRange(_db.CronogramasSemanais.Where(c => c.UsuarioId == id));
+
+        _db.ConsentimentosLGPD.RemoveRange(_db.ConsentimentosLGPD.Where(c => c.UsuarioId == id));
+        _db.Usuarios.Remove(usuario);
+
+        await _db.SaveChangesAsync(ct);
+        await transacao.CommitAsync(ct);
+
+        // Auditoria sem vínculo: o id do usuário já não existe.
+        await _auditoria.RegistrarAsync("conta_excluida", null, "Usuario", id.ToString(),
+            null, ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+
+        return Ok(new { mensagem = "Conta e dados pessoais excluídos." });
+    }
+
+    // -----------------------------------------------------------------------
     [HttpDelete("sessoes")]
     public async Task<IActionResult> EncerrarTodas(CancellationToken ct)
     {

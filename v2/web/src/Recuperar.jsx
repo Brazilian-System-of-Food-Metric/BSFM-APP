@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { ErroApi, api } from './api.js'
+import { Icone } from './Icones.jsx'
 
-/* ============================================================================
-   Recuperação de senha em dois passos — exatamente o fluxo da v1:
-   e-mail → código de 6 dígitos → nova senha.
-   ========================================================================== */
+/* Recuperação de senha em dois passos — e-mail → código → nova senha.
+   O servidor nunca devolve o código; ele chega por e-mail (Brevo). */
 
 export default function Recuperar({ aoVoltar, aoEntrar }) {
   const [etapa, setEtapa] = useState('email')
@@ -52,81 +51,92 @@ export default function Recuperar({ aoVoltar, aoEntrar }) {
   }
 
   return (
-    <div className="acesso">
-      <form className="cartao-acesso" onSubmit={etapa === 'email' ? pedirCodigo : redefinir}>
-        <div className="marca">
-          <div className="marca-simbolo">BS</div>
-          <div className="marca-texto">
-            <span className="marca-nome">BSFM</span>
-            <span className="marca-tag">Recuperar acesso</span>
+    <div className="acesso acesso-simples">
+      <main className="acesso-painel">
+        <form className="cartao-acesso" onSubmit={etapa === 'email' ? pedirCodigo : redefinir}>
+          <div className="marca">
+            <div className="marca-simbolo">BS</div>
+            <div className="marca-texto">
+              <span className="marca-nome">BSFM</span>
+              <span className="marca-tag">Recuperar acesso</span>
+            </div>
           </div>
-        </div>
 
-        <h1>{etapa === 'email' ? 'Esqueci minha senha' : 'Definir nova senha'}</h1>
-        <p className="subtitulo">
-          {etapa === 'email'
-            ? 'Informe o e-mail da conta. Enviaremos um código de 6 dígitos.'
-            : `Digite o código enviado para ${email} e escolha a nova senha.`}
-        </p>
+          <div className="passos-recuperar" aria-hidden="true">
+            <span className="passo-bolinha passo-ativo">1</span>
+            <span className={`passo-linha${etapa === 'codigo' ? ' passo-linha-ativa' : ''}`} />
+            <span className={`passo-bolinha${etapa === 'codigo' ? ' passo-ativo' : ''}`}>2</span>
+          </div>
 
-        {erro && <div className="erro" role="alert">{erro}</div>}
-        {aviso && !erro && <div className="sucesso">{aviso}</div>}
+          <h1>{etapa === 'email' ? 'Esqueci minha senha' : 'Definir nova senha'}</h1>
+          <p className="subtitulo">
+            {etapa === 'email'
+              ? 'Informe o e-mail da conta. Enviaremos um código de 6 dígitos.'
+              : `Digite o código enviado para ${email} e escolha a nova senha.`}
+          </p>
 
-        {etapa === 'email' ? (
-          <>
-            <div className="campo">
-              <label htmlFor="rec-email">E-mail</label>
-              <input
-                id="rec-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="username"
-                autoFocus
-              />
-            </div>
-            <button className="btn btn-bloco" type="submit" disabled={carregando}>
-              {carregando ? 'Enviando…' : 'Enviar código'}
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="campo">
-              <label htmlFor="rec-codigo">Código de 6 dígitos</label>
-              <input
-                id="rec-codigo"
-                inputMode="numeric"
-                maxLength={6}
-                value={codigo}
-                onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
-                required
-                autoFocus
-                style={{ letterSpacing: 8, fontSize: 22, textAlign: 'center' }}
-              />
-            </div>
-            <div className="campo">
-              <label htmlFor="rec-senha">Nova senha (mínimo 8 caracteres)</label>
-              <input
-                id="rec-senha"
-                type="password"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                required
-                minLength={8}
-                autoComplete="new-password"
-              />
-            </div>
-            <button className="btn btn-bloco" type="submit" disabled={carregando || codigo.length !== 6}>
-              {carregando ? 'Salvando…' : 'Redefinir senha'}
-            </button>
-          </>
-        )}
+          {erro && <div className="erro" role="alert"><Icone nome="info" tamanho={16} /><span>{erro}</span></div>}
+          {aviso && !erro && <div className="sucesso" role="status"><Icone nome="check" tamanho={16} /><span>{aviso}</span></div>}
 
-        <button type="button" className="btn btn-fantasma btn-bloco" style={{ marginTop: 10 }} onClick={aoVoltar}>
-          ← Voltar para o login
-        </button>
-      </form>
+          {etapa === 'email' ? (
+            <>
+              <div className="campo">
+                <label htmlFor="rec-email">E-mail</label>
+                <input
+                  id="rec-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="username"
+                  autoFocus
+                  placeholder="voce@email.com"
+                />
+              </div>
+              <button className="btn btn-bloco" type="submit" disabled={carregando}>
+                {carregando ? 'Enviando…' : 'Enviar código'}
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="campo">
+                <label htmlFor="rec-codigo">Código de 6 dígitos</label>
+                <input
+                  id="rec-codigo"
+                  className="campo-codigo"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={codigo}
+                  onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
+                  required
+                  autoFocus
+                  placeholder="000000"
+                />
+              </div>
+              <div className="campo">
+                <label htmlFor="rec-senha">Nova senha (mínimo 8 caracteres)</label>
+                <input
+                  id="rec-senha"
+                  type="password"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                />
+              </div>
+              <button className="btn btn-bloco" type="submit" disabled={carregando || codigo.length !== 6}>
+                {carregando ? 'Salvando…' : 'Redefinir senha'}
+              </button>
+            </>
+          )}
+
+          <button type="button" className="btn btn-fantasma btn-bloco" style={{ marginTop: 10 }} onClick={aoVoltar}>
+            ← Voltar para o login
+          </button>
+        </form>
+      </main>
     </div>
   )
 }

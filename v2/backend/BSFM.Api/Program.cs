@@ -30,8 +30,6 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{porta}");
 // ---------------------------------------------------------------------------
 // Segredos: vêm do ambiente. O padrão existe só para desenvolvimento local.
 // ---------------------------------------------------------------------------
-string Segredo(string nome, string padrao) => Environment.GetEnvironmentVariable(nome) ?? padrao;
-
 // Segredos: variável de ambiente > derivação de DATABASE_URL > aleatório.
 // Nunca há valor público fixo: isso permitiria forjar token e assinatura.
 var segredos = BSFM.Api.Servicos.SegredosDeExecucao.Resolver(

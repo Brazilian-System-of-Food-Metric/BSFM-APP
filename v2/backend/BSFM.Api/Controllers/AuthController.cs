@@ -88,11 +88,40 @@ public sealed class AuthController : ControllerBase
             return RespostaCredenciaisInvalidas();
         }
 
+        // Segundo fator: a senha já foi conferida, então é seguro dizer ao cliente
+        // que falta o código (sem revelar nada sobre contas que não existem).
+        if (usuario.TotpHabilitado && string.IsNullOrWhiteSpace(entrada.CodigoTotp))
+        {
+            return Unauthorized(new
+            {
+                erro = "totp_necessario",
+                mensagem = "Informe o código de 6 dígitos do seu aplicativo autenticador.",
+            });
+        }
+
         if (usuario.TotpHabilitado && !Totp.Verificar(usuario.TotpSegredo ?? string.Empty, entrada.CodigoTotp))
         {
+            // Tentativa de 2FA também conta para o bloqueio progressivo: antes, um
+            // código de 6 dígitos podia ser testado sem limite.
+            usuario.TentativasFalhas++;
+
+            if (usuario.TentativasFalhas >= MaximoTentativas)
+            {
+                usuario.BloqueadoAte = agora.Add(DuracaoBloqueio);
+                usuario.TentativasFalhas = 0;
+            }
+
+            usuario.AtualizadoEm = agora;
+            await _db.SaveChangesAsync(ct);
+
             await _auditoria.RegistrarAsync("login_falha", usuario.ID, "Usuario", usuario.ID.ToString(),
                 "{\"motivo\":\"totp_invalido\"}", ipHash, ct);
-            return RespostaCredenciaisInvalidas();
+
+            return Unauthorized(new
+            {
+                erro = "totp_invalido",
+                mensagem = "Código de verificação inválido ou expirado.",
+            });
         }
 
         // Sucesso: zera tentativas e, se o hash estiver defasado, reidrata.
@@ -340,6 +369,40 @@ public sealed class AuthController : ControllerBase
             emailVerificado = false,
             mensagem = "Conta criada. Enviamos um código de verificação para o seu e-mail.",
         });
+    }
+
+    // -----------------------------------------------------------------------
+    /// <summary>
+    /// Reenvia o código de verificação de e-mail. Resposta idêntica exista ou
+    /// não a conta, e nada é enviado para quem já verificou.
+    /// </summary>
+    [HttpPost("reenviar-verificacao")]
+    public async Task<IActionResult> ReenviarVerificacao([FromBody] EsqueceuSenhaEntrada entrada, CancellationToken ct)
+    {
+        var email = (entrada.Email ?? string.Empty).Trim().ToLowerInvariant();
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.Email.ToLower() == email, ct);
+
+            if (usuario is not null && !usuario.EmailVerificado)
+            {
+                if (string.IsNullOrEmpty(usuario.TotpSegredo))
+                {
+                    usuario.TotpSegredo = Totp.GerarSegredo();
+                    await _db.SaveChangesAsync(ct);
+                }
+
+                var codigo = Totp.GerarCodigo(usuario.TotpSegredo);
+                await _enviador.EnviarAsync(usuario.Email, codigo, ct);
+
+                await _auditoria.RegistrarAsync("verificacao_reenviada", usuario.ID, "Usuario",
+                    usuario.ID.ToString(), null,
+                    ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+            }
+        }
+
+        return Accepted(new { mensagem = "Se houver uma conta não verificada, enviamos um novo código." });
     }
 
     // -----------------------------------------------------------------------

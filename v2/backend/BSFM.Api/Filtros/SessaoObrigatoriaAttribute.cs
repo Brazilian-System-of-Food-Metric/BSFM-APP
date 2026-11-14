@@ -83,10 +83,15 @@ public sealed class SessaoObrigatoriaAttribute : Attribute, IAsyncAuthorizationF
         // sessão revoga a chave — sem segredo global circulando no cliente.
         var chaveDaSessao = Base64Url.Decodificar(ChaveSessao.Derivar(segredo.Valor, claims.Jti));
 
+        // O caminho assinado inclui a query string: o cliente assina exatamente o
+        // que envia (ex.: /api/eu/analises?limite=60). Validar só Path fazia toda
+        // requisição autenticada com filtro falhar como "assinatura_invalida".
+        var caminhoAssinado = $"{http.Request.Path.Value}{http.Request.QueryString.Value}";
+
         var assinatura = verificador.ValidarCom(
             chaveDaSessao,
             http.Request.Method,
-            http.Request.Path.Value,
+            caminhoAssinado,
             http.Request.Headers["X-BSFM-Timestamp"],
             http.Request.Headers["X-BSFM-Nonce"],
             corpo,

@@ -87,3 +87,21 @@ public sealed record CadastroEntrada(
     string? NivelAtividade);
 
 public sealed record VerificarEmailEntrada(string? Email, string? Codigo);
+
+// --- Avaliação nutricional contextual ------------------------------------
+// O cliente envia só os números da refeição. Quem completa o contexto (meta,
+// consumo do dia, diabetes, intolerância) é o servidor, com o usuário da sessão.
+public sealed record AvaliacaoEntrada(
+    double? Kcal,
+    double? Proteinas,
+    double? Carbos,
+    double? Gorduras,
+    double? Fibra);
+
+// --- Segundo fator (TOTP) ------------------------------------------------
+public sealed record Iniciar2faEntrada(string? Senha);
+public sealed record Confirmar2faEntrada(string? Codigo);
+public sealed record Desativar2faEntrada(string? Senha, string? Codigo);
+
+// --- Exclusão de conta (LGPD) --------------------------------------------
+public sealed record ExcluirContaEntrada(string? Senha, string? Confirmacao);

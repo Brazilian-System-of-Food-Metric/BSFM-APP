@@ -48,7 +48,7 @@ const perfil = JSON.parse(await avaliar(`JSON.stringify({
 conferir('container do mapa', perfil.container === 1, `${perfil.container}`)
 conferir('leaflet inicializou', perfil.leaflet === 1, `${perfil.leaflet}`)
 conferir('marcadores das unidades', perfil.marcadores >= 5, `${perfil.marcadores}`)
-conferir('lista com Waze mantida', perfil.waze === 5, `${perfil.waze}`)
+conferir('lista com Waze mantida', perfil.waze === 8, `${perfil.waze}`)
 const c = await cdp('Page.captureScreenshot', { format: 'png' }); fs.writeFileSync('p5-mapa.png', Buffer.from(c.data, 'base64'))
 
 console.log(`\n================  ${falhas === 0 ? 'PASSOU' : falhas + ' FALHA(S)'}  ================`)

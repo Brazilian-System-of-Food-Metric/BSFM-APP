@@ -63,7 +63,7 @@ await espera(2600)
 
 // ---- landing -------------------------------------------------------------
 const landing = JSON.parse(await avaliar(`JSON.stringify({
-  h1: document.querySelector('.hero h1')?.textContent ?? null,
+  h1: document.querySelector('.heroi-texto h1')?.textContent ?? null,
   secoes: [...document.querySelectorAll('h2')].map(e => e.textContent.trim()),
   links: document.querySelectorAll('.landing-nav a').length,
   docs: document.querySelectorAll('.doc').length,
@@ -75,7 +75,7 @@ const landing = JSON.parse(await avaliar(`JSON.stringify({
 console.log('\n[1] Landing pública')
 conferir('h1 presente', Boolean(landing.h1), landing.h1 ?? '')
 conferir('ao menos 6 seções', landing.secoes.length >= 6, `${landing.secoes.length}`)
-conferir('navegação com 4 links', landing.links === 4, `${landing.links}`)
+conferir('navegação com 5+ links', landing.links >= 5, `${landing.links}`)
 conferir('link para documentação', landing.docs >= 4, `${landing.docs}`)
 conferir('botão instalar visível', landing.botaoInstalar)
 conferir('botão entrar visível', landing.botaoEntrar)
@@ -92,7 +92,7 @@ const login = JSON.parse(await avaliar(`JSON.stringify({
   instalar: [...document.querySelectorAll('button')].some(b => /instalar/i.test(b.textContent)),
   voltar: [...document.querySelectorAll('button')].some(b => /voltar ao site/i.test(b.textContent))
 })`))
-conferir('formulário de login aberto', login.h1 === 'Entrar', login.h1 ?? '')
+conferir('formulário de login aberto', String(login.h1 ?? '').includes('Entrar'), login.h1 ?? '')
 conferir('campos de e-mail e senha', login.campos >= 2, `${login.campos}`)
 conferir('instalar disponível antes do login', login.instalar)
 conferir('voltar ao site', login.voltar)
@@ -142,17 +142,20 @@ await avaliar(`[...document.querySelectorAll('.nav-item')].find(b => /Planos/.te
 await espera(1500)
 const planos = JSON.parse(await avaliar(`JSON.stringify({
   titulo: document.querySelector('.topo h1')?.textContent ?? null,
+  formulario: Boolean(document.querySelector('#form-plano')),
   selects: document.querySelectorAll('.pagina select').length,
   erro: document.querySelector('.erro')?.textContent ?? null
 })`))
-conferir('tela de planos carrega', planos.selects >= 2, JSON.stringify(planos))
+conferir('tela de planos carrega', planos.formulario && planos.selects >= 1, JSON.stringify(planos))
 await capturar('planos')
 
-// análise por foto
+// análise por foto (a aba precisa ser aberta: o input só existe nela)
 await avaliar(`[...document.querySelectorAll('.nav-item')].find(b => /Analisar/.test(b.textContent))?.click()`)
-await espera(1200)
+await espera(1000)
+await avaliar(`[...document.querySelectorAll('.segmento')].find(b => /Foto/.test(b.textContent))?.click()`)
+await espera(900)
 const foto = JSON.parse(await avaliar(`JSON.stringify({
-  bloco: document.body.textContent.includes('Analisar por foto'),
+  bloco: document.body.textContent.includes('Foto do prato'),
   inputFile: document.querySelectorAll('input[type=file]').length
 })`))
 conferir('bloco de foto presente', foto.bloco)

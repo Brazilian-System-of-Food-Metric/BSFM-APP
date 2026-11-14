@@ -63,7 +63,8 @@ public sealed record AnaliseEntrada(
     bool? PodeConsumir,
     int? PontuacaoSaude,
     string? AnaliseEmRelacaoAMeta,
-    string? DicaBSFM);
+    string? DicaBSFM,
+    double? Fibra);
 
 public sealed record AnaliseSaida(
     int Id,

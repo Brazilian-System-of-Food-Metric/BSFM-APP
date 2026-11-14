@@ -8,7 +8,7 @@
    - arquivos estáticos com hash do Vite: cache primeiro (nunca mudam).
    ========================================================================== */
 
-const VERSAO = 'bsfm-v1'
+const VERSAO = 'bsfm-v4'
 const ESSENCIAIS = ['/', '/index.html', '/manifest.webmanifest', '/icons/icon-192.png']
 
 self.addEventListener('install', (evento) => {

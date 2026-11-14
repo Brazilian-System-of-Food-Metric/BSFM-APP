@@ -21,7 +21,7 @@ await avaliar(`sessionStorage.clear(); location.reload()`); await espera(2500)
 console.log('\n[1] Landing: tabela de status')
 const landing = JSON.parse(await avaliar(`JSON.stringify({
   tabela: document.querySelectorAll('.landing table.tabela tr').length,
-  status: document.body.textContent.includes('em desenvolvimento')
+  status: document.body.textContent.includes('próximo') || document.body.textContent.includes('opcional')
 })`))
 conferir('tabela de status presente', landing.tabela >= 7, `${landing.tabela}`)
 conferir('estado em desenvolvimento declarado', landing.status)

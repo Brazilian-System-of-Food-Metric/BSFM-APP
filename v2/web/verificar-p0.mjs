@@ -89,7 +89,7 @@ await espera(2500)
 const agua = JSON.parse(await avaliar(`JSON.stringify({
   campo: !!document.querySelector('.campo-agua input'),
   barras: document.querySelectorAll('.barra-dia').length,
-  grafico: document.querySelectorAll('.grafico svg').length
+  grafico: document.querySelectorAll('.grafico svg, .grafico-ponto').length
 })`))
 conferir('campo de valor livre', agua.campo)
 conferir('gráfico semanal de água', agua.barras === 7, `${agua.barras}`)

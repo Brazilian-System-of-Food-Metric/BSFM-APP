@@ -44,8 +44,8 @@ await espera(3200)
 
 console.log('\n[1] Banner de perfil incompleto no painel')
 const painel = JSON.parse(await avaliar(`JSON.stringify({
-  banner: document.body.textContent.includes('Perfil de saúde incompleto'),
-  botao: [...document.querySelectorAll('button')].some(b => /Completar agora/.test(b.textContent))
+  banner: document.body.textContent.includes('Complete seu perfil de saúde'),
+  botao: [...document.querySelectorAll('button')].some(b => /Completar/.test(b.textContent))
 })`))
 conferir('banner aparece para quem não informou', painel.banner)
 conferir('botão leva ao perfil', painel.botao)
@@ -57,13 +57,13 @@ await avaliar(`[...document.querySelectorAll('.nav-item')].find(b => /Perfil/.te
 await espera(2200)
 const perfil = JSON.parse(await avaliar(`JSON.stringify({
   dadosPessoais: document.body.textContent.includes('Dados pessoais'),
-  campoEmail: !!document.querySelector('#novoEmail'),
+  campoEmail: !!document.querySelector('#emailPerfil'),
   senhaEmail: !!document.querySelector('#senhaEmail'),
   nascimento: !!document.querySelector('#nascimento'),
   saude: document.body.textContent.includes('Perfil de saúde'),
   selectDiabetes: !!document.querySelector('#diabetes'),
   intolerancia: !!document.querySelector('#intolerancia'),
-  termos: document.body.textContent.includes('Termos de uso e LGPD'),
+  termos: document.body.textContent.includes('Privacidade e dados'),
   hospitais: document.querySelectorAll('a[href*="waze.com"]').length,
   erro: document.querySelector('.erro')?.textContent ?? null
 })`))
@@ -73,7 +73,7 @@ conferir('campo de senha para confirmar', perfil.senhaEmail)
 conferir('campo de data de nascimento', perfil.nascimento)
 conferir('bloco de saúde', perfil.saude && perfil.selectDiabetes && perfil.intolerancia)
 conferir('termos completos', perfil.termos)
-conferir('5 unidades com Waze', perfil.hospitais === 5, `${perfil.hospitais}`)
+conferir('8 unidades com Waze', perfil.hospitais === 8, `${perfil.hospitais}`)
 conferir('sem erro na tela', !perfil.erro, perfil.erro ?? '')
 
 // rolar até os blocos finais para a captura
@@ -97,7 +97,7 @@ await avaliar(`
     const setter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value').set
     setter.call(sel, 'Não')
     sel.dispatchEvent(new Event('change', { bubbles: true }))
-    sel.closest('form').querySelector('input[name="intolerancia"]').value = 'lactose'
+    document.querySelector('#intolerancia').value = 'lactose'
   })()
 `)
 await espera(300)

@@ -114,6 +114,56 @@ public sealed class RefeicoesController : ControllerBase
     }
 
     // -----------------------------------------------------------------------
+    /// <summary>Edita uma refeição planejada. Mantém o CRUD que a v1 tinha.</summary>
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Atualizar(int id, [FromBody] RefeicaoEntrada entrada, CancellationToken ct)
+    {
+        var dia = Normalizar(entrada.DiaSemana, DiasValidos);
+        var tipo = Normalizar(entrada.TipoRefeicao, TiposValidos);
+
+        if (dia is null) return BadRequest(new { erro = "dia_invalido", aceitos = DiasValidos });
+        if (tipo is null) return BadRequest(new { erro = "tipo_invalido", aceitos = TiposValidos });
+
+        var nome = (entrada.NomePrato ?? string.Empty).Trim();
+        if (nome.Length < 2 || nome.Length > 200)
+            return BadRequest(new { erro = "nome_prato_invalido" });
+
+        if (entrada.Calorias is < 0 or > 5000)
+            return BadRequest(new { erro = "calorias_invalidas" });
+
+        if (entrada.Proteinas is < 0 or > 500 || entrada.Carboidratos is < 0 or > 500
+            || entrada.Gorduras is < 0 or > 500)
+            return BadRequest(new { erro = "macros_invalidos" });
+
+        var refeicao = await _db.RefeicoesAgendadas
+            .SingleOrDefaultAsync(r => r.Id == id && r.UsuarioId == UsuarioId, ct);
+
+        if (refeicao is null)
+            return NotFound(new { erro = "refeicao_inexistente" });
+
+        refeicao.DiaSemana = dia;
+        refeicao.TipoRefeicao = tipo;
+        refeicao.NomePrato = nome;
+        refeicao.Ingredientes = (entrada.Ingredientes ?? string.Empty).Trim();
+        refeicao.ModoPreparo = (entrada.ModoPreparo ?? string.Empty).Trim();
+        refeicao.Calorias = entrada.Calorias ?? 0;
+        refeicao.Proteinas = entrada.Proteinas ?? 0;
+        refeicao.Carboidratos = entrada.Carboidratos ?? 0;
+        refeicao.Gorduras = entrada.Gorduras ?? 0;
+
+        await _db.SaveChangesAsync(ct);
+
+        await _auditoria.RegistrarAsync("refeicao_atualizada", UsuarioId, "RefeicaoAgendada",
+            refeicao.Id.ToString(), $"{{\"dia\":\"{dia}\",\"tipo\":\"{tipo}\"}}",
+            ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+
+        return Ok(new RefeicaoSaida(
+            refeicao.Id, refeicao.DiaSemana, refeicao.TipoRefeicao, refeicao.NomePrato,
+            refeicao.Ingredientes, refeicao.ModoPreparo, refeicao.Calorias,
+            refeicao.Proteinas, refeicao.Carboidratos, refeicao.Gorduras));
+    }
+
+    // -----------------------------------------------------------------------
     // -----------------------------------------------------------------------
     /// <summary>Marca ou desmarca uma refeicao planejada como cumprida.</summary>
     [HttpPut("{id:int}/concluir")]

@@ -43,9 +43,10 @@ await avaliar(`[...document.querySelectorAll('.nav-item')].find(b => /Diário/.t
 await espera(2000)
 const diario = JSON.parse(await avaliar(`JSON.stringify({
   vazio: document.body.textContent.includes('Nada registrado ainda'),
-  botoes: [...document.querySelectorAll('button')].filter(b => /Feedback/.test(b.textContent)).length
+  itens: document.querySelectorAll('.item').length,
+  botoes: [...document.querySelectorAll('button')].filter(b => /Avaliar|Detalhes/.test(b.textContent)).length
 })`))
-conferir('tela do diario abre', diario.vazio || diario.botoes > 0, JSON.stringify(diario))
+conferir('tela do diario abre', diario.vazio || diario.itens > 0 || diario.botoes > 0, JSON.stringify(diario))
 
 // registra um alimento pela API para o feedback ter o que avaliar não é possível (HMAC), então só confere o endpoint
 console.log('\n[3] Endpoints')

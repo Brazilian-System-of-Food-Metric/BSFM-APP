@@ -1,34 +1,13 @@
 import { useState } from 'react'
 import { ErroApi, api } from './api.js'
 import CapturaMidia from './CapturaMidia.jsx'
-import { base64ParaBlob } from './ocr.js'
+import { Icone } from './Icones.jsx'
+import { base64ParaBlob, lerTexto } from './ocr.js'
+import { Anel, Selo, numero } from './ui.jsx'
 
-/* ============================================================================
-   Análise de rótulo nutricional.
-
-   Fluxo: foto → OCR no próprio navegador (Tesseract.js, carregado sob demanda)
-   → texto enviado ao servidor → o servidor normaliza a porção e devolve os
-   campos lidos → usuário confirma → vira registro no diário.
-
-   O OCR roda no cliente de propósito: a imagem não sai do aparelho.
-   ========================================================================== */
-
-let carregandoTesseract = null
-
-function carregarTesseract() {
-  if (window.Tesseract) return Promise.resolve(window.Tesseract)
-  if (carregandoTesseract) return carregandoTesseract
-
-  carregandoTesseract = new Promise((resolver, rejeitar) => {
-    const script = document.createElement('script')
-    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'
-    script.onload = () => (window.Tesseract ? resolver(window.Tesseract) : rejeitar(new Error('Tesseract indisponível')))
-    script.onerror = () => rejeitar(new Error('Falha ao carregar o motor de OCR'))
-    document.head.appendChild(script)
-  })
-
-  return carregandoTesseract
-}
+/* Análise de rótulo nutricional.
+   A imagem é lida no próprio aparelho (Tesseract.js, sob demanda); só o texto
+   extraído vai ao servidor, que normaliza a porção e devolve os campos. */
 
 export default function Rotulo({ avisar, aoRegistrar }) {
   const [etapa, setEtapa] = useState('captura')
@@ -36,6 +15,7 @@ export default function Rotulo({ avisar, aoRegistrar }) {
   const [status, setStatus] = useState('')
   const [texto, setTexto] = useState('')
   const [leitura, setLeitura] = useState(null)
+  const [avaliacao, setAvaliacao] = useState(null)
   const [nome, setNome] = useState('')
   const [salvando, setSalvando] = useState(false)
 
@@ -47,20 +27,11 @@ export default function Rotulo({ avisar, aoRegistrar }) {
     setStatus('Carregando motor de OCR…')
 
     try {
-      const Tesseract = await carregarTesseract()
-
-      const resultado = await Tesseract.recognize(arquivo, 'por', {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            setProgresso(Math.round((m.progress ?? 0) * 100))
-            setStatus('Lendo o rótulo…')
-          } else if (m.status) {
-            setStatus(m.status)
-          }
-        },
+      const extraido = await lerTexto(arquivo, (p, s) => {
+        setProgresso(p)
+        setStatus(s)
       })
 
-      const extraido = (resultado?.data?.text ?? '').trim()
       if (extraido.length < 10) {
         avisar('Não foi possível ler texto na imagem. Tente uma foto mais nítida.', 'erro')
         setEtapa('captura')
@@ -71,6 +42,20 @@ export default function Rotulo({ avisar, aoRegistrar }) {
       const resposta = await api.lerRotulo(extraido)
       setLeitura(resposta)
       setEtapa('resultado')
+
+      // Pontuação contextual: meta, consumo do dia e perfil de saúde vêm do servidor.
+      try {
+        const nota = await api.avaliar({
+          kcal: resposta.por100g.kcal ?? 0,
+          proteinas: resposta.por100g.proteina ?? 0,
+          carbos: resposta.por100g.carboidrato ?? 0,
+          gorduras: resposta.por100g.gordura ?? 0,
+          fibra: resposta.por100g.fibra ?? null,
+        })
+        setAvaliacao(nota)
+      } catch {
+        setAvaliacao(null)
+      }
     } catch (falha) {
       if (falha instanceof ErroApi) {
         avisar(falha.message, 'erro')
@@ -78,7 +63,6 @@ export default function Rotulo({ avisar, aoRegistrar }) {
         avisar('Falha no OCR. Verifique a conexão e tente novamente.', 'erro')
       }
       setEtapa('captura')
-    } finally {
     }
   }
 
@@ -92,13 +76,14 @@ export default function Rotulo({ avisar, aoRegistrar }) {
         proteinas: leitura.por100g.proteina ?? 0,
         carbos: leitura.por100g.carboidrato ?? 0,
         gorduras: leitura.por100g.gordura ?? 0,
+        fibra: leitura.por100g.fibra ?? null,
         porcao: '100g',
         origem: 'rotulo',
         confianca: leitura.confianca,
         modeloVersao: 'ocr-rotulo',
       })
       avisar('Rótulo registrado no diário')
-      aoRegistrar()
+      aoRegistrar?.()
     } catch (falha) {
       avisar(falha instanceof ErroApi ? falha.message : 'Falha ao registrar.', 'erro')
     } finally {
@@ -110,14 +95,20 @@ export default function Rotulo({ avisar, aoRegistrar }) {
     <div>
       {etapa === 'captura' && (
         <div className="cartao">
-          <div className="cartao-titulo">Foto do rótulo</div>
+          <div className="cartao-cabeca">
+            <div>
+              <span className="olho">Leitura local</span>
+              <h3>Foto do rótulo</h3>
+            </div>
+            <Selo tom="ok" icone="escudo">imagem não sai do aparelho</Selo>
+          </div>
           <p className="rodape-cartao" style={{ marginTop: 0 }}>
-            O texto é lido no seu aparelho (OCR local). A imagem não é enviada ao servidor —
-            só o texto extraído, para o cálculo.
+            Enquadre a tabela nutricional inteira, com boa luz. O OCR local roda no seu aparelho; só
+            o texto extraído é enviado para o cálculo.
           </p>
           <CapturaMidia
             titulo="Fotografar o rótulo"
-            descricao="Enquadre a tabela nutricional inteira, com boa luz."
+            descricao="Tabela nutricional inteira, sem reflexo."
             rotuloArquivo="Escolher imagem"
             aoArquivo={processarArquivo}
             aoBase64={(b) => processarArquivo(base64ParaBlob(b))}
@@ -125,52 +116,71 @@ export default function Rotulo({ avisar, aoRegistrar }) {
           />
         </div>
       )}
+
       {etapa === 'ocr' && (
         <div className="cartao">
-          <div className="cartao-titulo">Lendo o rótulo</div>
+          <div className="cartao-cabeca">
+            <div><span className="olho">OCR</span><h3>Lendo o rótulo</h3></div>
+            <span className="tag">{progresso}%</span>
+          </div>
           <div className="barra"><span style={{ width: `${progresso}%` }} /></div>
-          <div className="rodape-cartao" style={{ marginTop: 10 }}>{status} {progresso}%</div>
+          <p className="rodape-cartao" style={{ marginTop: 10 }}>{status || 'Preparando o motor…'}</p>
         </div>
       )}
 
       {etapa === 'resultado' && leitura && (
         <div className="cartao">
-          <div className="cartao-titulo">Valores encontrados</div>
-
-          <div className="acoes" style={{ marginBottom: 14 }}>
-            <span className={`tag ${leitura.confianca >= 0.75 ? 'tag-ok' : ''}`}>
+          <div className="cartao-cabeca">
+            <div><span className="olho">Revisão</span><h3>Valores encontrados</h3></div>
+            <Selo tom={leitura.confianca >= 0.75 ? 'ok' : 'aviso'}>
               confiança {Math.round(leitura.confianca * 100)}%
-            </span>
-            <span className="tag">porção {leitura.porcaoBaseG} g</span>
+            </Selo>
           </div>
 
           {leitura.aviso && (
-            <div className="erro" style={{ marginBottom: 14 }}>
-              Porção não identificada no rótulo — assumimos 100 g. Confira os valores.
+            <div className="callout" style={{ marginBottom: 14 }}>
+              <Icone nome="info" tamanho={16} />
+              <span>Porção não identificada no rótulo — assumimos 100 g. Confira os valores.</span>
             </div>
           )}
 
-          <table className="tabela" style={{ marginBottom: 16 }}>
-            <thead>
-              <tr><th>Nutriente</th><th style={{ textAlign: 'right' }}>Por 100 g</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Calorias</td><td className="num">{leitura.por100g.kcal ?? '—'} kcal</td></tr>
-              <tr><td>Proteína</td><td className="num">{leitura.por100g.proteina ?? '—'} g</td></tr>
-              <tr><td>Carboidrato</td><td className="num">{leitura.por100g.carboidrato ?? '—'} g</td></tr>
-              <tr><td>Gordura</td><td className="num">{leitura.por100g.gordura ?? '—'} g</td></tr>
-              <tr><td>Fibra</td><td className="num">{leitura.por100g.fibra ?? '—'} g</td></tr>
-              <tr><td>Sódio</td><td className="num">{leitura.por100g.sodio ?? '—'} mg</td></tr>
-            </tbody>
-          </table>
+          <div className="nutrientes">
+            <div className="nutriente nutriente-kcal">
+              <strong>{leitura.por100g.kcal ?? '—'}</strong>
+              <span>kcal</span>
+            </div>
+            <div className="nutriente"><strong>{leitura.por100g.proteina ?? '—'}</strong><span>proteína (g)</span></div>
+            <div className="nutriente"><strong>{leitura.por100g.carboidrato ?? '—'}</strong><span>carboidrato (g)</span></div>
+            <div className="nutriente"><strong>{leitura.por100g.gordura ?? '—'}</strong><span>gordura (g)</span></div>
+            <div className="nutriente"><strong>{leitura.por100g.fibra ?? '—'}</strong><span>fibra (g)</span></div>
+            <div className="nutriente"><strong>{leitura.por100g.sodio ?? '—'}</strong><span>sódio (mg)</span></div>
+          </div>
 
-          <div className="campo">
+          {avaliacao && (
+            <div className={`avaliacao avaliacao-${avaliacao.classificacao}`} style={{ marginTop: 4 }}>
+              <Anel pontuacao={avaliacao.pontuacao} tamanho={50} />
+              <div className="avaliacao-texto">
+                <div className="avaliacao-topo">
+                  <strong>{avaliacao.mensagem}</strong>
+                  <Selo tom={avaliacao.podeConsumir ? 'ok' : 'perigo'}>
+                    {avaliacao.podeConsumir ? 'pode consumir' : 'evitar'}
+                  </Selo>
+                </div>
+                <p className="rodape-cartao" style={{ marginTop: 2 }}>
+                  Valores por 100 g · meta de {numero(avaliacao.metaKcal)} kcal
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="campo" style={{ marginTop: 16 }}>
             <label htmlFor="nomeProduto">Nome do produto</label>
             <input
               id="nomeProduto"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               placeholder="Ex: Biscoito integral"
+              maxLength={200}
             />
           </div>
 
@@ -183,7 +193,7 @@ export default function Rotulo({ avisar, aoRegistrar }) {
             <button className="btn" onClick={registrar} disabled={salvando || !leitura.por100g.kcal}>
               {salvando ? 'Registrando…' : 'Registrar no diário'}
             </button>
-            <button className="btn btn-fantasma" onClick={() => { setEtapa('captura'); setLeitura(null) }}>
+            <button className="btn btn-fantasma" onClick={() => { setEtapa('captura'); setLeitura(null); setAvaliacao(null) }}>
               Nova foto
             </button>
           </div>

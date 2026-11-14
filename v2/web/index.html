@@ -1,18 +1,18 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-tema="claro">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="BSFM — acompanhe calorias, água e evolução nutricional." />
+    <meta name="description" content="BSFM — registre refeições, acompanhe calorias, água e evolução corporal com a tabela TACO." />
 
     <!-- PWA: instalável no celular e no desktop -->
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#0d1411" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#f3f5f0" />
+    <meta name="color-scheme" content="light dark" />
 
-    <!-- iOS: sem suporte a manifest em versões antigas, mas estes metas funcionam -->
+    <!-- iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="BSFM" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 
@@ -20,10 +20,18 @@
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
 
     <title>BSFM · Nutrição</title>
+
+    <!-- Evita o flash de tema errado antes do React montar. -->
+    <script>
+      try {
+        document.documentElement.dataset.tema = localStorage.getItem('bsfm.tema') || 'claro'
+      } catch (_) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
     <!-- Libras: widget oficial do governo, mesmo recurso da versão anterior. -->
     <div vw class="enabled">
       <div vw-access-button class="active"></div>

@@ -21,9 +21,9 @@ await avaliar(`sessionStorage.clear(); location.reload()`); await espera(2500)
 const r = JSON.parse(await avaliar(`JSON.stringify({
   secao: !!document.querySelector('#telas'),
   link: [...document.querySelectorAll('.landing-nav a')].some(a => a.getAttribute('href') === '#telas'),
-  capturas: document.querySelectorAll('.captura img').length,
-  quebradas: [...document.querySelectorAll('.captura img')].filter(i => i.complete && i.naturalWidth === 0).length,
-  legenda: document.body.textContent.includes('Todas as telas abaixo são do app em produção')
+  capturas: document.querySelectorAll('.tela-demo img').length,
+  quebradas: [...document.querySelectorAll('.tela-demo img')].filter(i => i.complete && i.naturalWidth === 0).length,
+  legenda: document.body.textContent.includes('Capturas reais do aplicativo em produção')
 })`))
 conferir('seção "Veja o app" presente', r.secao)
 conferir('link Telas no menu', r.link)

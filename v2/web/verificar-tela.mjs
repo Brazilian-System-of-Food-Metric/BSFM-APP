@@ -98,10 +98,10 @@ try {
 
   const painel = JSON.parse(
     await avaliar(`JSON.stringify({
-      aba: document.querySelector('.topo h2')?.textContent,
-      usuario: document.querySelector('.usuario .nome')?.textContent,
-      cards: document.querySelectorAll('.card').length,
-      valores: [...document.querySelectorAll('.card-valor')].map(e => e.textContent.trim()),
+      aba: document.querySelector('.topo h1')?.textContent,
+      usuario: document.querySelector('.chip-usuario .nome')?.textContent,
+      cards: document.querySelectorAll('.cartao').length,
+      valores: [...document.querySelectorAll('.valor-simples')].map(e => e.textContent.trim()),
       erro: document.querySelector('.erro')?.textContent ?? null
     })`),
   )

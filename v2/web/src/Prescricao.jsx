@@ -1,14 +1,21 @@
 import { useRef, useState } from 'react'
 import { ErroApi, api } from './api.js'
+import { Icone } from './Icones.jsx'
 import { lerTexto } from './ocr.js'
+import { Selo, numero } from './ui.jsx'
 
-/* ============================================================================
-   Importação de prescrição nutricional.
-   Foto → OCR local → o servidor recorta as refeições → o usuário escolhe o dia
-   e confirma. Nada é salvo sem revisão.
-   ========================================================================== */
+/* Importação de prescrição nutricional.
+   Foto → OCR local → o servidor recorta as refeições → revisão → salvar. */
 
-const DIAS = ['Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado', 'Domingo']
+const DIAS = [
+  ['Segunda', 'Segunda'],
+  ['Terca', 'Terça'],
+  ['Quarta', 'Quarta'],
+  ['Quinta', 'Quinta'],
+  ['Sexta', 'Sexta'],
+  ['Sabado', 'Sábado'],
+  ['Domingo', 'Domingo'],
+]
 
 export default function Prescricao({ avisar, aoImportar }) {
   const [etapa, setEtapa] = useState('inicial')
@@ -89,69 +96,88 @@ export default function Prescricao({ avisar, aoImportar }) {
 
   if (etapa === 'inicial') {
     return (
-      <div className="cartao" style={{ marginBottom: 14 }}>
-        <div className="cartao-titulo">Importar prescrição</div>
+      <div className="cartao">
+        <div className="cartao-cabeca">
+          <div>
+            <span className="olho">Atalho</span>
+            <h3>Importar prescrição</h3>
+          </div>
+          <Selo tom="neutro" icone="foto">OCR local</Selo>
+        </div>
         <p className="rodape-cartao" style={{ marginTop: 0 }}>
-          Foto do plano alimentar impresso. O texto é lido no seu aparelho e o servidor
-          separa as refeições — você revisa antes de salvar.
+          Tem o plano alimentar impresso? Fotografe. O texto é lido no seu aparelho, o servidor separa
+          as refeições e você revisa antes de salvar.
         </p>
+
         <input
           ref={arquivoRef}
+          id="arquivoPrescricao"
           type="file"
           accept="image/png,image/jpeg,image/webp"
           onChange={processar}
-          style={{ marginTop: 10 }}
-          aria-label="Foto da prescrição nutricional"
+          hidden
         />
+        <button className="btn btn-fantasma" onClick={() => arquivoRef.current?.click()}>
+          <Icone nome="foto" tamanho={17} /> Escolher foto da prescrição
+        </button>
       </div>
     )
   }
 
   if (etapa === 'ocr') {
     return (
-      <div className="cartao" style={{ marginBottom: 14 }}>
-        <div className="cartao-titulo">Lendo a prescrição</div>
+      <div className="cartao">
+        <div className="cartao-cabeca">
+          <div><span className="olho">OCR</span><h3>Lendo a prescrição</h3></div>
+          <span className="tag">{progresso}%</span>
+        </div>
         <div className="barra"><span style={{ width: `${progresso}%` }} /></div>
-        <div className="rodape-cartao" style={{ marginTop: 10 }}>{status} {progresso}%</div>
+        <p className="rodape-cartao" style={{ marginTop: 10 }}>{status || 'Preparando…'}</p>
       </div>
     )
   }
 
+  const totalSelecionadas = Object.values(selecionadas).filter(Boolean).length
+
   return (
-    <div className="cartao" style={{ marginBottom: 14 }}>
-      <div className="cartao-titulo">Revisar importação</div>
+    <div className="cartao">
+      <div className="cartao-cabeca">
+        <div><span className="olho">Revisão</span><h3>Refeições encontradas</h3></div>
+        <span className="tag">{totalSelecionadas} de {refeicoes.length}</span>
+      </div>
 
       <div className="campo">
         <label htmlFor="diaImport">Adicionar ao dia</label>
         <select id="diaImport" value={dia} onChange={(e) => setDia(e.target.value)}>
-          {DIAS.map((d) => <option key={d} value={d}>{d}</option>)}
+          {DIAS.map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}
         </select>
       </div>
 
       <ul className="lista" style={{ marginBottom: 14 }}>
-        {refeicoes.map((refeicao, indice) => (
-          <li className="item" key={indice}>
-            <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={Boolean(selecionadas[indice])}
-                onChange={(e) => setSelecionadas((s) => ({ ...s, [indice]: e.target.checked }))}
-                style={{ marginTop: 3 }}
-              />
-              <span>
-                <span className="item-titulo">{refeicao.nome}</span>
-                <span className="item-meta" style={{ display: 'block' }}>
-                  {refeicao.itens.map((i) => i.descricao).join(' · ')}
+        {refeicoes.map((refeicao, indice) => {
+          const kcal = refeicao.itens.reduce((s, i) => s + (i.kcal ?? 0), 0)
+          return (
+            <li className="item" key={`${refeicao.nome}-${indice}`}>
+              <label className="item-check">
+                <input
+                  type="checkbox"
+                  checked={Boolean(selecionadas[indice])}
+                  onChange={(e) => setSelecionadas((s) => ({ ...s, [indice]: e.target.checked }))}
+                />
+                <span>
+                  <span className="item-titulo">{refeicao.nome}</span>
+                  <span className="item-meta">{refeicao.itens.map((i) => i.descricao).join(' · ')}</span>
                 </span>
-              </span>
-            </label>
-          </li>
-        ))}
+              </label>
+              <span className="etiqueta-kcal">{kcal > 0 ? `${numero(kcal)} kcal` : 'sem kcal'}</span>
+            </li>
+          )
+        })}
       </ul>
 
       <div className="acoes">
-        <button className="btn" onClick={importar} disabled={salvando}>
-          {salvando ? 'Importando…' : 'Adicionar ao plano'}
+        <button className="btn" onClick={importar} disabled={salvando || totalSelecionadas === 0}>
+          {salvando ? 'Importando…' : `Adicionar ${totalSelecionadas} ao plano`}
         </button>
         <button className="btn btn-fantasma" onClick={() => { setEtapa('inicial'); setRefeicoes([]) }}>
           Cancelar

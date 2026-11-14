@@ -34,6 +34,44 @@ public sealed class AnalisesController : ControllerBase
     private int UsuarioId => HttpContext.UsuarioId();
 
     // -----------------------------------------------------------------------
+    // Contexto do feedback: meta ativa, consumo do dia e perfil de saúde.
+    // Vem do banco, nunca do corpo da requisição — é o "injetor de contexto"
+    // que a v1 tinha no servidor e que faltava aqui.
+    private async Task<(Usuario? Usuario, double MetaKcal, double ConsumidoKcal)> ContextoAsync(CancellationToken ct)
+    {
+        var usuario = await _db.Usuarios.AsNoTracking()
+            .SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);
+
+        if (usuario is null)
+            return (null, 0, 0);
+
+        var meta = await _db.Metas.AsNoTracking()
+            .Where(m => m.UsuarioId == UsuarioId && m.Ativa)
+            .OrderByDescending(m => m.CriadoEm)
+            .Select(m => (double?)m.CaloriasAlvo)
+            .FirstOrDefaultAsync(ct);
+
+        var inicio = DateTime.UtcNow.Date;
+        var consumido = await _db.AnalisesIA.AsNoTracking()
+            .Where(a => a.UsuarioID == UsuarioId && a.DataAnalise >= inicio)
+            .SumAsync(a => (double?)a.Calorias, ct) ?? 0;
+
+        var metaKcal = meta is > 0
+            ? meta.Value
+            : (usuario.GastoTotal > 0 ? usuario.GastoTotal : 2000);
+
+        return (usuario, metaKcal, consumido);
+    }
+
+    private static BSFM.Nutricao.AnalisadorRefeicao.Resultado Avaliar(
+        Usuario usuario, double metaKcal, double consumido,
+        double kcal, double proteina, double carbo, double gordura, double? fibra)
+        => BSFM.Nutricao.AnalisadorRefeicao.Avaliar(
+            new BSFM.Nutricao.AnalisadorRefeicao.Entrada(
+                kcal, proteina, carbo, gordura, fibra, metaKcal, consumido,
+                usuario.Diabetes, usuario.Intolerancia));
+
+    // -----------------------------------------------------------------------
     [HttpGet]
     public async Task<IActionResult> Listar([FromQuery] int limite = 30, CancellationToken ct = default)
     {
@@ -88,6 +126,14 @@ public sealed class AnalisesController : ControllerBase
             });
         }
 
+        var contexto = await ContextoAsync(ct);
+        if (contexto.Usuario is null)
+            return NotFound(new { erro = "usuario_inexistente" });
+
+        var avaliacao = Avaliar(contexto.Usuario, contexto.MetaKcal, contexto.ConsumidoKcal,
+            entrada.Calorias ?? 0, entrada.Proteinas ?? 0, entrada.Carbos ?? 0,
+            entrada.Gorduras ?? 0, entrada.Fibra);
+
         var analise = new AnaliseIA
         {
             UsuarioID = UsuarioId,
@@ -98,10 +144,11 @@ public sealed class AnalisesController : ControllerBase
             Gorduras = entrada.Gorduras ?? 0,
             Porcao = (entrada.Porcao ?? "100g").Trim(),
             DataAnalise = DateTime.UtcNow,
-            PodeConsumir = entrada.PodeConsumir,
-            PontuacaoSaude = entrada.PontuacaoSaude ?? 0,
-            AnaliseEmRelacaoAMeta = entrada.AnaliseEmRelacaoAMeta ?? string.Empty,
-            DicaBSFM = entrada.DicaBSFM ?? string.Empty,
+            // Pontuação é do servidor: o cliente não decide a própria nota.
+            PodeConsumir = avaliacao.Classificacao != "evitar",
+            PontuacaoSaude = avaliacao.Pontuacao,
+            AnaliseEmRelacaoAMeta = avaliacao.Mensagem,
+            DicaBSFM = avaliacao.Dicas.FirstOrDefault() ?? string.Empty,
             Confianca = entrada.Confianca,
             ModeloVersao = entrada.ModeloVersao,
             ImagemHash = entrada.ImagemHash,
@@ -148,6 +195,14 @@ public sealed class AnalisesController : ControllerBase
                 }),
             });
 
+        var contexto = await ContextoAsync(ct);
+        if (contexto.Usuario is null)
+            return NotFound(new { erro = "usuario_inexistente" });
+
+        var avaliacao = Avaliar(contexto.Usuario, contexto.MetaKcal, contexto.ConsumidoKcal,
+            resultado.NaPorcao!.Kcal, resultado.NaPorcao.Proteina, resultado.NaPorcao.Carboidrato,
+            resultado.NaPorcao.Gordura, resultado.NaPorcao.Fibra);
+
         var analise = new AnaliseIA
         {
             UsuarioID = UsuarioId,
@@ -158,6 +213,10 @@ public sealed class AnalisesController : ControllerBase
             Gorduras = resultado.NaPorcao.Gordura,
             Porcao = $"{resultado.Gramas:F0}g",
             DataAnalise = DateTime.UtcNow,
+            PodeConsumir = avaliacao.Classificacao != "evitar",
+            PontuacaoSaude = avaliacao.Pontuacao,
+            AnaliseEmRelacaoAMeta = avaliacao.Mensagem,
+            DicaBSFM = avaliacao.Dicas.FirstOrDefault() ?? string.Empty,
             Confianca = resultado.PontuacaoBusca,
             ModeloVersao = "catalogo-taco",
             Origem = string.IsNullOrWhiteSpace(entrada.Origem) ? "catalogo" : entrada.Origem!,
@@ -176,6 +235,50 @@ public sealed class AnalisesController : ControllerBase
             analise.Gorduras, analise.Porcao, analise.DataAnalise, analise.PodeConsumir,
             analise.PontuacaoSaude, analise.AnaliseEmRelacaoAMeta, analise.DicaBSFM,
             analise.Confianca, analise.ModeloVersao, analise.Origem));
+    }
+
+    // -----------------------------------------------------------------------
+    /// <summary>
+    /// Avalia uma refeição com o contexto de quem está logado — meta calórica,
+    /// consumo do dia, diabetes e intolerância — sem gravar nada.
+    ///
+    /// É o mesmo motor usado ao registrar, exposto para o preview da análise e
+    /// para reavaliar itens antigos do diário. O cliente manda só os macros;
+    /// o contexto é lido do banco.
+    /// </summary>
+    [HttpPost("avaliar")]
+    public async Task<IActionResult> AvaliarRefeicao([FromBody] AvaliacaoEntrada entrada, CancellationToken ct)
+    {
+        if (entrada.Kcal is < 0 or > 5000
+            || entrada.Proteinas is < 0 or > 500
+            || entrada.Carbos is < 0 or > 500
+            || entrada.Gorduras is < 0 or > 500
+            || entrada.Fibra is < 0 or > 500)
+            return BadRequest(new { erro = "valores_invalidos" });
+
+        var contexto = await ContextoAsync(ct);
+        if (contexto.Usuario is null)
+            return NotFound(new { erro = "usuario_inexistente" });
+
+        var avaliacao = Avaliar(contexto.Usuario, contexto.MetaKcal, contexto.ConsumidoKcal,
+            entrada.Kcal ?? 0, entrada.Proteinas ?? 0, entrada.Carbos ?? 0,
+            entrada.Gorduras ?? 0, entrada.Fibra);
+
+        return Ok(new
+        {
+            classificacao = avaliacao.Classificacao,
+            pontuacao = avaliacao.Pontuacao,
+            mensagem = avaliacao.Mensagem,
+            dicas = avaliacao.Dicas,
+            podeConsumir = avaliacao.Classificacao != "evitar",
+            metaKcal = Math.Round(contexto.MetaKcal),
+            consumidoKcal = Math.Round(contexto.ConsumidoKcal),
+            perfil = new
+            {
+                diabetes = contexto.Usuario.Diabetes,
+                intolerancia = contexto.Usuario.Intolerancia,
+            },
+        });
     }
 
     // -----------------------------------------------------------------------
