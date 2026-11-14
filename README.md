@@ -124,6 +124,9 @@ node verificar-tela.mjs http://127.0.0.1:5100 http://localhost:4173 tela
 | `BSFM_HMAC_SECRET` | **sim** | — (mín. 32 bytes) | deriva a chave por sessão; também é o segredo mestre |
 | `DATABASE_URL` | **sim em produção** | SQLite local | Postgres (Neon/Railway) |
 | `PORT` | sim (Render injeta) | `5100` | porta HTTP |
+| `BREVO_API_KEY` | **sim em produção** | vazio | envio do código de verificação por e-mail (sem ela, o código só aparece no log) |
+| `BSFM_EMAIL_REMETENTE` | não | `brazilian.sfm@gmail.com` | remetente verificado no Brevo |
+| `BSFM_EMAIL_NOME` | não | `Portal BSFM` | nome do remetente |
 | `BSFM_GEMINI_API_KEY` | não | vazio | reconhecimento de alimento por imagem |
 | `BSFM_GEMINI_MODEL` | não | `gemini-2.5-flash` | modelo de visão |
 | `BSFM_ORIGENS_PERMITIDAS` | não | `localhost:5173/4173` | CORS explícito |
@@ -161,6 +164,8 @@ As migrations da v2 são **aditivas**: criam `Sessoes`, `RefreshTokens`, `Audito
 
 | Método | Rota | Autenticação |
 |---|---|---|
+| `POST` | `/api/auth/cadastrar` | pública |
+| `POST` | `/api/auth/verificar-email` | código TOTP |
 | `POST` | `/api/auth/login` | pública |
 | `POST` | `/api/auth/refresh` | refresh token |
 | `POST` | `/api/auth/logout` | refresh token |

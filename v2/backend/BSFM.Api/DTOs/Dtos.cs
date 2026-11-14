@@ -73,3 +73,17 @@ public sealed record SessaoSaida(
     DateTime ExpiraEm,
     DateTime? UltimoUsoEm,
     string? RevogadaMotivo);
+
+public sealed record CadastroEntrada(
+    string? Nome,
+    string? Email,
+    string? Senha,
+    bool? AceitouTermos,
+    string? VersaoTermos,
+    DateTime? DataNascimento,
+    string? Sexo,
+    double? Peso,
+    double? Altura,
+    string? NivelAtividade);
+
+public sealed record VerificarEmailEntrada(string? Email, string? Codigo);

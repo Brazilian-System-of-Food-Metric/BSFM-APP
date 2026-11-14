@@ -240,6 +240,138 @@ public sealed class AuthController : ControllerBase
     }
 
     // -----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    /// <summary>
+    /// Cria a conta. É a rota que faltava: sem ela, o front não tinha como
+    /// cadastrar ninguém e o usuário via 404.
+    ///
+    /// A senha é gravada em PBKDF2; o e-mail só é considerado verificado depois
+    /// do código. O cadastro registra consentimento LGPD versionado.
+    /// </summary>
+    [HttpPost("cadastrar")]
+    public async Task<IActionResult> Cadastrar([FromBody] CadastroEntrada entrada, CancellationToken ct)
+    {
+        var ipHash = ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString());
+
+        var nome = (entrada.Nome ?? string.Empty).Trim();
+        var email = (entrada.Email ?? string.Empty).Trim().ToLowerInvariant();
+        var senha = entrada.Senha ?? string.Empty;
+
+        if (nome.Length < 3 || nome.Length > 200)
+            return BadRequest(new { erro = "nome_invalido" });
+
+        if (!EmailValido(email))
+            return BadRequest(new { erro = "email_invalido" });
+
+        if (senha.Length < 8 || senha.Length > 256)
+            return BadRequest(new { erro = "senha_invalida", minimo = 8 });
+
+        if (entrada.AceitouTermos != true)
+            return BadRequest(new { erro = "termos_nao_aceitos" });
+
+        if (entrada.Peso is <= 0 or > 500)
+            return BadRequest(new { erro = "peso_invalido" });
+
+        if (entrada.Altura is <= 0 or > 3)
+            return BadRequest(new { erro = "altura_invalida" });
+
+        var existente = await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == email, ct);
+        if (existente)
+        {
+            await _auditoria.RegistrarAsync("cadastro_recusado", null, "Usuario", null,
+                "{\"motivo\":\"email_em_uso\"}", ipHash, ct);
+            return Conflict(new { erro = "email_ja_cadastrado" });
+        }
+
+        var agora = DateTime.UtcNow;
+        var versaoTermos = string.IsNullOrWhiteSpace(entrada.VersaoTermos) ? "1.0" : entrada.VersaoTermos!;
+
+        var usuario = new Usuario
+        {
+            Nome = nome,
+            Email = email,
+            SenhaHash = SenhaHasher.Gerar(senha),
+            SenhaAtualizadaEm = agora,
+            EmailVerificado = false,
+            AceitouTermos = true,
+            DataAceite = agora,
+            VersaoTermos = versaoTermos,
+            Sexo = string.IsNullOrWhiteSpace(entrada.Sexo) ? "Não Informado" : entrada.Sexo!,
+            TipoPessoa = string.IsNullOrWhiteSpace(entrada.NivelAtividade) ? "Sedentário" : entrada.NivelAtividade!,
+            Peso = entrada.Peso ?? 0,
+            Altura = entrada.Altura ?? 0,
+            DataNascimento = entrada.DataNascimento,
+            TotpSegredo = Totp.GerarSegredo(),
+            TotpHabilitado = false,
+            CriadoEm = agora,
+        };
+
+        usuario.IMC = CalculadoraNutricional.CalcularImc(usuario.Peso, usuario.Altura);
+        usuario.TMB = CalculadoraNutricional.CalcularTmb(usuario.Sexo, usuario.Peso, usuario.Altura, usuario.CalcularIdade());
+        usuario.GastoTotal = CalculadoraNutricional.CalcularGastoTotal(usuario.TipoPessoa, usuario.TMB);
+
+        _db.Usuarios.Add(usuario);
+        await _db.SaveChangesAsync(ct);
+
+        _db.ConsentimentosLGPD.Add(new ConsentimentoLGPD
+        {
+            UsuarioId = usuario.ID,
+            Finalidade = "dados_saude",
+            VersaoTermo = versaoTermos,
+            Concedido = true,
+            DataHora = agora,
+            IpHash = ipHash,
+            Origem = "cadastro",
+        });
+        await _db.SaveChangesAsync(ct);
+
+        await _auditoria.RegistrarAsync("conta_criada", usuario.ID, "Usuario", usuario.ID.ToString(),
+            null, ipHash, ct);
+
+        // Código de verificação: enviado pelo Brevo quando configurado.
+        var codigo = Totp.GerarCodigo(usuario.TotpSegredo!);
+        await _enviador.EnviarAsync(usuario.Email, codigo, ct);
+
+        return StatusCode(StatusCodes.Status201Created, new
+        {
+            id = usuario.ID,
+            nome = usuario.Nome,
+            email = usuario.Email,
+            emailVerificado = false,
+            mensagem = "Conta criada. Enviamos um código de verificação para o seu e-mail.",
+        });
+    }
+
+    // -----------------------------------------------------------------------
+    [HttpPost("verificar-email")]
+    public async Task<IActionResult> VerificarEmail([FromBody] VerificarEmailEntrada entrada, CancellationToken ct)
+    {
+        var email = (entrada.Email ?? string.Empty).Trim().ToLowerInvariant();
+
+        var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.Email.ToLower() == email, ct);
+        if (usuario is null)
+            return BadRequest(new { erro = "codigo_invalido" });
+
+        if (!Totp.Verificar(usuario.TotpSegredo ?? string.Empty, entrada.Codigo))
+            return BadRequest(new { erro = "codigo_invalido" });
+
+        usuario.EmailVerificado = true;
+        usuario.AtualizadoEm = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+
+        await _auditoria.RegistrarAsync("email_verificado", usuario.ID, "Usuario", usuario.ID.ToString(),
+            null, ServicoSessao.HashIp(HttpContext.Connection.RemoteIpAddress?.ToString()), ct);
+
+        return Ok(new { mensagem = "E-mail verificado.", emailVerificado = true });
+    }
+
+    private static bool EmailValido(string email)
+    {
+        if (email.Length < 5 || email.Length > 320) return false;
+        var arroba = email.IndexOf('@');
+        return arroba > 0 && arroba < email.Length - 3 && email.IndexOf('.', arroba) > arroba;
+    }
+
     private IActionResult RespostaCredenciaisInvalidas()
         => Unauthorized(new { erro = "credenciais_invalidas" });
 

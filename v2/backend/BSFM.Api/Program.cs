@@ -67,7 +67,32 @@ builder.Services.AddScoped(sp =>
 
 builder.Services.AddScoped<ServicoSessao>();
 builder.Services.AddScoped<ServicoAuditoria>();
-builder.Services.AddSingleton<IEnviadorCodigo, EnviadorCodigoConsole>();
+// Envio de código: Brevo quando há chave; console em desenvolvimento.
+// Sem a chave em produção, o sintoma é "o código não chegou" — por isso o
+// enviador de console registra um aviso explícito.
+var brevoApiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
+var emailRemetente = Environment.GetEnvironmentVariable("BSFM_EMAIL_REMETENTE") ?? "brazilian.sfm@gmail.com";
+var emailRemetenteNome = Environment.GetEnvironmentVariable("BSFM_EMAIL_NOME") ?? "Portal BSFM";
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddSingleton<IEnviadorCodigo>(sp =>
+{
+    if (!string.IsNullOrWhiteSpace(brevoApiKey))
+    {
+        return new EnviadorCodigoBrevo(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(EnviadorCodigoBrevo)),
+            brevoApiKey, emailRemetente, emailRemetenteNome,
+            sp.GetRequiredService<ILogger<EnviadorCodigoBrevo>>());
+    }
+
+    var aviso = sp.GetRequiredService<ILoggerFactory>().CreateLogger("Email");
+    aviso.LogWarning(
+        "BREVO_API_KEY ausente: códigos de verificação vão apenas para o console. " +
+        "Configure a variável no serviço para enviar e-mail de verdade.");
+
+    return new EnviadorCodigoConsole(sp.GetRequiredService<ILogger<EnviadorCodigoConsole>>());
+});
 
 // ---------------------------------------------------------------------------
 // Reconhecimento de alimento por imagem.

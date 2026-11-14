@@ -124,6 +124,11 @@ export const api = {
   login: (email, senha) =>
     requisitar('POST', '/api/auth/login', { email, senha }, { autenticado: false }),
 
+  cadastrar: (dados) => requisitar('POST', '/api/auth/cadastrar', dados, { autenticado: false }),
+
+  verificarEmail: (email, codigo) =>
+    requisitar('POST', '/api/auth/verificar-email', { email, codigo }, { autenticado: false }),
+
   logout: () =>
     requisitar('POST', '/api/auth/logout', { refreshToken: sessao.refreshToken }, { autenticado: false }),
 

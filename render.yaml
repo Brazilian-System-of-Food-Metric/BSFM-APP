@@ -59,6 +59,14 @@ services:
       # Mesmo Postgres (Neon) da v1. As migrations da v2 são aditivas.
       - key: DATABASE_URL
         sync: false
+      # E-mail transacional (Brevo). Sem a chave, o código de verificação vai
+      # apenas para o log — o usuário não recebe nada.
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BSFM_EMAIL_REMETENTE
+        value: brazilian.sfm@gmail.com
+      - key: BSFM_EMAIL_NOME
+        value: Portal BSFM
       # Visão multimodal (opcional). Sem a chave, o app responde 503 com motivo
       # e a busca por nome continua funcionando.
       - key: BSFM_GEMINI_API_KEY

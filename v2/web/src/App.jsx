@@ -20,9 +20,9 @@ const numero = (valor, casas = 0) =>
 
 /* --------------------------------------------------------------- Entrar --- */
 
-function Entrar({ aoEntrar }) {
-  const [email, setEmail] = useState('ana@bsfm.dev')
-  const [senha, setSenha] = useState('SenhaForte#2026')
+function Entrar({ aoEntrar, aoCriarConta }) {
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
 
@@ -84,6 +84,214 @@ function Entrar({ aoEntrar }) {
 
         <button className="btn btn-bloco" type="submit" disabled={carregando}>
           {carregando ? 'Entrando…' : 'Entrar'}
+        </button>
+
+        <button
+          type="button"
+          className="btn btn-fantasma btn-bloco"
+          style={{ marginTop: 10 }}
+          onClick={aoCriarConta}
+        >
+          Criar conta
+        </button>
+      </form>
+    </div>
+  )
+}
+
+/* --------------------------------------------------------------- Cadastro --- */
+
+function Cadastro({ aoEntrar, aoVoltar }) {
+  const [form, setForm] = useState({
+    nome: '',
+    email: '',
+    senha: '',
+    peso: '',
+    altura: '',
+    sexo: 'Feminino',
+    nivelAtividade: 'Sedentario',
+    aceitouTermos: false,
+  })
+  const [erro, setErro] = useState('')
+  const [carregando, setCarregando] = useState(false)
+  const [codigo, setCodigo] = useState('')
+  const [etapa, setEtapa] = useState('dados')
+  const [aviso, setAviso] = useState('')
+
+  const atualizar = (campo) => (evento) => {
+    const valor = campo === 'aceitouTermos' ? evento.target.checked : evento.target.value
+    setForm((atual) => ({ ...atual, [campo]: valor }))
+  }
+
+  async function criar(evento) {
+    evento.preventDefault()
+    setErro('')
+    setCarregando(true)
+
+    try {
+      await api.cadastrar({
+        nome: form.nome.trim(),
+        email: form.email.trim(),
+        senha: form.senha,
+        peso: Number(form.peso) || null,
+        altura: Number(form.altura) || null,
+        sexo: form.sexo,
+        nivelAtividade: form.nivelAtividade,
+        aceitouTermos: form.aceitouTermos,
+        versaoTermos: '1.0',
+      })
+
+      setEtapa('verificar')
+      setAviso('Conta criada. Enviamos um código de 6 dígitos para o seu e-mail.')
+    } catch (falha) {
+      const mensagem =
+        falha?.corpo?.erro === 'email_ja_cadastrado'
+          ? 'Este e-mail já tem conta. Tente entrar.'
+          : falha instanceof ErroApi
+            ? falha.message
+            : 'Não foi possível criar a conta.'
+      setErro(mensagem)
+    } finally {
+      setCarregando(false)
+    }
+  }
+
+  async function verificar(evento) {
+    evento.preventDefault()
+    setErro('')
+    setCarregando(true)
+
+    try {
+      await api.verificarEmail(form.email.trim(), codigo.trim())
+      const dados = await api.login(form.email.trim(), form.senha)
+      sessao.definir(dados)
+      aoEntrar(dados.usuario)
+    } catch (falha) {
+      setErro(
+        falha?.corpo?.erro === 'codigo_invalido'
+          ? 'Código inválido ou expirado. Confira o e-mail.'
+          : falha instanceof ErroApi
+            ? falha.message
+            : 'Não foi possível verificar.',
+      )
+    } finally {
+      setCarregando(false)
+    }
+  }
+
+  return (
+    <div className="login">
+      <form className="login-card" onSubmit={etapa === 'dados' ? criar : verificar}>
+        <div className="marca">
+          <div className="marca-simbolo">BS</div>
+          <div>
+            <div className="marca-nome">BSFM</div>
+            <div className="marca-tag">Métricas nutricionais</div>
+          </div>
+        </div>
+
+        <h1>{etapa === 'dados' ? 'Criar conta' : 'Verificar e-mail'}</h1>
+        <p className="sub">
+          {etapa === 'dados'
+            ? 'Leva menos de um minuto. O IMC e o gasto calórico são calculados no servidor.'
+            : aviso}
+        </p>
+
+        {erro && <div className="erro" role="alert">{erro}</div>}
+        {etapa === 'verificar' && !erro && <div className="sucesso">{aviso}</div>}
+
+        {etapa === 'dados' ? (
+          <>
+            <div className="campo">
+              <label htmlFor="nome">Nome completo</label>
+              <input id="nome" value={form.nome} onChange={atualizar('nome')} required minLength={3} />
+            </div>
+
+            <div className="campo">
+              <label htmlFor="email-cadastro">E-mail</label>
+              <input id="email-cadastro" type="email" value={form.email} onChange={atualizar('email')} required />
+            </div>
+
+            <div className="campo">
+              <label htmlFor="senha-cadastro">Senha (mínimo 8 caracteres)</label>
+              <input
+                id="senha-cadastro"
+                type="password"
+                value={form.senha}
+                onChange={atualizar('senha')}
+                required
+                minLength={8}
+                autoComplete="new-password"
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <div className="campo" style={{ flex: 1 }}>
+                <label htmlFor="peso">Peso (kg)</label>
+                <input id="peso" type="number" step="0.1" value={form.peso} onChange={atualizar('peso')} />
+              </div>
+              <div className="campo" style={{ flex: 1 }}>
+                <label htmlFor="altura">Altura (m)</label>
+                <input id="altura" type="number" step="0.01" value={form.altura} onChange={atualizar('altura')} />
+              </div>
+            </div>
+
+            <div className="campo">
+              <label htmlFor="sexo">Sexo</label>
+              <select id="sexo" value={form.sexo} onChange={atualizar('sexo')}>
+                <option>Feminino</option>
+                <option>Masculino</option>
+              </select>
+            </div>
+
+            <div className="campo">
+              <label htmlFor="atividade">Nível de atividade</label>
+              <select id="atividade" value={form.nivelAtividade} onChange={atualizar('nivelAtividade')}>
+                <option value="Sedentario">Sedentário</option>
+                <option value="Ativo">Ativo</option>
+                <option value="Muito Ativo">Muito ativo</option>
+              </select>
+            </div>
+
+            <label
+              style={{ display: 'flex', gap: 8, alignItems: 'flex-start', fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}
+            >
+              <input
+                type="checkbox"
+                checked={form.aceitouTermos}
+                onChange={atualizar('aceitouTermos')}
+                style={{ marginTop: 3 }}
+              />
+              Autorizo o tratamento dos meus dados de saúde para cálculo nutricional (LGPD).
+            </label>
+
+            <button className="btn btn-bloco" type="submit" disabled={carregando || !form.aceitouTermos}>
+              {carregando ? 'Criando…' : 'Criar conta'}
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="campo">
+              <label htmlFor="codigo">Código de 6 dígitos</label>
+              <input
+                id="codigo"
+                inputMode="numeric"
+                maxLength={6}
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
+                required
+                autoFocus
+              />
+            </div>
+
+            <button className="btn btn-bloco" type="submit" disabled={carregando || codigo.length !== 6}>
+              {carregando ? 'Verificando…' : 'Verificar e entrar'}
+            </button>
+          </>
+        )}
+
+        <button type="button" className="btn btn-fantasma btn-bloco" style={{ marginTop: 10 }} onClick={aoVoltar}>
+          Já tenho conta
         </button>
       </form>
     </div>
@@ -564,6 +772,7 @@ const ABAS = [
 
 function App() {
   const [usuario, setUsuario] = useState(null)
+  const [modoAcesso, setModoAcesso] = useState('entrar')
   const [aba, setAba] = useState('painel')
   const [versao, setVersao] = useState(0)
   const [mensagem, setMensagem] = useState(null)
@@ -587,12 +796,20 @@ function App() {
   }, [])
 
   if (!usuario && !sessao.ativa) {
-    return <Entrar aoEntrar={(dados) => setUsuario(dados)} />
+    return modoAcesso === 'cadastro' ? (
+      <Cadastro aoEntrar={(dados) => setUsuario(dados)} aoVoltar={() => setModoAcesso('entrar')} />
+    ) : (
+      <Entrar
+        aoEntrar={(dados) => setUsuario(dados)}
+        aoCriarConta={() => setModoAcesso('cadastro')}
+      />
+    )
   }
 
   function sair() {
     sessao.limpar()
     setUsuario(null)
+    setModoAcesso('entrar')
     setAba('painel')
   }
 
