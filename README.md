@@ -143,8 +143,8 @@ node verificar-tela.mjs http://127.0.0.1:5100 http://localhost:4173 tela
 
 | Variável | Obrigatória | Padrão | Para que serve |
 |---|---|---|---|
-| `BSFM_JWT_SECRET` | **sim** | — (mín. 32 bytes) | assina o token de sessão |
-| `BSFM_HMAC_SECRET` | **sim** | — (mín. 32 bytes) | deriva a chave por sessão; também é o segredo mestre |
+| `BSFM_JWT_SECRET` | recomendada | derivado de `DATABASE_URL` | assina o token de sessão |
+| `BSFM_HMAC_SECRET` | recomendada | derivado de `DATABASE_URL` | deriva a chave por sessão; é o segredo mestre |
 | `DATABASE_URL` | **sim em produção** | SQLite local | Postgres (Neon/Railway) |
 | `PORT` | sim (Render injeta) | `5100` | porta HTTP |
 | `BREVO_API_KEY` | **sim em produção** | vazio | envio do código de verificação por e-mail (sem ela, o código só aparece no log) |
@@ -158,6 +158,16 @@ node verificar-tela.mjs http://127.0.0.1:5100 http://localhost:4173 tela
 
 > No `render.yaml`, `BSFM_JWT_SECRET` e `BSFM_HMAC_SECRET` usam `generateValue: true`:
 > o Render gera e mantém. Não é preciso criá-las à mão.
+
+> **Resolução dos segredos.** O serviço não cai se `BSFM_JWT_SECRET`/`BSFM_HMAC_SECRET`
+> não estiverem configurados: ele deriva os dois de `DATABASE_URL` com HKDF-SHA256 e
+> registra um aviso no log. A derivação é determinística, então as sessões sobrevivem a
+> reinícios. Sem `DATABASE_URL`, os segredos são aleatórios por processo e cada restart
+> encerra as sessões. Não existe valor fixo no código — seria público e permitiria forjar
+> tokens.
+>
+> Definir as variáveis explicitamente é o caminho recomendado: permite rotação planejada
+> sem depender da senha do banco.
 
 ### v1 (legado)
 

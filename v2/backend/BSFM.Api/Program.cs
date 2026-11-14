@@ -32,25 +32,16 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{porta}");
 // ---------------------------------------------------------------------------
 string Segredo(string nome, string padrao) => Environment.GetEnvironmentVariable(nome) ?? padrao;
 
-var segredoJwt = Segredo("BSFM_JWT_SECRET", "dev-jwt-secret-com-no-minimo-32-bytes-para-hmac!");
-var segredoHmac = Segredo("BSFM_HMAC_SECRET", "dev-hmac-secret-com-no-minimo-32-bytes-aqui!!");
+// Segredos: variável de ambiente > derivação de DATABASE_URL > aleatório.
+// Nunca há valor público fixo: isso permitiria forjar token e assinatura.
+var segredos = BSFM.Api.Servicos.SegredosDeExecucao.Resolver(
+    builder.Environment.IsProduction(),
+    Environment.GetEnvironmentVariable(BSFM.Api.Servicos.SegredosDeExecucao.VariavelJwt),
+    Environment.GetEnvironmentVariable(BSFM.Api.Servicos.SegredosDeExecucao.VariavelHmac),
+    Environment.GetEnvironmentVariable("DATABASE_URL"));
 
-// Trava de produção: os padrões acima são públicos (estão no código). Subir em
-// produção com eles permitiria forjar token e assinatura. Falhar aqui é melhor
-// que servir tráfego com segredo conhecido.
-if (builder.Environment.IsProduction())
-{
-    var faltando = new List<string>();
-    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("BSFM_JWT_SECRET"))) faltando.Add("BSFM_JWT_SECRET");
-    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("BSFM_HMAC_SECRET"))) faltando.Add("BSFM_HMAC_SECRET");
-
-    if (faltando.Count > 0)
-    {
-        throw new InvalidOperationException(
-            $"Produção sem segredo configurado: {string.Join(", ", faltando)}. " +
-            "Defina as variáveis no serviço (no Render, use generateValue: true) e reinicie.");
-    }
-}
+var segredoJwt = segredos.Jwt;
+var segredoHmac = segredos.Hmac;
 
 builder.Services.AddSingleton(new EmissorSessao(segredoJwt));
 builder.Services.AddSingleton(new SegredoMestre(segredoHmac));
@@ -143,6 +134,10 @@ builder.Services.AddCors(o => o.AddPolicy("Site", p => p
     .AllowCredentials()));
 
 var app = builder.Build();
+
+// Avisos sobre segredos aparecem no log do serviço, não derrubam o processo.
+foreach (var aviso in segredos.Avisos)
+    app.Logger.LogWarning("{AvisoSegredo}", aviso);
 
 // Erros padronizados antes de tudo que pode falhar.
 app.UseTratamentoErros();
