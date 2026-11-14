@@ -17,6 +17,18 @@ export function GraficoLinha({ pontos = [], unidade = '', cor = 'var(--acento)',
     )
   }
 
+  // Com um único ponto não existe linha: mostrar o valor é mais honesto que
+  // desenhar uma reta horizontal com mínimo e máximo iguais.
+  if (pontos.length === 1) {
+    const unico = pontos[0]
+    return (
+      <div className="grafico-ponto">
+        <strong>{numero(unico.valor)}{unidade ? ` ${unidade === 'peso' ? 'kg' : ''}` : ''}</strong>
+        <span>{pontoLabel(unico)} · primeiro registro</span>
+      </div>
+    )
+  }
+
   const largura = 560
   const margem = { topo: 12, base: 22, esq: 34, dir: 12 }
   const valores = pontos.map((p) => p.valor)

@@ -958,14 +958,16 @@ function Perfil({ usuario, aoSair, avisar, instalar, podeInstalar, instalado, te
 function Metas({ avisar }) {
   const [meta, setMeta] = useState(null)
   const [historico, setHistorico] = useState([])
+  const [evolucao, setEvolucao] = useState(null)
   const [form, setForm] = useState({ caloriasAlvo: '', proteinasAlvo: '', aguaAlvoMl: '', pesoAlvo: '' })
   const [salvando, setSalvando] = useState(false)
 
   const carregar = useCallback(async () => {
     try {
-      const [atual, lista] = await Promise.all([api.metas(), api.metasHistorico()])
+      const [atual, lista, evo] = await Promise.all([api.metas(), api.metasHistorico(), api.evolucao()])
       setMeta(atual)
       setHistorico(lista ?? [])
+      setEvolucao(evo)
       setForm({
         caloriasAlvo: Math.round(atual.caloriasAlvo ?? 0),
         proteinasAlvo: Math.round(atual.proteinasAlvo ?? 0),
@@ -1026,6 +1028,25 @@ function Metas({ avisar }) {
         <div className="rodape-cartao">{numero(meta?.percentualCalorico, 1)}% da meta calórica de hoje</div>
       </div>
 
+      <div className="grade grade-2" style={{ marginBottom: 14 }}>
+        <div className="cartao">
+          <div className="cartao-titulo">Evolução do peso</div>
+          <GraficoLinha
+            pontos={(evolucao?.serie ?? []).map((p) => ({ data: p.data, valor: p.peso }))}
+            unidade="peso"
+            altura={160}
+          />
+        </div>
+        <div className="cartao">
+          <div className="cartao-titulo">Evolução do IMC</div>
+          <GraficoLinha
+            pontos={(evolucao?.serie ?? []).map((p) => ({ data: p.data, valor: p.imc }))}
+            unidade="imc"
+            cor="var(--info)"
+            altura={160}
+          />
+        </div>
+      </div>
       <form className="cartao" onSubmit={salvar} style={{ marginBottom: 14 }}>
         <div className="cartao-titulo">Definir nova meta</div>
         <div className="linha-campos">
