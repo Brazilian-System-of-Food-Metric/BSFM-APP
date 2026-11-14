@@ -124,7 +124,7 @@ builder.Services.AddControllers()
 
 // CORS explícito: apenas as origens declaradas. Substitui o AllowAnyOrigin.
 var origens = (Environment.GetEnvironmentVariable("BSFM_ORIGENS_PERMITIDAS")
-        ?? "http://localhost:5173,http://127.0.0.1:5173,http://127.0.0.1:5100")
+        ?? "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173,http://127.0.0.1:5100")
     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 builder.Services.AddCors(o => o.AddPolicy("Site", p => p

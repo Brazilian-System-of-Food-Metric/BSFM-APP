@@ -1408,6 +1408,7 @@ function Planos({ avisar }) {
     try {
       const dados = await api.refeicoes()
       setItens(dados.itens ?? [])
+      setConcluidas(dados.concluidas ?? 0)
       setCalorias(dados.caloriasSemana ?? 0)
     } catch (falha) {
       avisar(falha instanceof ErroApi ? falha.message : 'Falha ao carregar os planos.', 'erro')

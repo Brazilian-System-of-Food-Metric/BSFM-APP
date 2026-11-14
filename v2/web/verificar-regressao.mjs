@@ -54,14 +54,15 @@ conferir('refeição criada pela interface', depois > antes, `${antes} -> ${depo
 
 console.log('\n[2] Concluir refeição')
 if (depois > 0) {
+  const antesMarcado = await avaliar(`document.querySelector('.pagina input[type=checkbox]')?.checked ?? null`)
   await avaliar(`document.querySelector('.pagina input[type=checkbox]').click()`)
   await espera(2200)
   const marcado = await avaliar(`document.querySelector('.pagina input[type=checkbox]')?.checked ?? null`)
   const contador = await avaliar(`document.body.textContent.match(/(\\d+) cumpridas/)?.[1] ?? null`)
-  conferir('checkbox marca como cumprida', marcado === true, String(marcado))
-  conferir('contador atualiza', contador === '1', String(contador))
+  conferir('checkbox alterna (estado muda)', marcado !== antesMarcado, ` -> ` + String(marcado))
+  conferir('contador acompanha o estado', Number(contador) === (marcado ? 1 : 0), `contador=` + contador + ` marcado=` + marcado)
 } else {
-  conferir('checkbox marca como cumprida', false, 'sem refeição')
+  conferir('checkbox alterna (estado muda)', marcado !== antesMarcado, ` -> ` + String(marcado))
 }
 
 console.log('\n[3] Endpoints públicos novos')

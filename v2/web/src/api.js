@@ -165,6 +165,7 @@ export const api = {
 
   criarRefeicao: (dados) => requisitar('POST', '/api/eu/refeicoes', dados),
 
+  concluirRefeicao: (id, concluida) => requisitar('PUT', '/api/eu/refeicoes/' + id + '/concluir', { concluida }),
   removerRefeicao: (id) => requisitar('DELETE', `/api/eu/refeicoes/${id}`),
 
   resumo: () => requisitar('GET', '/api/eu/analises/resumo'),
