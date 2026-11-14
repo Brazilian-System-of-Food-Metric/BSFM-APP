@@ -1,4 +1,6 @@
 using System.Net.Mime;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Text.Json;
 
 namespace BSFM.Api.Middleware;
@@ -46,6 +48,9 @@ public sealed class TratamentoErrosMiddleware
 
             contexto.Response.Clear();
             contexto.Response.StatusCode = status;
+
+            if (status == 503)
+                contexto.Response.Headers.RetryAfter = "5";
             contexto.Response.ContentType = MediaTypeNames.Application.ProblemJson;
 
             var problema = new
@@ -61,14 +66,34 @@ public sealed class TratamentoErrosMiddleware
         }
     }
 
-    private static (int Status, string Codigo, string Titulo) Classificar(Exception excecao) => excecao switch
+    private static (int Status, string Codigo, string Titulo) Classificar(Exception excecao)
     {
-        ArgumentException => (400, "requisicao_invalida", "Requisição inválida"),
-        UnauthorizedAccessException => (403, "acesso_negado", "Acesso negado"),
-        KeyNotFoundException => (404, "nao_encontrado", "Recurso não encontrado"),
-        // Detalhe de banco nunca vai para o cliente (pode conter SQL e nomes de coluna).
-        _ => (500, "erro_interno", "Erro interno"),
-    };
+        // Qualquer falha de banco na cadeia vira 503: o EF pode embrulhar a
+        // NpgsqlException em RetryLimitExceededException/InvalidOperationException.
+        if (FalhaDeBanco(excecao))
+            return (503, "banco_indisponivel", "Serviço temporariamente indisponível");
+
+        return excecao switch
+        {
+            ArgumentException => (400, "requisicao_invalida", "Requisição inválida"),
+            UnauthorizedAccessException => (403, "acesso_negado", "Acesso negado"),
+            KeyNotFoundException => (404, "nao_encontrado", "Recurso não encontrado"),
+            // Detalhe de banco nunca vai para o cliente (pode conter SQL e nomes de coluna).
+            _ => (500, "erro_interno", "Erro interno"),
+        };
+    }
+
+    private static bool FalhaDeBanco(Exception? excecao)
+    {
+        for (var atual = excecao; atual is not null; atual = atual.InnerException)
+        {
+            if (atual is NpgsqlException or DbUpdateException or TimeoutException) return true;
+            if (atual.GetType().FullName?.StartsWith("Npgsql.", StringComparison.Ordinal) == true) return true;
+            if (atual.GetType().Name is "RetryLimitExceededException") return true;
+        }
+
+        return false;
+    }
 }
 
 public static class TratamentoErrosExtensao

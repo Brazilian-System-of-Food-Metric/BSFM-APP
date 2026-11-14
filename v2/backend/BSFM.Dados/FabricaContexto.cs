@@ -60,7 +60,13 @@ public static class FabricaContexto
         }
         else
         {
-            opcoes.UseNpgsql(ConverterUrlPostgres(urlBanco));
+            opcoes.UseNpgsql(ConverterUrlPostgres(urlBanco), npgsql =>
+            {
+                // Neon suspende a instância e derruba conexões ociosas. Sem retry, a
+                // primeira consulta depois da pausa falha com EndOfStream.
+                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+                npgsql.CommandTimeout(30);
+            });
         }
 
         return new BsfmDbContext(opcoes.Options);
@@ -89,7 +95,8 @@ public static class FabricaContexto
              + $"Database={uri.AbsolutePath.TrimStart('/')};"
              + $"SSL Mode={ssl};"
              + "Trust Server Certificate=true;"
-             + "Pooling=true;Maximum Pool Size=20;Minimum Pool Size=2;"
+             + "Pooling=true;Maximum Pool Size=20;"
+             + "Connection Idle Lifetime=30;Keepalive=30;"
              + "Timeout=15;Command Timeout=30;";
     }
 }

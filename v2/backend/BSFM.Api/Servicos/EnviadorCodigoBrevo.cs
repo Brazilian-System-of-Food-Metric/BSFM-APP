@@ -62,8 +62,27 @@ public sealed class EnviadorCodigoBrevo : IEnviadorCodigo
             }
 
             var erro = await resposta.Content.ReadAsStringAsync(ct);
-            _log.LogError("Brevo recusou o envio para {Email}: {Status} {Erro}",
-                Mascarar(email), (int)resposta.StatusCode, erro);
+            var dica = (int)resposta.StatusCode switch
+            {
+                401 => "chave BREVO_API_KEY inválida ou revogada",
+                400 when erro.Contains("sender", StringComparison.OrdinalIgnoreCase) =>
+                    $"remetente '{_remetenteEmail}' não verificado no Brevo (valide o e-mail/domínio em Senders)",
+                400 => "payload recusado pelo Brevo",
+                402 => "créditos de envio esgotados na conta Brevo",
+                429 => "limite de envios por segundo atingido",
+                _ => "falha no provedor de e-mail",
+            };
+
+            _log.LogError("Brevo recusou o envio para {Email}: {Status} ({Dica}) {Erro}",
+                Mascarar(email), (int)resposta.StatusCode, dica, erro);
+
+            // Diagnóstico opcional para demonstração: sem isso, um Brevo quebrado
+            // deixa o usuário sem acesso e sem pista nenhuma.
+            if (Environment.GetEnvironmentVariable("BSFM_EMAIL_LOG_CODIGO") == "1")
+            {
+                _log.LogWarning("CÓDIGO DE VERIFICAÇÃO para {Email}: {Codigo} (BSFM_EMAIL_LOG_CODIGO=1)",
+                    Mascarar(email), codigo);
+            }
         }
         catch (Exception excecao) when (excecao is HttpRequestException or TaskCanceledException)
         {
