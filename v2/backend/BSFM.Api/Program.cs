@@ -8,6 +8,12 @@ using BSFM.Dados.Entidades;
 using BSFM.Seguranca;
 using Microsoft.EntityFrameworkCore;
 
+// Sem ASPNETCORE_ENVIRONMENT explícito, o padrão do ASP.NET é Production — o que
+// ativaria a trava de segredo em desenvolvimento. Aqui o padrão é Development;
+// produção só acontece quando alguém declara isso (o Render declara).
+if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+    Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
@@ -28,6 +34,23 @@ string Segredo(string nome, string padrao) => Environment.GetEnvironmentVariable
 
 var segredoJwt = Segredo("BSFM_JWT_SECRET", "dev-jwt-secret-com-no-minimo-32-bytes-para-hmac!");
 var segredoHmac = Segredo("BSFM_HMAC_SECRET", "dev-hmac-secret-com-no-minimo-32-bytes-aqui!!");
+
+// Trava de produção: os padrões acima são públicos (estão no código). Subir em
+// produção com eles permitiria forjar token e assinatura. Falhar aqui é melhor
+// que servir tráfego com segredo conhecido.
+if (builder.Environment.IsProduction())
+{
+    var faltando = new List<string>();
+    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("BSFM_JWT_SECRET"))) faltando.Add("BSFM_JWT_SECRET");
+    if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("BSFM_HMAC_SECRET"))) faltando.Add("BSFM_HMAC_SECRET");
+
+    if (faltando.Count > 0)
+    {
+        throw new InvalidOperationException(
+            $"Produção sem segredo configurado: {string.Join(", ", faltando)}. " +
+            "Defina as variáveis no serviço (no Render, use generateValue: true) e reinicie.");
+    }
+}
 
 builder.Services.AddSingleton(new EmissorSessao(segredoJwt));
 builder.Services.AddSingleton(new SegredoMestre(segredoHmac));
