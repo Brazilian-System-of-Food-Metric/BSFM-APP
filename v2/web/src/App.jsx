@@ -5,6 +5,7 @@ import Landing from './Landing.jsx'
 import Recuperar from './Recuperar.jsx'
 import Rotulo from './Rotulo.jsx'
 import Prescricao from './Prescricao.jsx'
+import Camera from './Camera.jsx'
 
 /* ==========================================================================
    BSFM — interface
@@ -658,6 +659,31 @@ function Analisar({ avisar, aoRegistrar }) {
     }
   }
 
+  async function analisarBase64(base64) {
+    setAnalisandoFoto(true)
+    try {
+      const resultado = await api.analisarImagem(base64, gramas)
+      const nome = resultado?.alimento?.nome
+      if (!nome) {
+        avisar('Não foi possível identificar o alimento na imagem.', 'erro')
+        return
+      }
+      setEscolhido({ nome, grupo: resultado.alimento.grupo ?? 'Foto', por100g: resultado.porcao })
+      avisar(`Reconhecido: ${nome}`)
+    } catch (falha) {
+      const motivo = falha?.corpo?.motivo
+      avisar(
+        motivo === 'provedor_de_visao_indisponivel' || falha?.status === 503
+          ? 'Reconhecimento por imagem desligado no servidor. Use a busca por nome.'
+          : falha instanceof ErroApi
+            ? falha.message
+            : 'Falha ao analisar a imagem.',
+        'erro',
+      )
+    } finally {
+      setAnalisandoFoto(false)
+    }
+  }
   async function registrar() {
     if (!escolhido) return
     setSalvando(true)
@@ -743,6 +769,9 @@ function Analisar({ avisar, aoRegistrar }) {
             style={{ marginTop: 10 }}
             aria-label="Enviar foto do prato"
           />
+          <div style={{ marginTop: 12 }}>
+            <Camera aoCapturar={analisarBase64} avisar={avisar} />
+          </div>
           {analisandoFoto && <div className="rodape-cartao" style={{ marginTop: 8 }}>Analisando a imagem…</div>}
         </div>
       )}
@@ -824,6 +853,7 @@ function Analisar({ avisar, aoRegistrar }) {
 /* ----------------------------------------------------------------- diário --- */
 
 function Diario({ avisar, versao }) {
+  const [paraPlano, setParaPlano] = useState(null)
   const [feedbacks, setFeedbacks] = useState({})
 
   async function pedirFeedback(item) {
@@ -925,6 +955,13 @@ function Diario({ avisar, versao }) {
                     >
                       Feedback
                     </button>
+                    <button
+                      className="btn btn-fantasma btn-mini"
+                      style={{ marginTop: 6, marginLeft: 6 }}
+                      onClick={() => setParaPlano(paraPlano === item.id ? null : item.id)}
+                    >
+                      Plano
+                    </button>
                   </div>
                   {feedbacks[item.id] && (
                     <p className="rodape-cartao" style={{ flexBasis: '100%', margin: 0, display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -936,7 +973,39 @@ function Diario({ avisar, versao }) {
                       </span>
                       <span>{feedbacks[item.id].dicas?.[0] ?? feedbacks[item.id].mensagem}</span>
                     </p>
-                  )}                </li>
+                  )}                                  {paraPlano === item.id && (
+                    <form
+                      className="campo-agua"
+                      style={{ flexBasis: '100%', marginTop: 8 }}
+                      onSubmit={async (e) => {
+                        e.preventDefault()
+                        try {
+                          await api.criarRefeicao({
+                            diaSemana: e.target.diaPlano.value,
+                            tipoRefeicao: e.target.tipoPlano.value,
+                            nomePrato: item.alimento,
+                            calorias: item.calorias ?? 0,
+                          })
+                          avisar(`${item.alimento} salvo no plano de ${e.target.diaPlano.value}`)
+                          setParaPlano(null)
+                        } catch {
+                          avisar('Não foi possível salvar no plano.', 'erro')
+                        }
+                      }}
+                    >
+                      <select name="diaPlano" defaultValue="Segunda" aria-label="Dia do plano">
+                        {['Segunda','Terca','Quarta','Quinta','Sexta','Sabado','Domingo'].map((d) => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                      </select>
+                      <select name="tipoPlano" defaultValue="Almoco" aria-label="Tipo de refeição">
+                        {['Cafe','Almoco','Jantar','Lanche'].map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                      <button className="btn btn-fantasma btn-mini" type="submit">Salvar</button>
+                    </form>
+                  )}</li>
               ))}
             </ul>
           </section>

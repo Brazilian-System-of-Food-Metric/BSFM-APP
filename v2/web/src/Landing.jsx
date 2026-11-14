@@ -184,11 +184,20 @@ export default function Landing({ aoEntrar, aoCriarConta, instalar, podeInstalar
 
         <section className="bloco">
           <h2>Status do projeto</h2>
-          <p>
-            Aplicação web e mobile em produção, com autenticação assinada por sessão, banco
-            versionado e catálogo nutricional próprio. O reconhecimento por imagem é opcional e
-            depende de uma chave de visão configurada no servidor.
-          </p>
+          <table className="tabela">
+            <thead>
+              <tr><th>Módulo</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Cadastro, login e recuperação de senha</td><td><span className="tag tag-ok">pronto</span></td></tr>
+              <tr><td>Catálogo TACO (582 alimentos)</td><td><span className="tag tag-ok">pronto</span></td></tr>
+              <tr><td>Análise por nome, foto e rótulo</td><td><span className="tag tag-ok">pronto</span></td></tr>
+              <tr><td>Diário, metas, planos e hidratação</td><td><span className="tag tag-ok">pronto</span></td></tr>
+              <tr><td>Aplicativo instalável (PWA)</td><td><span className="tag tag-ok">pronto</span></td></tr>
+              <tr><td>Mapa de unidades de saúde</td><td><span className="tag">em desenvolvimento</span></td></tr>
+              <tr><td>Reconhecimento por imagem com IA</td><td><span className="tag">requer chave no servidor</span></td></tr>
+            </tbody>
+          </table>
         </section>
 
         <section id="documentacao" className="bloco">
