@@ -126,6 +126,19 @@ export const api = {
 
   cadastrar: (dados) => requisitar('POST', '/api/auth/cadastrar', dados, { autenticado: false }),
 
+  esqueciSenha: (email) =>
+    requisitar('POST', '/api/auth/esqueci-senha', { email }, { autenticado: false }),
+
+  redefinirSenha: (email, codigo, novaSenha) =>
+    requisitar('POST', '/api/auth/redefinir-senha', { email, codigo, novaSenha }, { autenticado: false }),
+
+  lerRotulo: (texto) =>
+    requisitar('POST', '/api/nutricao/rotulo', { texto }, { autenticado: false }),
+
+  registrarAnaliseManual: (dados) => requisitar('POST', '/api/eu/analises', dados),
+
+  aguaSemanal: () => requisitar('GET', '/api/eu/agua/semanal'),
+
   verificarEmail: (email, codigo) =>
     requisitar('POST', '/api/auth/verificar-email', { email, codigo }, { autenticado: false }),
 

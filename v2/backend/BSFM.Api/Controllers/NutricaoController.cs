@@ -120,6 +120,47 @@ public sealed class NutricaoController : ControllerBase
     }
 
     // -----------------------------------------------------------------------
+    /// <summary>
+    /// Interpreta o texto de um rótulo nutricional já extraído por OCR no cliente.
+    ///
+    /// O cliente faz o OCR (Tesseract.js) e envia o texto; o servidor normaliza a
+    /// porção para 100 g e devolve os campos que conseguiu ler. Quando faltam
+    /// campos, a confiança cai e o app pede confirmação — nada é inventado.
+    /// </summary>
+    [HttpPost("rotulo")]
+    public IActionResult Rotulo([FromBody] RotuloEntrada entrada)
+    {
+        if (string.IsNullOrWhiteSpace(entrada.Texto) || entrada.Texto!.Length < 10)
+            return BadRequest(new { erro = "texto_ausente" });
+
+        var leitura = LeitorRotulo.Ler(entrada.Texto);
+
+        if (leitura.Confianca == 0)
+            return UnprocessableEntity(new
+            {
+                erro = "rotulo_nao_interpretado",
+                mensagem = "Não encontramos valores nutricionais no texto. Tente uma foto mais nítida.",
+            });
+
+        return Ok(new
+        {
+            porcaoBaseG = leitura.GramasDaPorcao,
+            confianca = leitura.Confianca,
+            campos = leitura.CamposEncontrados,
+            aviso = leitura.Aviso,
+            por100g = new
+            {
+                kcal = leitura.Kcal,
+                proteina = leitura.Proteina,
+                carboidrato = leitura.Carboidrato,
+                gordura = leitura.Gordura,
+                fibra = leitura.Fibra,
+                sodio = leitura.Sodio,
+            },
+        });
+    }
+
+    // -----------------------------------------------------------------------
     [HttpGet("provedor")]
     public IActionResult Provedor()
         => Ok(new
@@ -182,3 +223,5 @@ public sealed class NutricaoController : ControllerBase
 public sealed record PorNomeEntrada(string? Nome, double? Gramas);
 
 public sealed record PorImagemEntrada(string? ImagemBase64, string? Dica, double? Gramas);
+
+public sealed record RotuloEntrada(string? Texto);

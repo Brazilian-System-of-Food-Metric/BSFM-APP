@@ -263,6 +263,43 @@ else
         porNomeTaco.Alimento?.Nome ?? "nada");
 }
 
+
+// ---------------------------------------------------------------------------
+Console.WriteLine("\n[10] Leitor de rotulo (OCR -> nutrientes)");
+// ---------------------------------------------------------------------------
+var rotuloPadrao = LeitorRotulo.Ler(
+    "INFORMACAO NUTRICIONAL Porcao de 30 g (2 colheres) Valor energetico 120 kcal " +
+    "Carboidratos 18 g Proteinas 3 g Gorduras totais 4 g Fibra alimentar 1 g Sodio 150 mg");
+
+Verificar("le a porcao de 30 g", rotuloPadrao.GramasDaPorcao == 30, $"{rotuloPadrao.GramasDaPorcao}");
+Verificar("normaliza kcal para 100 g (400)", Perto(rotuloPadrao.Kcal ?? 0, 400), $"{rotuloPadrao.Kcal}");
+Verificar("normaliza proteina (10 g)", Perto(rotuloPadrao.Proteina ?? 0, 10), $"{rotuloPadrao.Proteina}");
+Verificar("normaliza carboidrato (60 g)", Perto(rotuloPadrao.Carboidrato ?? 0, 60), $"{rotuloPadrao.Carboidrato}");
+Verificar("normaliza gordura (13.33 g)", Perto(rotuloPadrao.Gordura ?? 0, 13.33, 0.02), $"{rotuloPadrao.Gordura}");
+Verificar("normaliza sodio (500 mg)", Perto(rotuloPadrao.Sodio ?? 0, 500), $"{rotuloPadrao.Sodio}");
+Verificar("confianca cheia", Perto(rotuloPadrao.Confianca, 1.0), $"{rotuloPadrao.Confianca}");
+
+var rotuloCem = LeitorRotulo.Ler("Porcao 100 g: energia 250 kcal, proteinas 8 g, carboidratos 40 g, gorduras 7 g");
+Verificar("porcao 100 g mantem os valores", Perto(rotuloCem.Kcal ?? 0, 250) && Perto(rotuloCem.Proteina ?? 0, 8),
+    $"kcal={rotuloCem.Kcal} prot={rotuloCem.Proteina}");
+
+var rotuloVirgula = LeitorRotulo.Ler("Porcao 50 g energia 100 kcal proteinas 2,5 g carboidratos 20,5 g gorduras 1,2 g");
+Verificar("aceita virgula decimal", Perto(rotuloVirgula.Proteina ?? 0, 5) && Perto(rotuloVirgula.Carboidrato ?? 0, 41),
+    $"prot={rotuloVirgula.Proteina} carbo={rotuloVirgula.Carboidrato}");
+
+var semValores = LeitorRotulo.Ler("Ingredientes: farinha de trigo, acucar, sal.");
+Verificar("texto sem tabela nao inventa valor",
+    semValores.Confianca == 0 && semValores.Kcal is null, $"conf={semValores.Confianca}");
+
+var soCalorias = LeitorRotulo.Ler("Valor energetico 90 kcal");
+Verificar("so kcal reduz a confianca", Perto(soCalorias.Confianca, 0.25) && soCalorias.Proteina is null,
+    $"conf={soCalorias.Confianca}");
+
+Verificar("texto vazio e recusado", LeitorRotulo.Ler("").Confianca == 0);
+
+var semPorcao = LeitorRotulo.Ler("Energia 100 kcal Proteinas 5 g Carboidratos 10 g Gorduras 2 g");
+Verificar("sem porcao assume 100 g e avisa",
+    semPorcao.GramasDaPorcao == 100 && semPorcao.Aviso == "porcao_nao_identificada_assumido_100g", semPorcao.Aviso);
 Console.WriteLine($"\n================  {passou} PASS / {falhou} FAIL  ================");
 return falhou == 0 ? 0 : 1;
 

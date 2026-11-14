@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { api, ErroApi, sessao } from './api.js'
+import { GraficoBarras, GraficoLinha } from './Graficos.jsx'
 import Landing from './Landing.jsx'
+import Recuperar from './Recuperar.jsx'
+import Rotulo from './Rotulo.jsx'
 
 /* ==========================================================================
    BSFM — interface
@@ -40,6 +43,8 @@ const Icones = {
   agua: (p) => <Traco {...p} d="M12 2.7s6 6.3 6 10.3a6 6 0 0 1-12 0c0-4 6-10.3 6-10.3Z" />,
   mais: (p) => <Traco {...p} d="M12 5v14M5 12h14" />,
   voltar: (p) => <Traco {...p} d="m15 18-6-6 6-6" />,
+  foto: (p) => <Traco {...p} d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Zm9 9a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />,
+  rotulo: (p) => <Traco {...p} d="M4 4h16v16H4z M8 9h8M8 13h5" />,
   planos: (p) => <Traco {...p} d="M8 2v4m8-4v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />,
   metas: (p) => <Traco {...p} d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0-3a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />,
 }
@@ -77,7 +82,7 @@ function useTema() {
 
 /* ---------------------------------------------------------------- entrada --- */
 
-function Acesso({ aoEntrar, modoInicial = 'entrar', aoVoltarSite, instalar, podeInstalar, instalado }) {
+function Acesso({ aoEntrar, aoRecuperar, modoInicial = 'entrar', aoVoltarSite, instalar, podeInstalar, instalado }) {
   const [modo, setModo] = useState(modoInicial)
   const [erro, setErro] = useState('')
   const [carregando, setCarregando] = useState(false)
@@ -201,6 +206,9 @@ function Acesso({ aoEntrar, modoInicial = 'entrar', aoVoltarSite, instalar, pode
             </div>
             <button className="btn btn-bloco" type="submit" disabled={carregando}>
               {carregando ? 'Entrando…' : 'Entrar'}
+            </button>
+            <button type="button" className="link-esqueci" onClick={aoRecuperar}>
+              Esqueci minha senha
             </button>
             <button type="button" className="btn btn-fantasma btn-bloco" style={{ marginTop: 10 }} onClick={() => { setErro(''); setModo('cadastro') }}>
               Criar conta
@@ -349,14 +357,15 @@ function Painel({ irPara, avisar, aoAtualizar }) {
   const carregar = useCallback(async () => {
     setCarregando(true)
     try {
-      const [perfil, metas, resumo, agua, evolucao] = await Promise.all([
+      const [perfil, metas, resumo, agua, semanaAgua, evolucao] = await Promise.all([
         api.perfil(),
         api.metas(),
         api.resumo(),
         api.aguaHoje(),
+        api.aguaSemanal(),
         api.evolucao(),
       ])
-      setDados({ perfil, metas, resumo, agua, evolucao })
+      setDados({ perfil, metas, resumo, agua, semanaAgua, evolucao })
     } catch (falha) {
       avisar(falha instanceof ErroApi ? falha.message : 'Falha ao carregar o painel.', 'erro')
     } finally {
@@ -439,6 +448,30 @@ function Painel({ irPara, avisar, aoAtualizar }) {
             <button className="btn btn-fantasma btn-mini" onClick={() => adicionarAgua(250)}>+250 ml</button>
             <button className="btn btn-fantasma btn-mini" onClick={() => adicionarAgua(500)}>+500 ml</button>
           </div>
+          <form
+            className="campo-agua"
+            onSubmit={(e) => {
+              e.preventDefault()
+              const valor = Number(e.target.ml.value)
+              if (valor > 0) adicionarAgua(valor)
+              e.target.reset()
+            }}
+          >
+            <input name="ml" type="number" min="1" max="5000" placeholder="Outro valor (ml)" aria-label="Quantidade em mililitros" />
+            <button className="btn btn-fantasma btn-mini" type="submit">Registrar</button>
+          </form>
+          {((dados?.semanaAgua?.serie ?? dados?.semanaAgua?.dias) ?? []).length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <GraficoBarras
+                barras={((dados.semanaAgua.serie ?? dados.semanaAgua.dias) ?? []).map((d) => ({
+                  rotulo: new Date(d.data).toLocaleDateString('pt-BR', { weekday: 'narrow' }),
+                  valor: d.total ?? d.totalMl ?? d.ml ?? 0,
+                }))}
+                meta={dados?.agua?.metaMl ?? 0}
+                altura={90}
+              />
+            </div>
+          )}
         </div>
 
         <div className="cartao">
@@ -459,6 +492,9 @@ function Painel({ irPara, avisar, aoAtualizar }) {
 
       <div className="cartao">
         <div className="cartao-titulo">Evolução</div>
+        {(dados?.evolucao?.serie ?? []).length > 0 && (
+          <GraficoLinha pontos={(dados.evolucao.serie ?? []).map((p) => ({ data: p.data, valor: p.peso }))} unidade="peso" />
+        )}
         {(dados?.evolucao?.serie ?? []).length === 0 ? (
           <div className="vazio">
             <strong>Sem histórico ainda</strong>
@@ -485,6 +521,7 @@ function Painel({ irPara, avisar, aoAtualizar }) {
 /* --------------------------------------------------------------- analisar --- */
 
 function Analisar({ avisar, aoRegistrar }) {
+  const [modo, setModo] = useState('buscar')
   const [consulta, setConsulta] = useState('')
   const [resultados, setResultados] = useState([])
   const [buscando, setBuscando] = useState(false)
@@ -534,7 +571,6 @@ function Analisar({ avisar, aoRegistrar }) {
     }
   }, [escolhido, gramas])
 
-  // Envia a imagem ao servidor; quem decide se reconhece é o provedor de visão.
   async function enviarFoto(evento) {
     const arquivo = evento.target.files?.[0]
     if (!arquivo) return
@@ -594,52 +630,81 @@ function Analisar({ avisar, aoRegistrar }) {
     }
   }
 
+  const abas = [
+    ['buscar', 'Buscar', Icones.analisar],
+    ['foto', 'Foto', Icones.foto],
+    ['rotulo', 'Rótulo', Icones.rotulo],
+  ]
+
   return (
-    <div className="pagina" style={{ maxWidth: 720 }}>
-      <div className="cartao" style={{ marginBottom: 14 }}>
-        <div className="cartao-titulo">Analisar por foto</div>
-        <p className="rodape-cartao" style={{ marginTop: 0 }}>
-          Envie a foto do prato. O servidor identifica o alimento e calcula os nutrientes.
-        </p>
-        <input
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          onChange={enviarFoto}
-          disabled={analisandoFoto}
-          style={{ marginTop: 10 }}
-          aria-label="Enviar foto do prato"
-        />
-        {analisandoFoto && <div className="rodape-cartao" style={{ marginTop: 8 }}>Analisando a imagem…</div>}
+    <div className="pagina" style={{ maxWidth: 760 }}>
+      <div className="segmentos" role="tablist" aria-label="Modo de análise">
+        {abas.map(([id, rotulo, Icone]) => (
+          <button
+            key={id}
+            role="tab"
+            aria-selected={modo === id}
+            className={`segmento${modo === id ? ' ativo' : ''}`}
+            onClick={() => setModo(id)}
+          >
+            <Icone tamanho={17} />
+            {rotulo}
+          </button>
+        ))}
       </div>
 
-      <div className="busca">
-        <span className="busca-icone"><Icones.analisar tamanho={18} /></span>
-        <input
-          type="search"
-          placeholder="Buscar alimento: arroz, feijão, frango…"
-          value={consulta}
-          onChange={(e) => {
-            setConsulta(e.target.value)
-            setEscolhido(null)
-          }}
-          aria-label="Buscar alimento"
-        />
+      {modo === 'buscar' && (
+        <>
+          <div className="busca">
+            <span className="busca-icone"><Icones.analisar tamanho={18} /></span>
+            <input
+              type="search"
+              placeholder="Buscar alimento: arroz, feijão, frango…"
+              value={consulta}
+              onChange={(e) => {
+                setConsulta(e.target.value)
+                setEscolhido(null)
+              }}
+              aria-label="Buscar alimento"
+            />
 
-        {resultados.length > 0 && !escolhido && (
-          <div className="sugestoes" role="listbox">
-            {resultados.map((item) => (
-              <button key={item.nome} className="sugestao" role="option" onClick={() => setEscolhido(item)}>
-                <span>{item.nome}</span>
-                <span className="kcal">{numero(item.por100g?.kcal)} kcal/100 g</span>
-              </button>
-            ))}
+            {resultados.length > 0 && !escolhido && (
+              <div className="sugestoes" role="listbox">
+                {resultados.map((item) => (
+                  <button key={item.nome} className="sugestao" role="option" onClick={() => setEscolhido(item)}>
+                    <span>{item.nome}</span>
+                    <span className="kcal">{numero(item.por100g?.kcal)} kcal/100 g</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {buscando && <div className="rodape-cartao" style={{ marginBottom: 12 }}>Buscando…</div>}
+          {buscando && <div className="rodape-cartao" style={{ marginBottom: 12 }}>Buscando…</div>}
+        </>
+      )}
 
-      {escolhido ? (
+      {modo === 'foto' && (
+        <div className="cartao" style={{ marginBottom: 14 }}>
+          <div className="cartao-titulo">Analisar por foto do prato</div>
+          <p className="rodape-cartao" style={{ marginTop: 0 }}>
+            Envie a foto. O servidor identifica o alimento e calcula os nutrientes.
+          </p>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={enviarFoto}
+            disabled={analisandoFoto}
+            style={{ marginTop: 10 }}
+            aria-label="Enviar foto do prato"
+          />
+          {analisandoFoto && <div className="rodape-cartao" style={{ marginTop: 8 }}>Analisando a imagem…</div>}
+        </div>
+      )}
+
+      {modo === 'rotulo' && <Rotulo avisar={avisar} aoRegistrar={aoRegistrar} />}
+
+      {modo !== 'rotulo' && (escolhido ? (
         <div className="cartao">
           <div className="cartao-titulo">Confirmar registro</div>
 
@@ -670,6 +735,13 @@ function Analisar({ avisar, aoRegistrar }) {
                 <Icones.mais tamanho={16} />
               </button>
             </div>
+            <div className="acoes" style={{ marginTop: 10 }}>
+              {[50, 100, 150, 200].map((porcao) => (
+                <button key={porcao} className="btn btn-fantasma btn-mini" onClick={() => setGramas(porcao)}>
+                  {porcao} g
+                </button>
+              ))}
+            </div>
           </div>
 
           {previa?.porcao && (
@@ -697,9 +769,9 @@ function Analisar({ avisar, aoRegistrar }) {
       ) : (
         <div className="vazio">
           <strong>O que você comeu?</strong>
-          Digite o nome do alimento. O servidor calcula os nutrientes pela tabela TACO.
+          Digite o nome do alimento ou envie uma foto. O servidor calcula os nutrientes.
         </div>
-      )}
+      ))}
     </div>
   )
 }
@@ -1190,6 +1262,10 @@ function App() {
   if (!usuario && !sessao.ativa) {
     // Landing pública primeiro: é a porta de entrada do projeto, com o botão de
     // instalar. Só quem escolhe "Entrar"/"Criar conta" vê o formulário.
+    if (rota === 'recuperar') {
+      return <Recuperar aoVoltar={() => setRota('entrar')} aoEntrar={() => setRota('entrar')} />
+    }
+
     if (rota === 'landing') {
       return (
         <Landing
@@ -1207,6 +1283,7 @@ function App() {
         modoInicial={rota}
         aoEntrar={setUsuario}
         aoVoltarSite={() => setRota('landing')}
+        aoRecuperar={() => setRota('recuperar')}
         instalar={instalar}
         podeInstalar={Boolean(convite)}
         instalado={instalado}
