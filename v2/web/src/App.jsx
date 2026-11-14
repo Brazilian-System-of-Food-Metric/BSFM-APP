@@ -410,6 +410,15 @@ function Painel({ irPara, avisar, aoAtualizar }) {
 
   return (
     <div className="pagina">
+      {dados?.perfil?.diabetes === 'Não informado' && !dados?.perfil?.intolerancia && (
+        <div className="cartao" style={{ marginBottom: 14, borderColor: 'color-mix(in srgb, var(--aviso) 45%, transparent)' }}>
+          <div className="cartao-titulo">Perfil de saúde incompleto</div>
+          <p className="rodape-cartao" style={{ marginTop: 0 }}>
+            Informe diabetes e intolerâncias para receber recomendações adequadas.
+          </p>
+          <button className="btn btn-mini" onClick={() => irPara('perfil')}>Completar agora</button>
+        </div>
+      )}
       <div className="cartao" style={{ marginBottom: 14 }}>
         <div className="destaque">
           <Donut
