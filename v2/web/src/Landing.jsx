@@ -130,7 +130,7 @@ export default function Landing({
     <div className="landing">
       <header className="landing-topo">
         <a className="landing-marca" href="#topo" aria-label="BSFM — início">
-          <div className="marca-simbolo">BS</div>
+          <img src="/icons/logo-bsfm.png" alt="BSFM" className="marca-logo" />
           <div className="marca-texto">
             <span className="marca-nome">BSFM</span>
             <span className="marca-tag">Brazilian System of Food Metric</span>
@@ -481,7 +481,7 @@ export default function Landing({
 
       <footer className="landing-rodape">
         <div className="landing-rodape-marca">
-          <div className="marca-simbolo">BS</div>
+          <img src="/icons/logo-bsfm.png" alt="BSFM" className="marca-logo" />
           <div>
             <strong>BSFM</strong>
             <span>Brazilian System of Food Metric</span>

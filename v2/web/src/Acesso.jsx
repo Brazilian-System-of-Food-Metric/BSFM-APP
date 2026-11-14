@@ -184,7 +184,7 @@ export default function Acesso({
     <div className="acesso">
       <aside className="acesso-lado">
         <div className="marca marca-clara">
-          <div className="marca-simbolo">BS</div>
+          <img src="/icons/logo-bsfm.png" alt="BSFM" className="marca-logo" />
           <div className="marca-texto">
             <span className="marca-nome">BSFM</span>
             <span className="marca-tag">Brazilian System of Food Metric</span>
@@ -224,7 +224,7 @@ export default function Acesso({
 
         <form className="cartao-acesso" onSubmit={enviar}>
           <div className="acesso-marca-mobile marca">
-            <div className="marca-simbolo">BS</div>
+            <img src="/icons/logo-bsfm.png" alt="BSFM" className="marca-logo" />
             <div className="marca-texto">
               <span className="marca-nome">BSFM</span>
               <span className="marca-tag">Métricas nutricionais</span>

@@ -58,11 +58,14 @@ public sealed class SaudeController : ControllerBase
         var u = await _db.Usuarios.SingleOrDefaultAsync(x => x.ID == UsuarioId, ct);
         if (u is null) return NotFound(new { erro = "usuario_inexistente" });
 
-        if (entrada.Peso is <= 0 or > 500)
+        if (entrada.Peso is { } peso && (!double.IsFinite(peso) || peso <= 0 || peso > 500))
             return BadRequest(new { erro = "peso_invalido" });
 
-        if (entrada.Altura is <= 0 or > 3)
+        if (entrada.Altura is { } altura && (!double.IsFinite(altura) || altura <= 0 || altura > 3))
             return BadRequest(new { erro = "altura_invalida" });
+
+        if (entrada.PesoMeta is { } metaPeso && (!double.IsFinite(metaPeso) || metaPeso <= 0 || metaPeso > 500))
+            return BadRequest(new { erro = "peso_meta_invalido" });
 
         var agora = DateTime.UtcNow;
         var pesoAnterior = u.Peso;

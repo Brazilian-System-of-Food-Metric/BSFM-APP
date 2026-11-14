@@ -98,14 +98,22 @@ public sealed class AnalisesController : ControllerBase
         if (nome.Length < 2 || nome.Length > 200)
             return BadRequest(new { erro = "alimento_invalido" });
 
-        if (entrada.Calorias is < 0 or > 5000)
+        if (entrada.Calorias is { } calorias && (!double.IsFinite(calorias) || calorias < 0 || calorias > 5000))
             return BadRequest(new { erro = "calorias_invalidas" });
 
-        if (entrada.Proteinas is < 0 or > 500 || entrada.Carbos is < 0 or > 500
-            || entrada.Gorduras is < 0 or > 500)
+        if (entrada.Proteinas is { } proteinas && (!double.IsFinite(proteinas) || proteinas < 0 || proteinas > 500))
             return BadRequest(new { erro = "macros_invalidos" });
 
-        if (entrada.Confianca is < 0 or > 1)
+        if (entrada.Carbos is { } carbos && (!double.IsFinite(carbos) || carbos < 0 || carbos > 500))
+            return BadRequest(new { erro = "macros_invalidos" });
+
+        if (entrada.Gorduras is { } gorduras && (!double.IsFinite(gorduras) || gorduras < 0 || gorduras > 500))
+            return BadRequest(new { erro = "macros_invalidos" });
+
+        if (entrada.Fibra is { } fibra && (!double.IsFinite(fibra) || fibra < 0 || fibra > 500))
+            return BadRequest(new { erro = "macros_invalidos" });
+
+        if (entrada.Confianca is { } confianca && (!double.IsFinite(confianca) || confianca < 0 || confianca > 1))
             return BadRequest(new { erro = "confianca_invalida" });
 
         if (entrada.PontuacaoSaude is < 0 or > 10)
@@ -249,11 +257,19 @@ public sealed class AnalisesController : ControllerBase
     [HttpPost("avaliar")]
     public async Task<IActionResult> AvaliarRefeicao([FromBody] AvaliacaoEntrada entrada, CancellationToken ct)
     {
-        if (entrada.Kcal is < 0 or > 5000
-            || entrada.Proteinas is < 0 or > 500
-            || entrada.Carbos is < 0 or > 500
-            || entrada.Gorduras is < 0 or > 500
-            || entrada.Fibra is < 0 or > 500)
+        if (entrada.Kcal is { } kcal && (!double.IsFinite(kcal) || kcal < 0 || kcal > 5000))
+            return BadRequest(new { erro = "valores_invalidos" });
+
+        if (entrada.Proteinas is { } proteinas && (!double.IsFinite(proteinas) || proteinas < 0 || proteinas > 500))
+            return BadRequest(new { erro = "valores_invalidos" });
+
+        if (entrada.Carbos is { } carbos && (!double.IsFinite(carbos) || carbos < 0 || carbos > 500))
+            return BadRequest(new { erro = "valores_invalidos" });
+
+        if (entrada.Gorduras is { } gorduras && (!double.IsFinite(gorduras) || gorduras < 0 || gorduras > 500))
+            return BadRequest(new { erro = "valores_invalidos" });
+
+        if (entrada.Fibra is { } fibra && (!double.IsFinite(fibra) || fibra < 0 || fibra > 500))
             return BadRequest(new { erro = "valores_invalidos" });
 
         var contexto = await ContextoAsync(ct);

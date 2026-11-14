@@ -1769,3 +1769,17 @@ strong, b { font-weight: 680; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }
+/* Logo real da marca (PNG do projeto) no lugar do antigo bloco "BS". */
+.marca-logo {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #fff;
+  padding: 3px;
+}
+
+@media (min-width: 960px) {
+  .marca-logo { width: 44px; height: 44px; }
+}

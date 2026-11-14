@@ -61,7 +61,7 @@ const GRUPOS = [
 function TelaCarregando() {
   return (
     <div className="tela-carregando">
-      <div className="marca-simbolo">BS</div>
+      <img src="/icons/logo-bsfm.png" alt="BSFM" className="marca-logo" />
       <div className="carregando-barra"><span /></div>
       <p>Carregando seu painel…</p>
     </div>
@@ -71,7 +71,18 @@ function TelaCarregando() {
 export default function App() {
   const [usuario, setUsuario] = useState(null)
   const [carregandoSessao, setCarregandoSessao] = useState(() => sessao.ativa)
-  const [rota, setRota] = useState(() => (sessao.ativa ? 'app' : 'landing'))
+  // No app instalado (PWA em tela cheia) a landing não faz sentido: o usuário já
+  // decidiu instalar. Vai direto para o login — ou para o app, se houver sessão.
+  // ?app=1 forca o modo aplicativo (atalhos e testes sem instalar).
+  const emModoApp = typeof window !== 'undefined' &&
+    (window.matchMedia?.('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true ||
+      new URLSearchParams(window.location.search).has('app'))
+
+  const [rota, setRota] = useState(() => {
+    if (sessao.ativa) return 'app'
+    return emModoApp ? 'entrar' : 'landing'
+  })
   const [aba, setAba] = useState('painel')
   const [versao, setVersao] = useState(0)
   const [mensagem, setMensagem] = useState(null)
@@ -206,7 +217,7 @@ export default function App() {
     <div className="app">
       <aside className="sidebar">
         <button className="marca marca-botao" onClick={() => setAba('painel')} aria-label="Ir para o painel">
-          <div className="marca-simbolo">BS</div>
+          <img src="/icons/logo-bsfm.png" alt="BSFM" className="marca-logo" />
           <div className="marca-texto">
             <span className="marca-nome">BSFM</span>
             <span className="marca-tag">Nutrição</span>
@@ -267,7 +278,7 @@ export default function App() {
       <div className="conteudo">
         <header className="topo">
           <div className="topo-marca">
-            <div className="marca-simbolo">BS</div>
+            <img src="/icons/logo-bsfm.png" alt="BSFM" className="marca-logo" />
             <span className="marca-nome">BSFM</span>
           </div>
 

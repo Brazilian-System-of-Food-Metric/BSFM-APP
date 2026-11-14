@@ -9,12 +9,14 @@ public static class CalculadoraNutricional
 {
     public static double CalcularImc(double pesoKg, double alturaMetros)
     {
+        if (!double.IsFinite(pesoKg) || !double.IsFinite(alturaMetros)) return 0;
         if (alturaMetros <= 0 || pesoKg <= 0) return 0;
         return Math.Round(pesoKg / (alturaMetros * alturaMetros), 2);
     }
 
     public static double CalcularTmb(string sexo, double pesoKg, double alturaMetros, int idade)
     {
+        if (!double.IsFinite(pesoKg) || !double.IsFinite(alturaMetros)) return 0;
         if (pesoKg <= 0 || alturaMetros <= 0 || idade <= 0) return 0;
 
         var alturaCm = alturaMetros * 100;
@@ -28,6 +30,8 @@ public static class CalculadoraNutricional
 
     public static double CalcularGastoTotal(string nivelAtividade, double tmb)
     {
+        if (!double.IsFinite(tmb)) return 0;
+
         var nivel = (nivelAtividade ?? string.Empty).Trim().ToLowerInvariant();
 
         var fator = nivel switch
@@ -44,7 +48,7 @@ public static class CalculadoraNutricional
     /// <summary>Classificação de IMC usada pela OMS.</summary>
     public static string ClassificarImc(double imc) => imc switch
     {
-        <= 0 => "Não calculado",
+        _ when !double.IsFinite(imc) || imc <= 0 => "Não calculado",
         < 18.5 => "Abaixo do peso",
         < 25 => "Peso adequado",
         < 30 => "Sobrepeso",
@@ -55,5 +59,5 @@ public static class CalculadoraNutricional
 
     /// <summary>Meta de água: 35 ml por kg, mínimo de 1,5 L.</summary>
     public static double CalcularAguaAlvoMl(double pesoKg)
-        => Math.Max(1500, Math.Round(pesoKg * 35, 0));
+        => !double.IsFinite(pesoKg) || pesoKg <= 0 ? 1500 : Math.Max(1500, Math.Round(pesoKg * 35, 0));
 }

@@ -35,7 +35,7 @@ public sealed class AguaController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Registrar([FromBody] AguaEntrada entrada, CancellationToken ct)
     {
-        if (entrada.Ml is null or <= 0 or > MaximoPorRegistro)
+        if (entrada.Ml is not { } ml || !double.IsFinite(ml) || ml <= 0 || ml > MaximoPorRegistro)
             return BadRequest(new { erro = "quantidade_invalida" });
 
         var agora = DateTime.UtcNow;

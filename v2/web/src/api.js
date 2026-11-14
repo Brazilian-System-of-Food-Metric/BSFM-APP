@@ -9,35 +9,68 @@
 const CHAVE_TOKEN = 'bsfm.token'
 const CHAVE_REFRESH = 'bsfm.refresh'
 const CHAVE_ASSINATURA = 'bsfm.chave'
+const CHAVE_EXPIRA = 'bsfm.expira'
+
+// Persistência: a sessão vive em localStorage para o usuário não precisar entrar
+// de novo a cada vez que abre o app. O token de acesso é curto; quem mantém a
+// sessão viva é o refresh, que rotaciona a cada uso no servidor.
+//
+// Contrapartida conhecida: um script malicioso na mesma origem conseguiria ler
+// essas chaves. Por isso a chave HMAC é de sessão (não serve para outro
+// dispositivo) e o refresh é de uso único — se for usado duas vezes, a sessão é
+// revogada no servidor.
+const armazem = window.localStorage
+
+// Migração silenciosa de quem já usava sessionStorage.
+try {
+  const antigo = window.sessionStorage.getItem(CHAVE_TOKEN)
+  if (antigo && !armazem.getItem(CHAVE_TOKEN)) {
+    for (const k of [CHAVE_TOKEN, CHAVE_REFRESH, CHAVE_ASSINATURA, CHAVE_EXPIRA]) {
+      const valor = window.sessionStorage.getItem(k)
+      if (valor) armazem.setItem(k, valor)
+    }
+    window.sessionStorage.clear()
+  }
+} catch {
+  /* modo restrito: segue sem migrar */
+}
 
 export const sessao = {
   get token() {
-    return sessionStorage.getItem(CHAVE_TOKEN)
+    return armazem.getItem(CHAVE_TOKEN)
   },
   get refreshToken() {
-    return sessionStorage.getItem(CHAVE_REFRESH)
+    return armazem.getItem(CHAVE_REFRESH)
   },
   get chave() {
-    return sessionStorage.getItem(CHAVE_ASSINATURA)
+    return armazem.getItem(CHAVE_ASSINATURA)
+  },
+  get expiraEm() {
+    return Number(armazem.getItem(CHAVE_EXPIRA) ?? 0)
   },
   definir({ token, refreshToken, chaveAssinatura, expiraEmSegundos }) {
-    if (token) sessionStorage.setItem(CHAVE_TOKEN, token)
-    if (refreshToken) sessionStorage.setItem(CHAVE_REFRESH, refreshToken)
-    if (chaveAssinatura) sessionStorage.setItem(CHAVE_ASSINATURA, chaveAssinatura)
+    if (token) armazem.setItem(CHAVE_TOKEN, token)
+    if (refreshToken) armazem.setItem(CHAVE_REFRESH, refreshToken)
+    if (chaveAssinatura) armazem.setItem(CHAVE_ASSINATURA, chaveAssinatura)
     if (expiraEmSegundos) {
-      sessionStorage.setItem('bsfm.expira', String(Date.now() + expiraEmSegundos * 1000))
+      armazem.setItem(CHAVE_EXPIRA, String(Date.now() + expiraEmSegundos * 1000))
     }
   },
   limpar() {
-    for (const k of [CHAVE_TOKEN, CHAVE_REFRESH, CHAVE_ASSINATURA, 'bsfm.expira']) {
-      sessionStorage.removeItem(k)
+    for (const k of [CHAVE_TOKEN, CHAVE_REFRESH, CHAVE_ASSINATURA, CHAVE_EXPIRA]) {
+      armazem.removeItem(k)
+      try {
+        window.sessionStorage.removeItem(k)
+      } catch {
+        /* ignora */
+      }
     }
   },
+  /** Há sessão recuperável? Basta o refresh — o acesso é renovado sozinho. */
   get ativa() {
-    return Boolean(this.token && this.chave)
+    return Boolean(this.chave && (this.token || this.refreshToken))
   },
 }
-
 function base64UrlParaBytes(texto) {
   const normalizado = texto.replace(/-/g, '+').replace(/_/g, '/')
   const comPadding = normalizado + '='.repeat((4 - (normalizado.length % 4)) % 4)
@@ -156,7 +189,14 @@ async function requisitar(metodo, caminho, corpo = null, { autenticado = true, t
   if (!resposta.ok) {
     const mensagem =
       conteudo?.mensagem ?? conteudo?.erro ?? conteudo?.title ?? `Falha na requisição (${resposta.status})`
-    throw new ErroApi(mensagem, resposta.status, conteudo)
+    // Em 400/5xx a rota é a informação que falta para diagnosticar. Só nesses
+    // casos o texto ganha o sufixo, para não poluir erros de formulário.
+    const rota = caminho.split('?')[0]
+    const texto =
+      resposta.status >= 500 || mensagem === 'Requisição inválida'
+        ? `${mensagem} (${resposta.status} em ${rota})`
+        : mensagem
+    throw new ErroApi(texto, resposta.status, conteudo)
   }
 
   return conteudo

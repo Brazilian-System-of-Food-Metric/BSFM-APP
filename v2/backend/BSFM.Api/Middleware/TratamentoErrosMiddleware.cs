@@ -43,7 +43,6 @@ public sealed class TratamentoErrosMiddleware
 
             _log.LogError(excecao, "Falha não tratada em {Metodo} {Rota}",
                 contexto.Request.Method, contexto.Request.Path);
-
             var (status, codigo, titulo) = Classificar(excecao);
 
             contexto.Response.Clear();
@@ -63,6 +62,14 @@ public sealed class TratamentoErrosMiddleware
             };
 
             await contexto.Response.WriteAsync(JsonSerializer.Serialize(problema));
+        }
+
+        // Diagnóstico: um 400 de controller não gera exceção e, sem esta linha,
+        // fica invisível no log. A rota é o que identifica a tela com problema.
+        if (contexto.Response.StatusCode == StatusCodes.Status400BadRequest)
+        {
+            _log.LogWarning("400 em {Metodo} {Rota}{Query}",
+                contexto.Request.Method, contexto.Request.Path, contexto.Request.QueryString.Value);
         }
     }
 

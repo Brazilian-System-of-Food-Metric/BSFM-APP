@@ -67,16 +67,16 @@ public sealed class MetasController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Definir([FromBody] MetaEntrada entrada, CancellationToken ct)
     {
-        if (entrada.CaloriasAlvo is <= 0 or > 10000)
+        if (entrada.CaloriasAlvo is { } calorias && (!double.IsFinite(calorias) || calorias <= 0 || calorias > 10000))
             return BadRequest(new { erro = "calorias_alvo_invalidas" });
 
-        if (entrada.ProteinasAlvo is < 0 or > 1000)
+        if (entrada.ProteinasAlvo is { } proteinas && (!double.IsFinite(proteinas) || proteinas < 0 || proteinas > 1000))
             return BadRequest(new { erro = "proteinas_alvo_invalidas" });
 
-        if (entrada.AguaAlvoMl is < 0 or > 10000)
+        if (entrada.AguaAlvoMl is { } agua && (!double.IsFinite(agua) || agua < 0 || agua > 10000))
             return BadRequest(new { erro = "agua_alvo_invalida" });
 
-        if (entrada.PesoAlvo is <= 0 or > 500)
+        if (entrada.PesoAlvo is { } pesoAlvo && (!double.IsFinite(pesoAlvo) || pesoAlvo <= 0 || pesoAlvo > 500))
             return BadRequest(new { erro = "peso_alvo_invalido" });
 
         var usuario = await _db.Usuarios.SingleOrDefaultAsync(u => u.ID == UsuarioId, ct);

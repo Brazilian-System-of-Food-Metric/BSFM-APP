@@ -55,7 +55,7 @@ export default function Recuperar({ aoVoltar, aoEntrar }) {
       <main className="acesso-painel">
         <form className="cartao-acesso" onSubmit={etapa === 'email' ? pedirCodigo : redefinir}>
           <div className="marca">
-            <div className="marca-simbolo">BS</div>
+            <img src="/icons/logo-bsfm.png" alt="BSFM" className="marca-logo" />
             <div className="marca-texto">
               <span className="marca-nome">BSFM</span>
               <span className="marca-tag">Recuperar acesso</span>

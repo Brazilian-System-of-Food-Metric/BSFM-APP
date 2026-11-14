@@ -298,10 +298,10 @@ public sealed class AuthController : ControllerBase
         if (entrada.AceitouTermos != true)
             return BadRequest(new { erro = "termos_nao_aceitos" });
 
-        if (entrada.Peso is <= 0 or > 500)
+        if (entrada.Peso is { } peso && (!double.IsFinite(peso) || peso <= 0 || peso > 500))
             return BadRequest(new { erro = "peso_invalido" });
 
-        if (entrada.Altura is <= 0 or > 3)
+        if (entrada.Altura is { } altura && (!double.IsFinite(altura) || altura <= 0 || altura > 3))
             return BadRequest(new { erro = "altura_invalida" });
 
         var existente = await _db.Usuarios.AnyAsync(u => u.Email.ToLower() == email, ct);

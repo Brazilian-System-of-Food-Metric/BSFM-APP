@@ -118,6 +118,10 @@ builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
         o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        // Banco migrado da v1 pode ter Infinity/NaN em IMC/TMB. Sem isto, o
+        // serializador lança ArgumentException e a tela recebe 400.
+        o.JsonSerializerOptions.Converters.Add(new BSFM.Api.Json.DoubleFinitoConverter());
+        o.JsonSerializerOptions.Converters.Add(new BSFM.Api.Json.DoubleNullableFinitoConverter());
     });
 
 // CORS explícito: apenas as origens declaradas. Substitui o AllowAnyOrigin.
