@@ -41,8 +41,8 @@ services:
     runtime: docker
     region: ohio
     plan: free
-    dockerfilePath: ./v2/Dockerfile
-    dockerContext: ./v2
+    # Dockerfile na raiz: caminho padrão do Render, sem dockerContext.
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /saude
     autoDeploy: true
     envVars:

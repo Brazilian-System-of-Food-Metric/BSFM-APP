@@ -8,3 +8,12 @@ createRoot(document.getElementById('root')).render(
     <App />
   </React.StrictMode>,
 )
+
+// Service worker: só em produção. Em desenvolvimento ele atrapalharia o HMR.
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js', { scope: '/' })
+      .catch((erro) => console.warn('Falha ao registrar o service worker:', erro))
+  })
+}

@@ -29,4 +29,16 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <!--
+      A v2 vive em v2/ com seus próprios projetos. Sem esta exclusão, o SDK
+      globa **/*.cs a partir da raiz e o build da v1 tenta compilar os arquivos
+      da v2 — erro CS8802 (mais de um arquivo com top-level statements).
+    -->
+    <Compile Remove="v2/**/*.cs" />
+    <Content Remove="v2/**" />
+    <None Remove="v2/**" />
+    <EmbeddedResource Remove="v2/**" />
+  </ItemGroup>
+
 </Project>

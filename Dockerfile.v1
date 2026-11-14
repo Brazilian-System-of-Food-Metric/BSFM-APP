@@ -1,0 +1,17 @@
+# Dockerfile da aplicação v1 (legado, .NET 8, YOLO/OCR).
+# O deploy padrão da v1 no Render usa `runtime: dotnet`, não Docker.
+# Este arquivo existe para builds manuais da v1:
+#   docker build -f Dockerfile.v1 -t bsfm-v1 .
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+COPY MeusApp.csproj ./
+RUN dotnet restore
+COPY . ./
+RUN dotnet publish -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+RUN apt-get update && apt-get install -y libc6-dev libgdiplus libx11-dev && rm -rf /var/lib/apt/lists/*
+COPY --from=build /app/out .
+EXPOSE 10000
+ENTRYPOINT ["./MeusApp"]

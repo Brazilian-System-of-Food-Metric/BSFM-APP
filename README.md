@@ -18,6 +18,29 @@ para migração gradual.
 
 ---
 
+## Aplicativo instalável (PWA)
+
+A v2 é instalável no celular e no desktop, com o mesmo código que roda no navegador:
+
+- **desktop** — sidebar fixa, atalhos e tema claro/escuro;
+- **celular** — barra inferior de navegação, alvos de toque de 44 px e área segura (notch);
+- **instalado** — abre em tela cheia, ícone próprio, sem barra do navegador, e o shell
+  continua disponível offline.
+
+O convite de instalação aparece na barra lateral (desktop) e em **Perfil → Aplicativo**
+(celular). Em iOS, use Compartilhar → "Adicionar à Tela de Início".
+
+Arquivos: `v2/web/public/manifest.webmanifest`, `v2/web/public/sw.js` e os ícones em
+`v2/web/public/icons` (os mesmos da identidade da v1).
+
+O service worker **nunca** cacheia `/api/*`: dado de saúde não pode ficar velho nem
+vazar entre sessões.
+
+---
+> **Nota de build:** `MeusApp.csproj` declara `<Compile Remove="v2/**/*.cs" />`.
+> Sem isso, o SDK globa todos os `.cs` a partir da raiz e o build da v1 tenta compilar
+> os arquivos da v2, falhando com `CS8802` (mais de um arquivo com top-level statements).
+> O Dockerfile da v1 continua disponível como `Dockerfile.v1`.
 ## Arquitetura da v2
 
 ```

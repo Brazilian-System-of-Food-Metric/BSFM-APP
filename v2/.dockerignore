@@ -1,9 +1,0 @@
-**/bin/
-**/obj/
-**/.vs/
-**/node_modules/
-**/dist/
-**/*.db
-**/*.db-shm
-**/*.db-wal
-**/*.png

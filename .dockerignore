@@ -1,8 +1,32 @@
+# Só o que a imagem v2 precisa entra no contexto de build.
+# Isso acelera o upload no Render e evita copiar a aplicação v1 inteira.
+
+.git
+.github
+
+# artefatos de build e dependências
 **/bin
 **/obj
-**/.vs
-**/.vscode
 **/node_modules
+**/dist
+**/.vs
+
+# modelos de IA da v1 (21 MB, não usados pela v2)
+*.onnx
+*.onnx*
+Models/
+
+# aplicação v1
+Controllers/
+Services/
+BSFM.CoreAnalytics/
+wwwroot/
+site/
+IMG/
+References/
+
+# ruído
 *.md
-.git
+*.pdf
+LICENSE
 .gitignore
