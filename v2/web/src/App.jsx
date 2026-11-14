@@ -458,6 +458,21 @@ function Painel({ irPara, avisar, aoAtualizar }) {
             <button className="btn btn-fantasma btn-mini" onClick={() => adicionarAgua(250)}>+250 ml</button>
             <button className="btn btn-fantasma btn-mini" onClick={() => adicionarAgua(500)}>+500 ml</button>
           </div>
+          <button
+            className="btn btn-fantasma btn-mini"
+            style={{ marginTop: 8 }}
+            onClick={async () => {
+              try {
+                const r = await api.removerUltimaAgua()
+                setDados((atual) => (atual ? { ...atual, agua: { ...atual.agua, totalMl: r.totalMl ?? 0 } } : atual))
+                avisar('Último registro removido')
+              } catch {
+                avisar('Não há registro para remover.', 'erro')
+              }
+            }}
+          >
+            Desfazer último
+          </button>
           <form
             className="campo-agua"
             onSubmit={(e) => {
@@ -497,6 +512,26 @@ function Painel({ irPara, avisar, aoAtualizar }) {
             meta {numero(dados?.metas?.pesoAlvo, 1)} kg · {variacao > 0 ? '+' : ''}
             {numero(variacao, 1)} kg desde o início
           </div>
+          <form
+            className="campo-agua"
+            style={{ marginTop: 10 }}
+            onSubmit={async (e) => {
+              e.preventDefault()
+              const valor = Number(e.target.pesoNovo.value)
+              if (valor <= 0) return
+              try {
+                await api.atualizarPeso(valor, dados?.perfil?.altura ?? 1.6)
+                avisar('Peso atualizado')
+                carregar()
+              } catch {
+                avisar('Não foi possível atualizar o peso.', 'erro')
+              }
+              e.target.reset()
+            }}
+          >
+            <input name="pesoNovo" type="number" step="0.1" min="1" placeholder="Novo peso (kg)" aria-label="Novo peso em quilos" />
+            <button className="btn btn-fantasma btn-mini" type="submit">Atualizar</button>
+          </form>
         </div>
       </div>
 
@@ -892,11 +927,14 @@ function Diario({ avisar, versao }) {
                     </button>
                   </div>
                   {feedbacks[item.id] && (
-                    <p className="rodape-cartao" style={{ flexBasis: '100%', margin: 0 }}>
-                      <span className={`tag${feedbacks[item.id].classificacao === 'adequado' ? ' tag-ok' : ''}`}>
-                        {feedbacks[item.id].classificacao} · {feedbacks[item.id].pontuacao}/10
-                      </span>{' '}
-                      {feedbacks[item.id].dicas?.[0] ?? feedbacks[item.id].mensagem}
+                    <p className="rodape-cartao" style={{ flexBasis: '100%', margin: 0, display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <span
+                        className="anel"
+                        style={{ ['--p']: `${feedbacks[item.id].pontuacao * 10}%`, ['--cor']: feedbacks[item.id].pontuacao >= 8 ? 'var(--acento)' : feedbacks[item.id].pontuacao >= 5 ? 'var(--aviso)' : 'var(--perigo)' }}
+                      >
+                        {feedbacks[item.id].pontuacao}
+                      </span>
+                      <span>{feedbacks[item.id].dicas?.[0] ?? feedbacks[item.id].mensagem}</span>
                     </p>
                   )}                </li>
               ))}

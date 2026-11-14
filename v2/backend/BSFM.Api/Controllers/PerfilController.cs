@@ -230,7 +230,7 @@ public sealed class PerfilController : ControllerBase
 
     // -----------------------------------------------------------------------
     /// <summary>Perfil de saúde usado pelo feedback alimentar (v1 chamava de "alerta pendente").</summary>
-    [HttpPut("saude")]
+    [HttpPut("perfil/saude")]
     public async Task<IActionResult> AtualizarSaude([FromBody] SaudePerfilEntrada entrada, CancellationToken ct)
     {
         var diabetes = (entrada.Diabetes ?? "Não informado").Trim();

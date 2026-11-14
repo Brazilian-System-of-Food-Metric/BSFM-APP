@@ -143,6 +143,10 @@ export const api = {
 
   aguaSemanal: () => requisitar('GET', '/api/eu/agua/semanal'),
 
+  removerUltimaAgua: () => requisitar('DELETE', '/api/eu/agua/ultimo'),
+
+  atualizarPeso: (peso, altura) => requisitar('PUT', '/api/eu/saude', { peso, altura }),
+
   verificarEmail: (email, codigo) =>
     requisitar('POST', '/api/auth/verificar-email', { email, codigo }, { autenticado: false }),
 
@@ -191,7 +195,7 @@ export const api = {
 
   definirNascimento: (dataNascimento) => requisitar('PUT', '/api/eu/nascimento', { dataNascimento }),
 
-  atualizarSaude: (diabetes, intolerancia) => requisitar('PUT', '/api/eu/saude', { diabetes, intolerancia }),
+  atualizarSaude: (diabetes, intolerancia) => requisitar('PUT', '/api/eu/perfil/saude', { diabetes, intolerancia }),
 
   sessoes: () => requisitar('GET', '/api/eu/sessoes'),
 }
