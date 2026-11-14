@@ -5,7 +5,7 @@ import Landing from './Landing.jsx'
 import Recuperar from './Recuperar.jsx'
 import Rotulo from './Rotulo.jsx'
 import Prescricao from './Prescricao.jsx'
-import Camera from './Camera.jsx'
+import CapturaMidia from './CapturaMidia.jsx'
 import Mapa from './Mapa.jsx'
 
 /* ==========================================================================
@@ -685,6 +685,16 @@ function Analisar({ avisar, aoRegistrar }) {
       setAnalisandoFoto(false)
     }
   }
+  async function analisarArquivo(arquivo) {
+    const base64 = await new Promise((resolver, rejeitar) => {
+      const leitor = new FileReader()
+      leitor.onload = () => resolver(String(leitor.result).split(",")[1])
+      leitor.onerror = rejeitar
+      leitor.readAsDataURL(arquivo)
+    })
+    await analisarBase64(base64)
+  }
+
   async function registrar() {
     if (!escolhido) return
     setSalvando(true)
@@ -758,25 +768,22 @@ function Analisar({ avisar, aoRegistrar }) {
 
       {modo === 'foto' && (
         <div className="cartao" style={{ marginBottom: 14 }}>
-          <div className="cartao-titulo">Analisar por foto do prato</div>
+          <div className="cartao-titulo">Foto do prato</div>
           <p className="rodape-cartao" style={{ marginTop: 0 }}>
-            Envie a foto. O servidor identifica o alimento e calcula os nutrientes.
+            O servidor identifica o alimento e calcula os nutrientes da porção.
           </p>
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={enviarFoto}
-            disabled={analisandoFoto}
-            style={{ marginTop: 10 }}
-            aria-label="Enviar foto do prato"
+          <CapturaMidia
+            titulo="Fotografar o prato"
+            descricao="Vista de cima, com o prato inteiro no enquadramento."
+            rotuloArquivo="Escolher foto"
+            aoArquivo={analisarArquivo}
+            aoBase64={analisarBase64}
+            avisar={avisar}
+            processando={analisandoFoto}
+            textoProcessando="Analisando a imagem…"
           />
-          <div style={{ marginTop: 12 }}>
-            <Camera aoCapturar={analisarBase64} avisar={avisar} />
-          </div>
-          {analisandoFoto && <div className="rodape-cartao" style={{ marginTop: 8 }}>Analisando a imagem…</div>}
         </div>
       )}
-
       {modo === 'rotulo' && <Rotulo avisar={avisar} aoRegistrar={aoRegistrar} />}
 
       {modo !== 'rotulo' && (escolhido ? (

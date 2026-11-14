@@ -37,3 +37,10 @@ export async function lerTexto(arquivo, aoProgredir = () => {}) {
 
   return (resultado?.data?.text ?? '').trim()
 }
+/** Converte o base64 devolvido pela câmera em Blob, para o OCR aceitar igual a um arquivo. */
+export function base64ParaBlob(base64, tipo = 'image/jpeg') {
+  const binario = atob(base64)
+  const bytes = new Uint8Array(binario.length)
+  for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i)
+  return new Blob([bytes], { type: tipo })
+}

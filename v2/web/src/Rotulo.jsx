@@ -1,5 +1,7 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { ErroApi, api } from './api.js'
+import CapturaMidia from './CapturaMidia.jsx'
+import { base64ParaBlob } from './ocr.js'
 
 /* ============================================================================
    Análise de rótulo nutricional.
@@ -36,10 +38,8 @@ export default function Rotulo({ avisar, aoRegistrar }) {
   const [leitura, setLeitura] = useState(null)
   const [nome, setNome] = useState('')
   const [salvando, setSalvando] = useState(false)
-  const imagem = useRef(null)
 
-  async function processar(evento) {
-    const arquivo = evento.target.files?.[0]
+  async function processarArquivo(arquivo) {
     if (!arquivo) return
 
     setEtapa('ocr')
@@ -79,7 +79,6 @@ export default function Rotulo({ avisar, aoRegistrar }) {
       }
       setEtapa('captura')
     } finally {
-      if (imagem.current) imagem.current.value = ''
     }
   }
 
@@ -116,17 +115,16 @@ export default function Rotulo({ avisar, aoRegistrar }) {
             O texto é lido no seu aparelho (OCR local). A imagem não é enviada ao servidor —
             só o texto extraído, para o cálculo.
           </p>
-          <input
-            ref={imagem}
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={processar}
-            style={{ marginTop: 12 }}
-            aria-label="Foto do rótulo nutricional"
+          <CapturaMidia
+            titulo="Fotografar o rótulo"
+            descricao="Enquadre a tabela nutricional inteira, com boa luz."
+            rotuloArquivo="Escolher imagem"
+            aoArquivo={processarArquivo}
+            aoBase64={(b) => processarArquivo(base64ParaBlob(b))}
+            avisar={avisar}
           />
         </div>
       )}
-
       {etapa === 'ocr' && (
         <div className="cartao">
           <div className="cartao-titulo">Lendo o rótulo</div>

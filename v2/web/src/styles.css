@@ -1009,3 +1009,95 @@ a { color: var(--acento); }
   height: 100%;
   border: none;
 }
+/* -------------------------------------------------------- zona de captura ---- */
+
+.captura { margin-top: 14px; }
+
+.captura-zona {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 30px 22px;
+  border: 1.5px dashed var(--borda-forte);
+  border-radius: var(--raio-lg);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s;
+}
+.captura-zona:hover { border-color: var(--acento); background: var(--surface-2); }
+.captura-zona.ocupada { border-style: solid; border-color: var(--acento); }
+
+.captura-icone {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  background: var(--acento-suave);
+  color: var(--acento);
+}
+
+.captura-zona strong { font-size: 15.5px; letter-spacing: -0.01em; }
+.captura-descricao { font-size: 13px; color: var(--texto-medio); max-width: 380px; }
+
+.captura-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+.captura-erro {
+  margin-top: 12px;
+  font-size: 12.5px;
+  color: var(--perigo);
+  max-width: 420px;
+}
+
+.camera-painel {
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-lg);
+  overflow: hidden;
+  background: #000;
+}
+
+.camera-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: #000;
+}
+
+.camera-controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--borda);
+}
+
+.camera-disparador {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 3px solid var(--borda-forte);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.camera-disparador span {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--acento);
+  transition: transform 0.1s;
+}
+.camera-disparador:hover { border-color: var(--acento); }
+.camera-disparador:active span { transform: scale(0.92); }
